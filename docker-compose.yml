@@ -1,0 +1,27 @@
+# docker-compose.yml
+version: "3"
+services:
+  app:
+    build: .
+    depends_on:
+      - postgres
+    environment:
+      DATABASE_URL: postgres://dronfies:DronfiesPass@postgres:5432/pgDronfies
+      NODE_ENV: development
+      PORT: 3000
+    ports:
+      - "3000:3000"
+    command: npm run dev
+    volumes:
+      - .:/app/
+      - /app/node_modules
+
+  postgres:
+    image: mdillon/postgis:10 # <- here
+    environment:
+      # - POSTGRES_HOST=dronfiesUss  # default postgres
+      - POSTGRES_PASSWORD=DronfiesPass  # default postgres
+      # all env vars bellow are redundant because they are same as default values
+      # - POSTGRES_PORT=5432
+      - POSTGRES_NAME=pgDronfies
+      - POSTGRES_USER=dronfies
