@@ -19,7 +19,7 @@ export type ConfigureRequestHandler = (agent: SuperAgentRequest) => SuperAgentRe
 export type CallbackHandler = (err: any, res?: request.Response) => void;
 
 {{#definitions}}
-export type {{&name}} = {{#tsType}}{{> type}}{{/tsType}};
+export class {{&name}} {{#tsType}}{{> type}}{{/tsType}};
 
 {{/definitions}}
 
@@ -136,10 +136,14 @@ export class {{&className}} {
         });
     }
 
+//// Methods
+
 {{#methods}}
     {{> method}}
 
 {{/methods}}
 }
+
+//// FIN Methods
 
 export default {{&className}};
