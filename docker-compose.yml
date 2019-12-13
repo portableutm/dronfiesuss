@@ -1,6 +1,5 @@
 version: '3'
 services:
-
   postgres:
     image: mdillon/postgis:10 # <- here
     ports:
@@ -10,4 +9,7 @@ services:
       POSTGRES_PASSWORD: "test"
       POSTGRES_DB: "test"
       POSTGRES_NAME: "test"
+    volumes:
+      - ./scripts:/scripts
+      
 
