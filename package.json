@@ -3,11 +3,16 @@
    "version": "0.0.1",
    "description": "Awesome project developed with TypeORM.",
    "devDependencies": {
+      "@types/mocha": "^5.2.7",
       "@types/node": "^8.0.29",
       "@typescript-eslint/eslint-plugin": "^2.6.1",
       "@typescript-eslint/parser": "^2.6.1",
+      "chai": "^4.2.0",
+      "chai-http": "^4.3.0",
       "eslint-config-xo-typescript": "^0.21.0",
+      "mocha": "^6.2.2",
       "ts-node": "3.3.0",
+      "tsconfig-paths": "^3.9.0",
       "typescript": "3.3.3333",
       "xo": "^0.25.3"
    },
@@ -15,6 +20,7 @@
       "@types/bcryptjs": "^2.4.2",
       "@types/body-parser": "^1.17.1",
       "@types/cors": "^2.8.6",
+      "@types/geojson": "^7946.0.7",
       "@types/helmet": "0.0.45",
       "@types/jsonwebtoken": "^8.3.5",
       "bcryptjs": "^2.4.3",
@@ -34,9 +40,13 @@
    "scripts": {
       "start": "ts-node src/index.ts",
       "generate": "ts-node swaggerFiles/generator.ts",
-      "test": "xo",
+      "test": "mocha 'src/test/**/*.js'",
+      "test-type": "mocha -r ts-node/register 'test/**/*.*'",
       "lint": "xo",
-      "format": "xo --fix"
+      "format": "xo --fix",
+      "typeorm": "ts-node  ./node_modules/typeorm/cli.js",
+      "typeorm:migration:create": "npm run typeorm -- migration:create -n prueba",
+      "typeorm:migration:generate": "npm run typeorm -- migration:generate -n prueba"
    },
    "xo": {
       "prettier": true,
