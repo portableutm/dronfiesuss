@@ -8,8 +8,10 @@ import { OperationDao } from "./daos/OperationDaos";
 import { OperationVolume } from './entities/OperationVolume';
 import { Polygon } from 'geojson';
 
-import { TestEntity  } from "./entities/TestEntity";
-import Test from '../swaggerFiles/test';
+import { UTMMessage } from "./entities/UTMMessage";
+
+// import { TestEntity  } from "./entities/TestEntity";
+// import Test from '../swaggerFiles/test';
 
 export async function initData(connection : Connection){
     let vehicleDao = new VehicleDao();
@@ -112,6 +114,18 @@ export async function initData(connection : Connection){
     operation_volume.beyond_visual_line_of_sight = true
 
     console.log("primera prueba", await opDao.getOperationByVolume(operation_volume))
+
+
+
+    let utmmsg : UTMMessage = new UTMMessage()
+    utmmsg.message_type =  "UNPLANNED_LANDING"
+    utmmsg.discovery_reference = "Dis"
+    utmmsg.uss_name = "Dronfies"
+    connection.manager.save(connection.manager.create("UTMMessage", utmmsg));
+
+    
+    
+    
 
 
     
