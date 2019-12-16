@@ -1,6 +1,8 @@
 import {UserController} from "./restControllers/UserController";
 import {VehicleDao} from "./restControllers/vehicleDao";
 import { OperationController } from "./restControllers/OperationController";
+import { UTMMessageController } from "./restControllers/UtmMessageRestController";
+
 
 const doRoutes = (route: String, Dao: any) => {
     return [{
@@ -34,6 +36,6 @@ let operations = [...doRoutes("operation", OperationController),
     action: "getOperationByPoint"  
 }]
 
-let r = [...doRoutes("user",UserController), ...doRoutes("vehicle", VehicleDao), ...operations];
+let r = [...doRoutes("user",UserController), ...doRoutes("utmmessage", UTMMessageController), ...doRoutes("vehicle", VehicleDao), ...operations];
 
 export const Routes = r;
