@@ -117,11 +117,11 @@ export async function initData(connection : Connection){
 
 
 
-    let utmmsg : UTMMessage = new UTMMessage()
-    utmmsg.message_type =  "UNPLANNED_LANDING"
-    utmmsg.discovery_reference = "Dis"
-    utmmsg.uss_name = "Dronfies"
-    connection.manager.save(connection.manager.create("UTMMessage", utmmsg));
+    // let utmmsg : UTMMessage = new UTMMessage()
+    // utmmsg.message_type =  "UNPLANNED_LANDING"
+    // utmmsg.discovery_reference = "Dis"
+    // utmmsg.uss_name = "Dronfies"
+    // connection.manager.save(connection.manager.create("UTMMessage", utmmsg));
 
     
     
