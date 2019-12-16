@@ -3,6 +3,10 @@ import * as express from 'express';
 import {Request, Response} from "express";
 import { createConnection, Connection, getConnection } from 'typeorm';
 
+import { Server } from "http";
+import * as Io from "socket.io";
+
+
 import {Routes} from "./routes";
 import { initData } from "./databaseInit";
 import { createTypeormConn } from "./databaseConfig";
@@ -12,6 +16,7 @@ class App {
     public port: number;
     public connection: Connection; // TypeORM connection to the database
     public connectionName: string;
+    public io : SocketIO.Server;
 
     // The constructor receives an array with instances of the controllers for the application and an integer to designate the port number.
     constructor(controllers: any[], port: number, connName:string) {
@@ -63,9 +68,36 @@ class App {
 
     // Boots the application
     public listen() {
-        this.app.listen(this.port, () => {
+        // var server = require('http').Server(app);
+        let server = new Server(this.app)
+        // var io = require('socket.io')(server);
+        this.io = Io(server)
+        let io = this.io;
+
+        this.app.get('/', function (req, res) {
+            res.sendFile(__dirname + '/index.html');
+        });
+          
+        
+        // this.app.listen(this.port, () => {
+        //     console.log(`Server running on port ${this.port}`);
+        // });
+
+        server.listen(this.port, () => {
             console.log(`Server running on port ${this.port}`);
         });
+
+        this.io.on('connection', function (socket) {
+            // console.log("Cliente nuevo", socket.json)
+            // socket.emit('news', { hello: 'world' });
+            socket.on('chat message', function (data) {
+                console.log(data);
+                socket.emit('chat message', data)
+                socket.broadcast.emit('chat message', data);
+            });
+        });
+
+
     }
 }
 

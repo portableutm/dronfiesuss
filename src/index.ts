@@ -11,6 +11,5 @@ import { VehicleReg } from "./entities/VehicleReg";
 
 import App from "./app";
 const controllers = [];
-const app = new App(controllers, 3000, "dev");
-
+export const app = new App(controllers, 3000, "dev");
 app.listen();
