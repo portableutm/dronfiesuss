@@ -1,4 +1,4 @@
-// import "reflect-metadata";
+import "reflect-metadata";
 import * as express from 'express';
 import {Request, Response} from "express";
 import { createConnection, Connection, getConnection } from 'typeorm';
@@ -18,30 +18,33 @@ class App {
     public connectionName: string;
     public io : SocketIO.Server;
 
-    // The constructor receives an array with instances of the controllers for the application and an integer to designate the port number.
-    constructor(controllers: any[], port: number, connName:string) {
+    public initedDB : boolean;
+
+    constructor(controllers: any[], port: number, connName:string, callback?:(param?:any)=>void) {
         console.log(`Constructor-> port:${port} connName:${connName}`)
         this.app = express();
         this.port = port;
         this.connectionName = connName;
 
 
-        this.initializeModels();
+        this.initializeModels(callback?callback:()=>{});
         this.initializeMiddlewares();
-        this.initializeControllers(controllers);
+        // this.initializeControllers(controllers);
         
     }
 
-    private async initializeModels() {
-        console.log(`Connection name ${this.connectionName}`)
+    private async initializeModels(callback:()=>any) {
+
+        console.log(`Connection name #${this.connectionName}#`)
         const connection : Connection = await createTypeormConn(this.connectionName);
-        if (connection === undefined) { throw new Error('Error connecting to database'); } // In case the connection failed, the app stops.
+        if (connection === undefined) {
+             throw new Error('Error connecting to database'); 
+        } // In case the connection failed, the app stops.
         connection.synchronize(); // this updates the database schema to match the models' definitions
         this.connection = connection; // Store the connection object in the class instance.
 
        //Pegar aca
-       initData(connection)
-
+       await initData(connection, callback)
     }
 
     // Here we can add all the global middlewares for our application. (Those that will work across every contoller)
@@ -67,7 +70,7 @@ class App {
     }
 
     // Boots the application
-    public listen() {
+    public listen(callback? : (param?:any) => void ) {
         // var server = require('http').Server(app);
         let server = new Server(this.app)
         // var io = require('socket.io')(server);
@@ -85,6 +88,10 @@ class App {
 
         server.listen(this.port, () => {
             console.log(`Server running on port ${this.port}`);
+            if(callback !== undefined){
+                callback();
+            }
+                
         });
 
         this.io.on('connection', function (socket) {
@@ -96,7 +103,7 @@ class App {
                 socket.broadcast.emit('chat message', data);
             });
         });
-
+        
 
     }
 }

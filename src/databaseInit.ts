@@ -13,7 +13,7 @@ import { UTMMessage } from "./entities/UTMMessage";
 // import { TestEntity  } from "./entities/TestEntity";
 // import Test from '../swaggerFiles/test';
 
-export async function initData(connection : Connection){
+export async function initData(connection : Connection, callback?:()=>any){
     let vehicleDao = new VehicleDao();
     const vehicles : VehicleReg[] = await vehicleDao.all();
     if(vehicles.length == 0){
@@ -51,7 +51,7 @@ export async function initData(connection : Connection){
     }
 
     let operations = await connection.manager.find(Operation)
-    console.log(`Operations ${operations.length}`)
+    // console.log(`Operations ${operations.length}`)
     if(operations.length == 0){
         // flight_comments volumes_description flight_number operation_volume
         let op : Operation = new Operation()
@@ -73,8 +73,8 @@ export async function initData(connection : Connection){
         op.operation_volume.beyond_visual_line_of_sight = true
         connection.manager.save(connection.manager.create("Operation", op));
     }
-    operations = await connection.manager.find(Operation);
-    console.log(operations)
+    // operations = await connection.manager.find(Operation);
+    // console.log(operations)
 
     let opDao = new OperationDao();
 
@@ -113,7 +113,9 @@ export async function initData(connection : Connection){
     operation_volume.operation_geography  = polygon
     operation_volume.beyond_visual_line_of_sight = true
 
-    console.log("primera prueba", await opDao.getOperationByVolume(operation_volume))
+    if(callback!==undefined){callback()}
+
+    // console.log("primera prueba", await opDao.getOperationByVolume(operation_volume))
 
 
 
