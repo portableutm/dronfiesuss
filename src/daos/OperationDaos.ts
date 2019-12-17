@@ -5,17 +5,15 @@ import { Operation } from "../entities/Operation";
 import { OperationVolume } from "../entities/OperationVolume";
 
 export class OperationDao {
-
     private repository = getRepository(Operation);
-
-// query que funciona
-// SELECT gufi, flight_comments, ST_AsGeoJSON("operationVolumeOperation_geography")
-// FROM operation o
-// WHERE st_contains("operationVolumeOperation_geography" ,st_geomfromtext('POINT(-56.15444898605347 -34.90696211766489)'))
+    // query que funciona
+    // SELECT gufi, flight_comments, ST_AsGeoJSON("operationVolumeOperation_geography")
+    // FROM operation o
+    // WHERE st_contains("operationVolumeOperation_geography" ,st_geomfromtext('POINT(-56.15444898605347 -34.90696211766489)'))
 
     async getOperationByPoint(point:Point){
-        console.log("*************")
-        console.log(point)
+        // console.log("*************")
+        // console.log(point)
         return this.repository
         .createQueryBuilder()
         .where("st_contains(\"operationVolumeOperation_geography\" ,ST_GeomFromGeoJSON(:origin))")
