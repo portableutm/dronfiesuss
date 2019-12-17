@@ -1,4 +1,4 @@
-import "reflect-metadata";
+// import "reflect-metadata";
 import {createConnection} from "typeorm";
 import * as express from "express";
 import * as bodyParser from "body-parser";
@@ -11,5 +11,12 @@ import { VehicleReg } from "./entities/VehicleReg";
 
 import App from "./app";
 const controllers = [];
-export const app = new App(controllers, 3000, "dev");
-app.listen();
+export let app;
+
+if(process.env.NODE_ENV == "dev"){
+    console.log("DEV env")
+    app = new App(controllers, 3000, "dev");
+    app.listen();
+} else {
+    console.log("Test env")
+}
