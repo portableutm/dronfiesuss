@@ -7,30 +7,34 @@ export class OperationVolume {
     // 'ordinal': number;
     // 'volume_type': "TBOV" | "ABOV";
     // 'near_structure'?: boolean;
-    @Column({type: "timestamp", transformer: {
-      from(value) {
-        console.log('from', value, typeof(value));
-        return value;
-      },
+    @Column({type: "timestamp"
+    // , transformer: {
+    //   from(value) {
+    //     console.log('from', value, typeof(value));
+    //     return value;
+    //   },
 
-      to(value) {
-        console.log('to', value, typeof(value));
-        return value;
-      }
-    }})
+    //   to(value) {
+    //     console.log('to', value, typeof(value));
+    //     return value;
+    //   }
+    // }
+    })
     'effective_time_begin': string;
     
-    @Column({type: "timestamp", transformer: {
-      from(value) {
-        console.log('from', value, typeof(value));
-        return value;
-      },
+    @Column({type: "timestamp"
+    // , transformer: {
+    //   from(value) {
+    //     console.log('from', value, typeof(value));
+    //     return value;
+    //   },
 
-      to(value) {
-        console.log('to', value, typeof(value));
-        return value;
-      }
-    }})
+    //   to(value) {
+    //     console.log('to', value, typeof(value));
+    //     return value;
+    //   }
+    // }
+    })
     'effective_time_end': string;
 
     
