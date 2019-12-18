@@ -22,6 +22,7 @@ export class Operation {
     @Column()
     'flight_number'?: string;
     // 'contact': PersonOrOrganization;
+    @Column()
     'state': "PROPOSED" | "ACCEPTED" | "ACTIVATED" | "CLOSED" | "NONCONFORMING" | "ROGUE";
     'controller_location': Point;
     'gcs_location'?: Point;
