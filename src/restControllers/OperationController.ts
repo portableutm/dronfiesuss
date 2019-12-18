@@ -9,7 +9,9 @@ export class OperationController {
     private dao = new OperationDao()
 
     async all(request: Request, response: Response, next: NextFunction) {
-        return this.dao.all();
+      let state = request.query.state;
+      console.log(`Rest Operation state:${state} ${"laaa"}`)
+      return this.dao.all({state:state});
     }
 
     async one(request: Request, response: Response, next: NextFunction) {
@@ -22,7 +24,11 @@ export class OperationController {
 
     async getOperationByPoint(request: Request, response: Response, next: NextFunction) {
       return this.dao.getOperationByPoint(request.body)
-  }
+    }
+
+    private parseQuery(query: Express.Request) {
+      
+    }
 
     // async remove(request: Request, response: Response, next: NextFunction) {
     //     let userToRemove = await this.userRepository.findOne(request.params.id);

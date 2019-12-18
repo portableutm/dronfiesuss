@@ -45,8 +45,15 @@ export class OperationDao {
         .getMany()
     }
 
-    async all() {
-        return this.repository.find();
+    async all(filterParam:any) {
+        console.log(`OperationDao.all -> ${JSON.stringify(filterParam)}`)
+
+        let filter : any = {}
+        if((filterParam!==undefined) && (filterParam.state !== undefined)){
+            filter.where = { state: filterParam.state}
+        }
+        console.log(`OperationDao.all -> ${JSON.stringify(filter)}`)
+        return this.repository.find(filter);
     }
 
     async one(id : string) {

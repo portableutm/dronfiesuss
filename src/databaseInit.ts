@@ -7,11 +7,7 @@ import { VehicleReg } from "./entities/VehicleReg";
 import { OperationDao } from "./daos/OperationDaos";
 import { OperationVolume } from './entities/OperationVolume';
 import { Polygon } from 'geojson';
-
 import { UTMMessage } from "./entities/UTMMessage";
-
-// import { TestEntity  } from "./entities/TestEntity";
-// import Test from '../swaggerFiles/test';
 
 export async function initData(connection : Connection, callback?:()=>any){
     let vehicleDao = new VehicleDao();
@@ -53,18 +49,16 @@ export async function initData(connection : Connection, callback?:()=>any){
     let operations = await connection.manager.find(Operation)
     // console.log(`Operations ${operations.length}`)
     if(operations.length == 0){
-        // flight_comments volumes_description flight_number operation_volume
         let op : Operation = new Operation()
         op.flight_comments = "Test operation for rescue"
         op.volumes_description = "Simple polygon"
         op.flight_number = "12345678"
         op.operation_volume = new OperationVolume()
-        //min_altitude max_altitude operation_geography beyond_visual_line_of_sight
-        // 2019-12-11T19:59:10Z
         op.operation_volume.effective_time_begin = "2019-12-11T19:59:10Z"
         op.operation_volume.effective_time_end = "2019-12-11T20:59:10Z"
         op.operation_volume.min_altitude = 10
         op.operation_volume.max_altitude = 70
+        op.state = "PROPOSED"
         const polygon: Polygon = {
             type: "Polygon",
             coordinates: [[[-56.16361141204833,-34.90682134107926],[-56.163225173950195,-34.911255687582056],[-56.15453481674194,-34.91389506584019],[-56.15406274795532,-34.909020947652444],[-56.16361141204833,-34.90682134107926]]]
@@ -73,11 +67,8 @@ export async function initData(connection : Connection, callback?:()=>any){
         op.operation_volume.beyond_visual_line_of_sight = true
         connection.manager.save(connection.manager.create("Operation", op));
     }
-    // operations = await connection.manager.find(Operation);
-    // console.log(operations)
 
     let opDao = new OperationDao();
-
     let operation_volume = new OperationVolume()
     operation_volume.effective_time_begin = "2019-12-11T21:59:10Z"
     operation_volume.effective_time_end = "2019-12-11T22:59:10Z"
