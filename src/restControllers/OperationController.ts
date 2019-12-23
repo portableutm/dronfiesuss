@@ -26,6 +26,10 @@ export class OperationController {
       return this.dao.getOperationByPoint(request.body)
     }
 
+    async getOperationByVolumeOperation(request: Request, response: Response, next: NextFunction) {
+      return this.dao.getOperationByVolume(request.body)
+    }
+
     private parseQuery(query: Express.Request) {
       
     }
