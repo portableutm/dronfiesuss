@@ -51,7 +51,7 @@ class App {
     private initializeMiddlewares() {
         this.app.use(express.json());
         Routes.forEach(route => {
-            (this.app as any)[route.method](route.route, (req: Request, res: Response, next: Function) => {
+            (this.app as any)[route.method](route.route, route.middlewares ? route.middlewares:(req,res,next) => {return next()} , (req: Request, res: Response, next: Function) => {
                 const result = (new (route.controller as any))[route.action](req, res, next);
                 if (result instanceof Promise) {
                     result.then(result => result !== null && result !== undefined ? res.send(result) : undefined);
