@@ -9,16 +9,18 @@ export class UserDao {
         return this.userRepository.find();
     }
 
-    async one(id : number) {
-        return this.userRepository.findOne(id);
+    async one(username : string) {
+        console.log(`username: ${username}`)
+        return this.userRepository.findOne(username);
     }
 
-    async save(vehicle:User) {
-        return this.userRepository.save(vehicle);
+    async save(user:User) {
+
+        return this.userRepository.save(user);
     }
 
-    async remove(id : number) {
-        let userToRemove = await this.userRepository.findOne(id);
+    async remove(username : string) {
+        let userToRemove = await this.userRepository.findOne(username);
         await this.userRepository.remove(userToRemove);
     }
 

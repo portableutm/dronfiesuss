@@ -1,26 +1,34 @@
-import {getRepository} from "typeorm";
+// import {getRepository} from "typeorm";
 import {NextFunction, Request, Response} from "express";
+
 import {User} from "../entities/User";
+import { UserDao } from "../daos/UserDaos";
+
+import { hashPassword } from "../services/encrypter";
 
 export class UserController {
 
-    private userRepository = getRepository(User);
+    private dao = new UserDao()
+
+    // private userRepository = getRepository(User);
 
     async all(request: Request, response: Response, next: NextFunction) {
-        return this.userRepository.find();
+        return this.dao.all();
     }
 
     async one(request: Request, response: Response, next: NextFunction) {
-        return this.userRepository.findOne(request.params.id);
+        return this.dao.one(request.params.username);
     }
 
     async save(request: Request, response: Response, next: NextFunction) {
-        return this.userRepository.save(request.body);
+        let user: User = request.body
+        user.password = hashPassword(user.password)
+        return this.dao.save(user);
     }
 
     async remove(request: Request, response: Response, next: NextFunction) {
-        let userToRemove = await this.userRepository.findOne(request.params.id);
-        await this.userRepository.remove(userToRemove);
+        // let userToRemove = await this.dao.one(request.params.id);
+        await this.dao.remove(request.params.username);
     }
 
 }
