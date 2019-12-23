@@ -1,59 +1,37 @@
 import { Polygon } from "geojson";
 import {
-  Column
+  Column, Entity, PrimaryGeneratedColumn, ManyToOne
 } from "typeorm";
+import { Operation } from "./Operation";
 
+
+@Entity()
 export class OperationVolume {
-    // 'ordinal': number;
-    // 'volume_type': "TBOV" | "ABOV";
+    @PrimaryGeneratedColumn()
+    'id': number;
+    // @Column()
+    'ordinal': number;
+    'volume_type': "TBOV" | "ABOV";
     // 'near_structure'?: boolean;
-    @Column({type: "timestamp"
-    // , transformer: {
-    //   from(value) {
-    //     console.log('from', value, typeof(value));
-    //     return value;
-    //   },
-
-    //   to(value) {
-    //     console.log('to', value, typeof(value));
-    //     return value;
-    //   }
-    // }
-    })
+    @Column({type: "timestamp"})
     'effective_time_begin': string;
     
-    @Column({type: "timestamp"
-    // , transformer: {
-    //   from(value) {
-    //     console.log('from', value, typeof(value));
-    //     return value;
-    //   },
-
-    //   to(value) {
-    //     console.log('to', value, typeof(value));
-    //     return value;
-    //   }
-    // }
-    })
+    @Column({type: "timestamp"})
     'effective_time_end': string;
-
     
-
     // 'actual_time_end'?: string;
-    // 'min_altitude': Altitude;
-    // 'max_altitude': Altitude;
     
     @Column()
     'min_altitude': number;
     @Column()
     'max_altitude': number;
-    // @Column()
-    @Column("geometry", {
-        nullable: true
-      })
+    @Column("geometry", {nullable: true})
     'operation_geography': Polygon;
     @Column()
     'beyond_visual_line_of_sight': boolean;
+
+    @ManyToOne(type => Operation, user => user.operation_volumes)
+    operation: Operation
 }
 
 // export class Altitude {
@@ -65,3 +43,16 @@ export class OperationVolume {
 
 
 
+// @Column({type: "timestamp"
+// , transformer: {
+//   from(value) {
+//     console.log('from', value, typeof(value));
+//     return value;
+//   },
+
+//   to(value) {
+//     console.log('to', value, typeof(value));
+//     return value;
+//   }
+// }
+// })

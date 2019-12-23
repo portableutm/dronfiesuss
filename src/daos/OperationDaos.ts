@@ -15,8 +15,9 @@ export class OperationDao {
         // console.log("*************")
         // console.log(point)
         return this.repository
-        .createQueryBuilder()
-        .where("st_contains(\"operationVolumeOperation_geography\" ,ST_GeomFromGeoJSON(:origin))")
+        .createQueryBuilder("operation")
+        .innerJoinAndSelect("operation.operation_volumes", "operation_volume")
+        .where("st_contains(operation_volume.\"operation_geography\" ,ST_GeomFromGeoJSON(:origin))")
         .setParameters({
             origin: JSON.stringify(point)
         })
@@ -31,10 +32,11 @@ export class OperationDao {
 
     async getOperationByVolume(volume : OperationVolume){
         return this.repository
-        .createQueryBuilder()
-        .where("(tsrange(\"operationVolumeEffective_time_begin\", \"operationVolumeEffective_time_end\") && tsrange(:date_begin, :date_end) ) "
-        + " OR (int4range(\"operationVolumeMin_altitude\", \"operationVolumeMax_altitude\") && int4range(:min_altitude, :max_altitude)) " 
-        + " OR (ST_Intersects(\"operationVolumeOperation_geography\" ,ST_GeomFromGeoJSON(:geom)))")
+        .createQueryBuilder("operation")
+        .innerJoinAndSelect("operation.operation_volumes", "operation_volume")
+        .where("(tsrange(operation_volume.\"effective_time_begin\", operation_volume.\"effective_time_end\") && tsrange(:date_begin, :date_end) ) "
+        + " OR (int4range(operation_volume.\"min_altitude\", operation_volume.\"max_altitude\") && int4range(:min_altitude, :max_altitude)) " 
+        + " OR (ST_Intersects(operation_volume.\"operation_geography\" ,ST_GeomFromGeoJSON(:geom)))")
         .setParameters({
             date_begin : volume.effective_time_begin,
             date_end : volume.effective_time_end,
@@ -45,7 +47,7 @@ export class OperationDao {
         .getMany()
     }
 
-    async all(filterParam:any) {
+    async all(filterParam?  :any) {
         console.log(`OperationDao.all -> ${JSON.stringify(filterParam)}`)
 
         let filter : any = {}
@@ -53,7 +55,7 @@ export class OperationDao {
             filter.where = { state: filterParam.state}
         }
         console.log(`OperationDao.all -> ${JSON.stringify(filter)}`)
-        return this.repository.find(filter);
+        return this.repository.find();
     }
 
     async one(id : string) {
