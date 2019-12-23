@@ -1,0 +1,1 @@
+export const jwtSecret: string =  "@876fyivd&(&*%EH";
