@@ -1,4 +1,4 @@
-import {Entity, PrimaryGeneratedColumn, Column, AfterLoad, OneToMany, OneToOne, ManyToOne, ManyToMany} from "typeorm";
+import {Entity, PrimaryGeneratedColumn, Column, AfterLoad, OneToMany, OneToOne, ManyToOne, ManyToMany, JoinTable} from "typeorm";
 import { Point } from "geojson";
 
 import { OperationVolume } from "./OperationVolume";
@@ -66,10 +66,11 @@ export class Operation {
 
     // 'uas_registrations': Array<UasRegistration>;
 
-    @ManyToMany(type => VehicleReg, {
-        eager: true
-    })
-    'uas_registrations': VehicleReg[];
+    @ManyToMany(type => VehicleReg
+        , {eager: true}
+    )
+    @JoinTable()
+    uas_registrations: VehicleReg[];
 
     @ManyToOne(type => User,{
         eager: true
