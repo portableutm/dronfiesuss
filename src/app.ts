@@ -54,7 +54,20 @@ class App {
             (this.app as any)[route.method](route.route, route.middlewares ? route.middlewares:(req,res,next) => {return next()} , (req: Request, res: Response, next: Function) => {
                 const result = (new (route.controller as any))[route.action](req, res, next);
                 if (result instanceof Promise) {
-                    result.then(result => result !== null && result !== undefined ? res.send(result) : undefined);
+                    // console.log(result)
+                    // return result
+                    
+                    result.
+                    then(result => {
+                        console.log(`name ${result.constructor.name}`)
+                        if(result.constructor.name === 'ServerResponse'){
+                            return result
+                        }else{
+                            result !== null && result !== undefined ? res.send(result) : undefined
+                        }
+                    })
+                    .catch(error => console.error(error));
+
     
                 } else if (result !== null && result !== undefined) {
                     res.json(result);
