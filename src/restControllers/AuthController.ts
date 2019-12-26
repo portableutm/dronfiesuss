@@ -13,34 +13,43 @@ export class AuthController {
     private dao = new UserDao()
 
     async login(request: Request, response: Response, next: NextFunction) {
-        // console.log(`Login: ${JSON.stringify(request.body)}, ${JSON.stringify(request.params)}`)
-        // let {username, password} = request.body
         let username :string = request.body.username
         let password :string = request.body.password
         console.log(`username: ${username}, password:${password}`)
 
-        console.log(await this.dao.all())
-
-
-        let user : User = await this.dao.one(username)
-
+        let user : User
+        try {
+            user = await this.dao.one(username)    
+        } catch (error) {
+            console.log(`Error al obtener usuarios`)
+            console.error(error)
+            return response.sendStatus(404);
+        }
+        
         let credentialValid : boolean = checkIfUnencryptedPasswordIsValid(password, user.password)
-
         console.log(`- credentialValid: ${credentialValid}`)
 
-        //Sing JWT, valid for 1 hour
         if(credentialValid){
+            //Sing JWT, valid for 1 hour
             const user_obj = {
                 username: user.username,
                 email: user.email
             }
-            const token = jwt.sign(
-                // { userId: user., username: user.username },
-                user_obj,
-                jwtSecret,
-                { expiresIn: "1h" }
-            );
-            return response.send(token);
+            try {
+                const token = jwt.sign(
+                    // { userId: user., username: user.username },
+                    user_obj,
+                    jwtSecret,
+                    { expiresIn: "1h" }
+                );    
+                console.log(`token:${token}(${typeof token})`)
+                return response.send(token);
+            } catch (error) {
+                console.log(`Error al obtener token`)
+                console.error(error)
+                return response.sendStatus(401);
+            }
+            
         } else {
             return response.sendStatus(401);
         }
