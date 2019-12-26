@@ -1,7 +1,9 @@
-import {Entity, PrimaryGeneratedColumn, Column, AfterLoad, OneToMany} from "typeorm";
+import {Entity, PrimaryGeneratedColumn, Column, AfterLoad, OneToMany, OneToOne, ManyToOne, ManyToMany} from "typeorm";
 import { Point } from "geojson";
 
 import { OperationVolume } from "./OperationVolume";
+import { User } from "./User";
+import { VehicleReg } from "./VehicleReg";
 
 type operations_vol = Array<OperationVolume>;
 
@@ -63,7 +65,16 @@ export class Operation {
     
 
     // 'uas_registrations': Array<UasRegistration>;
-    // 'contact': PersonOrOrganization;
+
+    @ManyToMany(type => VehicleReg, {
+        eager: true
+    })
+    'uas_registrations': VehicleReg[];
+
+    @ManyToOne(type => User,{
+        eager: true
+    })
+    'contact': User;
     // 'contingency_plans': Array<ContingencyPlan>;
     // 'negotiation_agreements'?: Array<NegotiationAgreement>;
     // 'priority_elements'?: PriorityElements;
