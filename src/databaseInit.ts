@@ -8,8 +8,8 @@ import { OperationDao } from "./daos/OperationDaos";
 import { OperationVolume } from './entities/OperationVolume';
 import { Polygon } from 'geojson';
 import { UTMMessage } from "./entities/UTMMessage";
-import { Users } from './db/users_data';
-import { Vehicles } from "./db/vehicle_data";
+import { Users } from './data/users_data';
+import { Vehicles } from "./data/vehicle_data";
 
 let randomFromList = (list : any[]) : any => {
     return list[Math.floor(Math.random() * list.length)];
