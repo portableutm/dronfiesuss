@@ -1,13 +1,16 @@
-# Awesome Project Build with TypeORM
-
-Steps to run this project:
-
-1. Run `npm install` command
-1. Run `docker-compose up` command (Optional, its possible use your own postgres instance, config params in *ormconfig.json* )
-1. Run `docker-compose run postgres bash /scripts/test_database.bash` To init testing database
-1. Run `npm start` command
+# Dronfies USS api
+This is a node project to manage drones operations correctly.
 
 
+## Steps to run this project:
+To run the project you need install dependencies with `npm install` and you need to have a **postgis** database. The parameters of connection are located on **ormconfig.json**. To simplify the process you can use **docker-compose**. With `docker-compose up` will start the containers. Only the first time you will need cerate the test and install the postgis extension database running the script `docker-compose run postgres bash /scripts/test_database.bash` (it's important that the docker containers are running to run this command). Finally to start the app type `npm start`
+
+``` shell
+npm install #only first time
+docker-compose up
+docker-compose run postgres bash /scripts/test_database.bash #only first time
+npm start
+```
 
 ## Importants files of root directory
 ```
@@ -25,7 +28,7 @@ config -> Config files
 daos -> Daos folder
 databaseConfig.ts
 databaseInit.ts
-db -> Entities to init database
+data -> Entities data used on databaseInit to populate DB
 entities -> Entities folder
 index.html 
 index.ts
