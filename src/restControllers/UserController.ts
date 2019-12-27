@@ -1,16 +1,11 @@
-// import {getRepository} from "typeorm";
 import {NextFunction, Request, Response} from "express";
-
 import {User} from "../entities/User";
 import { UserDao } from "../daos/UserDaos";
-
 import { hashPassword } from "../services/encrypter";
 
 export class UserController {
 
     private dao = new UserDao()
-
-    // private userRepository = getRepository(User);
 
     async all(request: Request, response: Response, next: NextFunction) {
         return this.dao.all();

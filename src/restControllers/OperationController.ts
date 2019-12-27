@@ -1,16 +1,12 @@
-import {getRepository, In, Raw} from "typeorm";
 import {NextFunction, Request, Response} from "express";
-import {Operation} from "../entities/Operation";
 import { OperationDao } from "../daos/OperationDaos";
 
 export class OperationController {
 
-    // private operationRepository = getRepository(Operation);
     private dao = new OperationDao()
 
     async all(request: Request, response: Response, next: NextFunction) {
       let state = request.query.state;
-      console.log(`Rest Operation state:${state} ${"laaa"}`)
       return this.dao.all({state:state});
     }
 

@@ -1,10 +1,7 @@
-// import {getRepository} from "typeorm";
 import {NextFunction, Request, Response} from "express";
 import * as jwt from "jsonwebtoken";
-
-import {User} from "../entities/User";
+import { User } from "../entities/User";
 import { UserDao } from "../daos/UserDaos";
-
 import { checkIfUnencryptedPasswordIsValid } from "../services/encrypter";
 import {jwtSecret} from "../config/config";
 
@@ -37,7 +34,6 @@ export class AuthController {
             }
             try {
                 const token = jwt.sign(
-                    // { userId: user., username: user.username },
                     user_obj,
                     jwtSecret,
                     { expiresIn: "1h" }
@@ -55,23 +51,5 @@ export class AuthController {
         }
         
 
-        // return response.send(token);
     }
-    
-
-    // async one(request: Request, response: Response, next: NextFunction) {
-    //     return this.dao.one(request.params.username);
-    // }
-
-    // async save(request: Request, response: Response, next: NextFunction) {
-    //     let user: User = request.body
-    //     user.password = hashPassword(user.password)
-    //     return this.dao.save(user);
-    // }
-
-    // async remove(request: Request, response: Response, next: NextFunction) {
-    //     // let userToRemove = await this.dao.one(request.params.id);
-    //     await this.dao.remove(request.params.username);
-    // }
-
 }

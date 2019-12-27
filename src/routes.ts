@@ -1,5 +1,5 @@
 import {UserController} from "./restControllers/UserController";
-import {VehicleDao} from "./restControllers/vehicleDao";
+import {VehicleDao} from "./daos/vehicleDao";
 import { OperationController } from "./restControllers/OperationController";
 import { UTMMessageController } from "./restControllers/UtmMessageRestController";
 import { AuthController } from "./restControllers/AuthController";

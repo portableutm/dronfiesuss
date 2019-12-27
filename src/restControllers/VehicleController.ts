@@ -1,9 +1,9 @@
 import {NextFunction, Request, Response} from "express";
-import { UTMMessageDao } from "../daos/UtmMessageDao";
+import { VehicleDao } from "../daos/VehicleDao";
 
 export class UTMMessageController {
 
-    private dao = new UTMMessageDao()
+    private dao = new VehicleDao()
 
     async all(request: Request, response: Response, next: NextFunction) {
         return this.dao.all();

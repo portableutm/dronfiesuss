@@ -1,8 +1,8 @@
-import { createConnection, Connection } from 'typeorm';
+import { Connection } from 'typeorm';
 
 import {User} from "./entities/User";
 import { Operation, OperationState, OperatonFaaRule } from "./entities/Operation";
-import { VehicleDao } from "./restControllers/vehicleSimpleDao";
+import { VehicleDao } from "./daos/VehicleDao";
 import { VehicleReg } from "./entities/VehicleReg";
 import { OperationDao } from "./daos/OperationDaos";
 import { OperationVolume } from './entities/OperationVolume';

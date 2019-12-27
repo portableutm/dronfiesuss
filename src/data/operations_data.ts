@@ -1,13 +1,6 @@
-import { createConnection, Connection } from 'typeorm';
 import { Polygon } from 'geojson';
-
-import {User} from "../entities/User";
 import { Operation, OperationState, OperatonFaaRule } from "../entities/Operation";
-import { VehicleDao } from "../restControllers/vehicleSimpleDao";
-import { VehicleReg } from "../entities/VehicleReg";
-import { OperationDao } from "../daos/OperationDaos";
 import { OperationVolume } from '../entities/OperationVolume';
-import { UTMMessage } from "../entities/UTMMessage";
 
 
 let op: Operation = new Operation()
