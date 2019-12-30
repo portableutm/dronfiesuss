@@ -18,7 +18,8 @@ class App {
     public connectionName: string;
     public io : SocketIO.Server;
 
-    public initedDB : boolean;
+    public initedDB : boolean = false;
+    public initedRest : boolean = false;
 
     constructor(controllers: any[], port: number, connName:string, callback?:(param?:any)=>void) {
         console.log(`Constructor-> port:${port} connName:${connName}`)
@@ -44,7 +45,10 @@ class App {
         this.connection = connection; // Store the connection object in the class instance.
 
        //Pegar aca
-       await initData(connection, callback)
+       await initData(connection, () => {
+           this.initedDB = true;
+           callback()
+       })
     }
 
     // Here we can add all the global middlewares for our application. (Those that will work across every contoller)
@@ -60,10 +64,17 @@ class App {
                     result.
                     then(result => {
                         console.log(`name ${result.constructor.name}`)
-                        if(result.constructor.name === 'ServerResponse'){
-                            return result
-                        }else{
+                        if(result.constructor.name === 'Object'){
+                            // return result
                             result !== null && result !== undefined ? res.send(result) : undefined
+                        }
+                        else if(result.constructor.name === 'Array'){
+                            result !== null && result !== undefined ? res.send(result) : undefined
+                            // return result
+                        }
+                        else{
+                            // result !== null && result !== undefined ? res.send(result) : undefined
+                            return result
                         }
                     })
                     .catch(error => console.error(error));
@@ -102,7 +113,9 @@ class App {
         server.listen(this.port, () => {
             console.log(`Server running on port ${this.port}`);
             if(callback !== undefined){
+                this.initedRest = true;
                 callback();
+                
             }
                 
         });
@@ -118,6 +131,12 @@ class App {
         });
         
 
+    }
+    /**
+     * PrintStatus
+     */
+    public printStatus() {
+        console.log(`initedDB:${this.initedDB} initedRest:${this.initedRest} connection.isConnected:${this.connection?this.connection.isConnected:""}`)
     }
 }
 
