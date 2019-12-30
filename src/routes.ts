@@ -1,5 +1,5 @@
 import {UserController} from "./restControllers/UserController";
-import {VehicleDao} from "./daos/vehicleDao";
+import {VehicleController} from "./restControllers/VehicleController";
 import { OperationController } from "./restControllers/OperationController";
 import { UTMMessageController } from "./restControllers/UtmMessageRestController";
 import { AuthController } from "./restControllers/AuthController";
@@ -62,10 +62,12 @@ let auth = [{
     
 }]
 
-let r : CustomRoute[] = [...doRoutes("user",UserController),
- ...doRoutes("utmmessage", UTMMessageController),
-  ...doRoutes("vehicle", VehicleDao), 
-  ...operations, 
-  ...auth];
-
+let r : CustomRoute[] = [
+    ...doRoutes("user",UserController),
+    ...doRoutes("utmmessage", UTMMessageController),
+    ...doRoutes("vehicle", VehicleController), 
+    ...operations, 
+    ...auth
+];
+  
 export const Routes = r;
