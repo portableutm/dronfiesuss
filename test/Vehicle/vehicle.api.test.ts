@@ -10,12 +10,12 @@ import { VehicleDao } from "../../src/daos/VehicleDao";
 // const controllers = [];
 // const app = new App(controllers, 3000, "test");
 
-import { app, init } from "../../src/index";
+import { app, init, initAsync } from "../../src/index";
 
 describe('Vehicle entity', function() {
 
-    before(()=>{
-        init()
+    before(async ()=>{
+        await initAsync()
     })
 
     it("should get all vehicles record", (done) => {

@@ -14,26 +14,28 @@ import { OperationVolume } from "../../src/entities/OperationVolume";
 
 
 const controllers = [];
-let app;
+// let app;
 let opDao;
 
 let initDb = false;
 let initWeb = false;
 
+import { app, init, initAsync } from "../../src/index";
 
 
 
 describe('Operation spatial querys', function() {
      before(async ()=>{
-        console.log('** Before **')
 
-        const connection : Connection = await createTypeormConn("test");
-        if (connection === undefined) {
-             throw new Error('Error connecting to database'); 
-        } // In case the connection failed, the app stops.
-        connection.synchronize(); // 
-
-        await initData(connection, ()=>{})
+      await initAsync();
+       
+        // console.log('** Before **')
+        // const connection : Connection = await createTypeormConn("test");
+        // if (connection === undefined) {
+        //      throw new Error('Error connecting to database'); 
+        // } // In case the connection failed, the app stops.
+        // connection.synchronize(); // 
+        // await initData(connection, ()=>{})
 
         opDao = new OperationDao()
 
