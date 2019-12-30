@@ -15,7 +15,28 @@ if(process.env.NODE_ENV == "dev"){
 
 export function init(){
     console.log("Test env")
-    app = new App(controllers, 3000, "test");
-    app.listen();
-    app.printStatus();
+    if(app == undefined){
+        app = new App(controllers, 3000, "test");
+        app.listen();
+        app.printStatus();
+    }    
+}
+
+export async function initAsync(){
+    return new Promise(resolve => {
+        // setTimeout(() => {
+        //   resolve('🤡');
+        // }, 2000);
+        if(app == undefined){
+            app = new App(controllers, 3000, "test", ()=>{
+                app.listen(()=>{
+                    app.printStatus();
+                    resolve();
+                });
+            });
+            
+        }else{
+            resolve();
+        }
+      });
 }
