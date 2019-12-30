@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction } from "express";
 import * as jwt from "jsonwebtoken";
-import {  } from "module";
 import {jwtSecret} from "../config/config";
 
 export const checkJwt = (req: Request, res: Response, next: NextFunction) => {

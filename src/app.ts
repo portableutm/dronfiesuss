@@ -1,7 +1,7 @@
 import "reflect-metadata";
 import * as express from 'express';
 import {Request, Response} from "express";
-import { createConnection, Connection, getConnection } from 'typeorm';
+import {  Connection} from 'typeorm';
 
 import { Server } from "http";
 import * as Io from "socket.io";
@@ -36,12 +36,13 @@ class App {
 
     private async initializeModels(callback:()=>any) {
 
-        console.log(`Connection name #${this.connectionName}#`)
+        console.log(`Connection name #${this.connectionName}#!`)
         const connection : Connection = await createTypeormConn(this.connectionName);
         if (connection === undefined) {
              throw new Error('Error connecting to database'); 
         } // In case the connection failed, the app stops.
         connection.synchronize(); // this updates the database schema to match the models' definitions
+        
         this.connection = connection; // Store the connection object in the class instance.
 
        //Pegar aca

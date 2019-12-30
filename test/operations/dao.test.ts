@@ -5,20 +5,10 @@ chai.use(chaiHttp);
 chai.should();
 
 import { OperationDao } from "../../src/daos/OperationDaos";
-import App from "../../src/app";
 import { Point, Polygon } from "geojson";
-import { Connection } from "typeorm";
-import { createTypeormConn } from "../../src/databaseConfig";
-import { initData } from "../../src/databaseInit";
 import { OperationVolume } from "../../src/entities/OperationVolume";
 
-
-const controllers = [];
-// let app;
 let opDao;
-
-let initDb = false;
-let initWeb = false;
 
 import { app, init, initAsync } from "../../src/index";
 

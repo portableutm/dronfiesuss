@@ -1,5 +1,3 @@
-// import "reflect-metadata";
-
 import App from "./app";
 const controllers = [];
 export let app : App;
@@ -24,9 +22,6 @@ export function init(){
 
 export async function initAsync(){
     return new Promise(resolve => {
-        // setTimeout(() => {
-        //   resolve('🤡');
-        // }, 2000);
         if(app == undefined){
             app = new App(controllers, 3000, "test", ()=>{
                 app.listen(()=>{
@@ -34,7 +29,6 @@ export async function initAsync(){
                     resolve();
                 });
             });
-            
         }else{
             resolve();
         }
