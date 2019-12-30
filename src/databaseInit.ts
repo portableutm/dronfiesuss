@@ -1,15 +1,17 @@
 import { Connection } from 'typeorm';
-
-import {User} from "./entities/User";
-import { Operation, OperationState, OperatonFaaRule } from "./entities/Operation";
-import { VehicleDao } from "./daos/VehicleDao";
-import { VehicleReg } from "./entities/VehicleReg";
-import { OperationDao } from "./daos/OperationDaos";
-import { OperationVolume } from './entities/OperationVolume';
 import { Polygon } from 'geojson';
+
+import { VehicleDao } from "./daos/VehicleDao";
+
+import { User } from "./entities/User";
+import { Operation, OperationState, OperatonFaaRule } from "./entities/Operation";
+import { OperationVolume } from './entities/OperationVolume';
+import { VehicleReg } from "./entities/VehicleReg";
 import { UTMMessage } from "./entities/UTMMessage";
+
 import { Users } from './data/users_data';
 import { Vehicles } from "./data/vehicle_data";
+import { UtmMessages } from "./data/utmMessage_data";
 
 let randomFromList = (list : any[]) : any => {
     return list[Math.floor(Math.random() * list.length)];
@@ -118,6 +120,14 @@ export async function initData(connection: Connection, callback ? : () => any) {
             connection.manager.save(connection.manager.create("Operation", op));
             
         }
+
+        let messages = await connection.manager.find(UTMMessage)
+        if(messages.length==0){
+            UtmMessages.forEach(async (utmMessage)=>{
+                await connection.manager.save(UTMMessage, utmMessage)
+            })
+        }
+
 
         if (callback !== undefined) {
             callback()
