@@ -1,9 +1,12 @@
-import {Entity, PrimaryGeneratedColumn, Column, AfterLoad, OneToMany, OneToOne, ManyToOne, ManyToMany, JoinTable} from "typeorm";
+import {Entity, PrimaryGeneratedColumn, Column, OneToMany, ManyToOne, ManyToMany, JoinTable, OneToOne, JoinColumn} from "typeorm";
 import { Point } from "geojson";
 
 import { OperationVolume } from "./OperationVolume";
 import { User } from "./User";
 import { VehicleReg } from "./VehicleReg";
+import { ContingencyPlan } from "./ContingencyPlan";
+import { NegotiationAgreement } from "./NegotiationAgreement";
+import { PriorityElements } from "./PriorityElements";
 
 type operations_vol = Array<OperationVolume>;
 
@@ -76,9 +79,22 @@ export class Operation {
         eager: true
     })
     'contact': User;
-    // 'contingency_plans': Array<ContingencyPlan>;
-    // 'negotiation_agreements'?: Array<NegotiationAgreement>;
-    // 'priority_elements'?: PriorityElements;
+
+    @ManyToMany(type => ContingencyPlan
+        , {eager: true, cascade:true},
+    )
+    @JoinTable()
+    'contingency_plans': ContingencyPlan[];
+
+    @ManyToMany(type => NegotiationAgreement
+        , {eager: true, cascade:true}
+    )
+    @JoinTable()
+    'negotiation_agreements'?: NegotiationAgreement[];
+
+    @Column(type => PriorityElements)
+    // @JoinColumn()
+    'priority_elements'?: PriorityElements;
 
     
     // 'operation_volumes': operations_vol;
