@@ -8,22 +8,22 @@ export class UserController {
     private dao = new UserDao()
 
     async all(request: Request, response: Response, next: NextFunction) {
-        return this.dao.all();
+        return response.json(await this.dao.all());
     }
 
     async one(request: Request, response: Response, next: NextFunction) {
-        return this.dao.one(request.params.username);
+        return response.json(await this.dao.one(request.params.id));
     }
 
     async save(request: Request, response: Response, next: NextFunction) {
         let user: User = request.body
         user.password = hashPassword(user.password)
-        return this.dao.save(user);
+        return response.json( await this.dao.save(user));
     }
 
-    async remove(request: Request, response: Response, next: NextFunction) {
-        // let userToRemove = await this.dao.one(request.params.id);
-        await this.dao.remove(request.params.username);
-    }
+    // async remove(request: Request, response: Response, next: NextFunction) {
+    //     // let userToRemove = await this.dao.one(request.params.id);
+    //     await this.dao.remove(request.params.username);
+    // }
 
 }
