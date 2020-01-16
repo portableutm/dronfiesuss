@@ -9,8 +9,18 @@ export class VehicleDao {
         return this.repository.find();
     }
 
-    async one(id : number) {
-        return this.repository.findOne(id);
+    async one(id : string) {
+        console.log(`Dao vehiculo::id>${id}<`)
+        let v =  await this.repository.findOneOrFail(id);
+        // let vehiculos = this.repository.find({
+        //     where: [
+        //       { uvin: id},
+        //     ]
+        //   });
+        // let v = vehiculos[0]
+        console.log(`Dao vehiculo::vehicle>${JSON.stringify(v)}<`)
+        return v;
+
     }
 
 //     {
