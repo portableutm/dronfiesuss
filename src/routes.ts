@@ -1,5 +1,5 @@
-import {UserController} from "./restControllers/UserController";
-import {VehicleController} from "./restControllers/VehicleController";
+import { UserController } from "./restControllers/UserController";
+import { VehicleController } from "./restControllers/VehicleController";
 import { OperationController } from "./restControllers/OperationController";
 import { UTMMessageController } from "./restControllers/UtmMessageRestController";
 import { AuthController } from "./restControllers/AuthController";
@@ -20,7 +20,8 @@ const doRoutes = (route: String, Dao: any) => {
         method: "get",
         route: `/${route}`,
         controller: Dao,
-        action: "all"
+        action: "all",
+        // middlewares: [checkJwt]
     }, {
         method: "get",
         route: `/${route}/:id`,
