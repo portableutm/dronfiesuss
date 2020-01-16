@@ -9,15 +9,15 @@ export class  UTMMessageDao{
         return this.repository.find();
     }
 
-    async one(id : number) {
+    async one(id : string) {
         return this.repository.findOne(id);
     }
 
-    async save(vehicle:UTMMessage) {
-        return this.repository.save(vehicle);
+    async save(msg:UTMMessage) {
+        return this.repository.save(msg);
     }
 
-    async remove(id : number) {
+    async remove(id : string) {
         let userToRemove = await this.repository.findOne(id);
         await this.repository.remove(userToRemove);
     }
