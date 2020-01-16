@@ -1,5 +1,6 @@
 import {NextFunction, Request, Response} from "express";
 import { VehicleDao } from "../daos/VehicleDao";
+import { VehicleReg } from "../entities/VehicleReg";
 
 export class VehicleController {
 
@@ -11,16 +12,24 @@ export class VehicleController {
     // y == {a: 1, c: 3, z:26};
 
     async all(request: Request, response: Response, next: NextFunction) {
-        return this.dao.all();
+        let vehicles = await this.dao.all();
+        return response.json(vehicles)
     }
 
     async one(request: Request, response: Response, next: NextFunction) {
-        console.log(request.body)
-        return this.dao.one(parseInt(request.params.id));
+        try{
+            let v = await this.dao.one(request.params.id);
+            return response.json(v)
+        }catch(error){
+            return response.sendStatus(404)
+        }
+        
+        
     }
 
     async save(request: Request, response: Response, next: NextFunction) {
-        return this.dao.save(request.body);
+        let v = await this.dao.save(request.body);
+        return response.json(v)
     }
 
 }
