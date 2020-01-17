@@ -8,6 +8,7 @@ import { NegotiationAgreement } from '../entities/NegotiationAgreement';
 
 
 let op: Operation = new Operation()
+op.gufi = "b92c7431-13c4-4c6c-9b4a-1c3c8eec8c63"
 op.flight_comments = "Test operation for rescue"
 op.volumes_description = "Simple polygon"
 op.flight_number = "12345678"
