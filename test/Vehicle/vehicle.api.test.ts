@@ -62,5 +62,22 @@ describe('Vehicle entity', function() {
              });
     });
 
+    it("should get a vehicle", async () => {
+        let dao = new VehicleDao()
+        let vehicles = await dao.all()
+        let vehicle = vehicles[0]
+        chai.request(app.app)
+            .get(`/vehicle/${vehicle.uvin}`)
+            // .query({id: vehicle.uvin})
+            .end(
+                async (err, res) => {
+                console.log(res.body)
+                res.should.have.status(200);
+                res.body.should.have.property('uvin');
+                // let vehicles = await dao.all()
+                // vehicles.length.should.be.gt(vehicleCountPreInsert )
+             });
+    });
+
   
 });
