@@ -1,42 +1,130 @@
 <!doctype html>
 <html>
-  <head>
-    <title>Socket.IO chat</title>
-    <style>
-      * { margin: 0; padding: 0; box-sizing: border-box; }
-      body { font: 13px Helvetica, Arial; }
-      form { background: #000; padding: 3px; position: fixed; bottom: 0; width: 100%; }
-      form input { border: 0; padding: 10px; width: 90%; margin-right: .5%; }
-      form button { width: 9%; background: rgb(130, 224, 255); border: none; padding: 10px; }
-      #messages { list-style-type: none; margin: 0; padding: 0; }
-      #messages li { padding: 5px 10px; }
-      #messages li:nth-child(odd) { background: #eee; }
-      #messages { margin-bottom: 40px }
-    </style>
-  </head>
-  <body>
-    <ul id="messages"></ul>
-    <form action="">
-      <input id="m" autocomplete="off" /><button>Send</button>
-    </form>
-    <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
-    <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
-    <script>
-      $(function () {
-        const socket = io({
-            transports: ['websocket']
-        });
-        console.log('Conectado?')
-        $('form').submit(function(){
-          socket.emit('chat message', $('#m').val());
-          $('#m').val('');
-          return false;
-        });
-        socket.on('chat message', function(msg){
-          $('#messages').append($('<li>').text(msg));
-          window.scrollTo(0, document.body.scrollHeight);
-        });
+
+<head>
+  <title>Socket.IO chat</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font: 13px Helvetica, Arial;
+    }
+
+    form {
+      background: #000;
+      padding: 3px;
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+    }
+
+    form input {
+      border: 0;
+      padding: 10px;
+      width: 90%;
+      margin-right: .5%;
+    }
+
+    form button {
+      width: 9%;
+      background: rgb(130, 224, 255);
+      border: none;
+      padding: 10px;
+    }
+
+    #messages {
+      list-style-type: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    #messages li {
+      padding: 5px 10px;
+    }
+
+    #messages li:nth-child(odd) {
+      background: #eee;
+    }
+
+    #messages {
+      margin-bottom: 40px
+    }
+
+    #mapid {
+      height: 400px;
+    }
+  </style>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css"
+    integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
+    crossorigin="" />
+
+</head>
+
+<body>
+  <div id="mapid"></div>
+  <ul id="messages"></ul>
+  <form action="">
+    <input id="m" autocomplete="off" /><button>Send</button>
+  </form>
+  <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
+  <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+  <!-- Make sure you put this AFTER Leaflet's CSS -->
+  <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"
+    integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew=="
+    crossorigin=""></script>
+
+  <script>
+    var positions = {}
+    var mymap;
+
+    function getCoords(position){
+      return [position.location.coordinates[1],position.location.coordinates[0]]
+    }
+
+    function newPosition(position){
+      console.log(`Processing ${JSON.stringify(position)}`)
+      if(positions[position.gufi] === undefined){
+        console.log(`Nueva posicion`)
+        positions[position.gufi] = L.marker(getCoords(position)).addTo(mymap) 
+      }
+      else{
+        console.log(`Actualizo posicion`)
+        positions[position.gufi].setLatLng(getCoords(position))
+      }
+    }
+
+    $(function () {
+        mymap = L.map('mapid').setView([
+            -34.9068213410793,-56.1636114120483], 12);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(mymap);
+
+      const socket = io({
+        transports: ['websocket']
       });
-    </script>
-  </body>
+      console.log('Conectado?')
+      $('form').submit(function () {
+        socket.emit('chat message', $('#m').val());
+        $('#m').val('');
+        return false;
+      });
+      socket.on('chat message', function (msg) {
+        $('#messages').append($('<li>').text(msg));
+        window.scrollTo(0, document.body.scrollHeight);
+      });
+      socket.on('new-position', function (position) {
+        console.log(`New position ${position}`)
+        newPosition(position)
+        
+      });
+    });
+  </script>
+</body>
+
 </html>
