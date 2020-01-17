@@ -12,8 +12,6 @@ export class OperationDao {
     // WHERE st_contains("operationVolumeOperation_geography" ,st_geomfromtext('POINT(-56.15444898605347 -34.90696211766489)'))
 
     async getOperationByPoint(point:Point){
-        // console.log("*************")
-        // console.log(point)
         return this.repository
         .createQueryBuilder("operation")
         .innerJoinAndSelect("operation.operation_volumes", "operation_volume")
@@ -48,13 +46,12 @@ export class OperationDao {
     }
 
     async all(filterParam?  :any) {
-        console.log(`OperationDao.all -> ${JSON.stringify(filterParam)}`)
-
+        // console.log(`OperationDao.all -> ${JSON.stringify(filterParam)}`)
         let filter : any = {}
         if((filterParam!==undefined) && (filterParam.state !== undefined)){
             filter.where = { state: filterParam.state}
         }
-        console.log(`OperationDao.all -> ${JSON.stringify(filter)}`)
+        // console.log(`OperationDao.all -> ${JSON.stringify(filter)}`)
         return this.repository.find();
     }
 
@@ -62,8 +59,8 @@ export class OperationDao {
         return this.repository.findOne(id);
     }
 
-    async save(vehicle:Operation) {
-        return this.repository.save(vehicle);
+    async save(op:Operation) {
+        return this.repository.save(op);
     }
 
     async remove(id : number) {
