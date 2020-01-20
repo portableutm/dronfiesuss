@@ -28,7 +28,7 @@ const doRoutes = (route: String, Dao: any) => {
         route: `/${route}/:id`,
         controller: Dao,
         action: "one",
-        middlewares: [checkJwt]
+        // middlewares: [checkJwt]
     }, {
         method: "post",
         route: `/${route}`,
