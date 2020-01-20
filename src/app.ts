@@ -2,6 +2,7 @@ import "reflect-metadata";
 import * as express from 'express';
 import {Request, Response} from "express";
 import {  Connection} from 'typeorm';
+var cors = require('cors')
 
 import { Server } from "http";
 import * as Io from "socket.io";
@@ -55,6 +56,7 @@ class App {
     // Here we can add all the global middlewares for our application. (Those that will work across every contoller)
     private initializeMiddlewares() {
         this.app.use(express.json());
+        this.app.use(cors())
         Routes.forEach(route => {
             (this.app as any)[route.method](route.route, route.middlewares ? route.middlewares:(req,res,next) => {return next()} , (req: Request, res: Response, next: Function) => {
                 const result = (new (route.controller as any))[route.action](req, res, next);
