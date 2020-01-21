@@ -1,7 +1,8 @@
 import {NextFunction, Request, Response} from "express";
 import { PositionDao } from "../daos/PositionDao";
 
-import { app } from "../index";
+// import { app } from "../index";
+import { sendPositionToMonitor } from "../services/asyncBrowserComunication";
 
 
 export class PositionController {
@@ -20,7 +21,8 @@ export class PositionController {
         try{
             let position = await this.dao.save(request.body)
             console.log(`Send new position ${position}`)
-            app.io.emit('new-position', position)
+            sendPositionToMonitor(position)
+            // app.io.emit('new-position', position)
             return response.json(position);
 
         }catch(error){
