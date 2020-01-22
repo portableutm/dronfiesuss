@@ -7,15 +7,32 @@ export class OperationController {
 
     async all(request: Request, response: Response, next: NextFunction) {
       let state = request.query.state;
-      return response.json(await this.dao.all({state:state}));
+      let ops = await this.dao.all({state:state})
+      return response.json({count:ops.length, ops});
     }
 
     async one(request: Request, response: Response, next: NextFunction) {
-        return response.json(await this.dao.one(request.params.guifi));
+      // console.log(` ---> request.params.gufi:${request.params.id}`)
+      return response.json(await this.dao.one(request.params.id));
     }
 
     async save(request: Request, response: Response, next: NextFunction) {
+      let op_vols = request.body.operation_volumes
+      let error = false
+      if(op_vols !== undefined){
+          for (let index = 0; index < op_vols.length; index++) {
+            const element = op_vols[index];
+            let intersect  = await this.checkIntersection(element)
+            if(intersect){
+              error = true
+            }
+          }
+      }
+      if(error){
+        return response.json({"Error": `The operation registrated intersect with an other operation`})
+      }else{
         return response.json(await this.dao.save(request.body));
+      }
     }
 
     async getOperationByPoint(request: Request, response: Response, next: NextFunction) {
@@ -30,4 +47,15 @@ export class OperationController {
       
     }
 
+    async checkIntersection(operationVolume){
+      try{
+        let operationsCount = await this.dao.getOperationVolumeByVolumeCount(operationVolume)
+        return operationsCount>0;
+      }catch(e){
+        console.log(e)
+        return true //TODO throw exception
+      }
+    }
+
 }
+
