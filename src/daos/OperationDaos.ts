@@ -69,7 +69,7 @@ export class OperationDao {
         // .innerJoinAndSelect("operation.operation_volumes", "operation_volume")
         .where(
             "(tsrange(effective_time_begin, \"effective_time_end\") && tsrange(:date_begin, :date_end) ) "
-        + " AND (int4range(\"min_altitude\", \"max_altitude\") && int4range(:min_altitude, :max_altitude)) " 
+        + " AND (numrange(\"min_altitude\", \"max_altitude\") && numrange(:min_altitude, :max_altitude)) " 
         + " AND (ST_Intersects(\"operation_geography\" ,ST_GeomFromGeoJSON(:geom)))"
         )
         .setParameters({

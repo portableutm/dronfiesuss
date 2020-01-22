@@ -13,17 +13,17 @@ export class OperationVolume {
     'ordinal': number;
     'volume_type': "TBOV" | "ABOV";
     // 'near_structure'?: boolean;
-    @Column({type: "timestamp"})
+    @Column({type: "timestamp without time zone"})
     'effective_time_begin': string;
     
-    @Column({type: "timestamp"})
+    @Column({type: "timestamp without time zone"})
     'effective_time_end': string;
     
     // 'actual_time_end'?: string;
     
-    @Column()
+    @Column({type: 'numeric'})
     'min_altitude': number;
-    @Column()
+    @Column({type: 'numeric'})
     'max_altitude': number;
     @Column("geometry", {nullable: true})
     'operation_geography': Polygon;
