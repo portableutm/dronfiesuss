@@ -9,7 +9,7 @@ export class Position {
     @PrimaryGeneratedColumn()
     id?: number;
 
-    @Column()
+    @Column({type: 'numeric'})
     'altitude_gps': number; //Altitude;
     'altitude_num_gps_satellites': number;
     'comments' ? : string;
