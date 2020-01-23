@@ -11,7 +11,7 @@ export class UserDao {
 
     async one(username : string) {
         console.log(`username: ${username}`)
-        return this.userRepository.findOne(username);
+        return this.userRepository.findOneOrFail(username);
     }
 
     async save(user:User) {
