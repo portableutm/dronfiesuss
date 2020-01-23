@@ -2,6 +2,7 @@ import { Connection } from 'typeorm';
 import { Polygon } from 'geojson';
 
 import { VehicleDao } from "./daos/VehicleDao";
+import { OperationDao } from "./daos/OperationDaos";
 
 import { User } from "./entities/User";
 import { Operation, OperationState, OperatonFaaRule } from "./entities/Operation";
@@ -12,7 +13,7 @@ import { PriorityElements } from './entities/PriorityElements';
 import { ContingencyPlan } from './entities/ContingencyPlan';
 import { Position } from './entities/Position';
 
-import { Users } from './data/users_data';
+import { Users } from './data/users_data'; 
 import { Vehicles } from "./data/vehicle_data";
 import { UtmMessages } from "./data/utmMessage_data";
 import { Operations } from "./data/operations_data";
@@ -27,6 +28,7 @@ let randomFromList = (list : any[]) : any => {
 export async function initData(connection: Connection, callback ? : () => any) {
     try {
         let vehicleDao = new VehicleDao();
+        let operationDao = new OperationDao();
 
         let users = await connection.manager.find(User);
         if (users.length == 0) {
@@ -55,31 +57,46 @@ export async function initData(connection: Connection, callback ? : () => any) {
             }
         }
 
-
-
-        // let operations
-        // try {
-        //     operations = await connection.manager.find(Operation)
-        // } catch (error) {
-        //     console.error(error)
-        // }
-
-        let operations = await connection.manager.find(Operation)
-        if (operations.length == 0) {
-            console.log("Loading operations ")
-            let vehicles: VehicleReg[] = await vehicleDao.all();
-            let users = await connection.manager.find(User);
-
-            let op: Operation = Operations[0]
-            op.contact = randomFromList(users)
-            op.uas_registrations = [randomFromList(vehicles)]
-    
-            try {
-                connection.manager.save(connection.manager.create("Operation", op));
-            } catch (error) {
-                console.error(error)
-            }
+        let operations
+        try {
+            // operations  = await connection.manager.find(Operation)
+            operations = await operationDao.all();
+        } catch (error) {
+            console.log(error)            
         }
+        console.log(`operations ${operations.length}`)
+        if (operations.length == 0) {
+            console.log(`Loading operations ${operations.length}`)
+            let vehicles: VehicleReg[] 
+            let users
+            try {
+                vehicles = await vehicleDao.all();
+                users = await connection.manager.find(User);
+            } catch (error) {
+                console.log(error)            
+            }
+
+            console.log(`Vehicles: ${vehicles.length}`)
+            console.log(`Users: ${users.length}`)
+
+            for (let index = 0; index < Operations.length; index++) {
+                const op = Operations[index];
+                // let op: Operation = Operations[0]
+                op.contact = users[index] //randomFromList(users)
+                op.uas_registrations = [vehicles[index]] //[randomFromList(vehicles)]
+        
+                try {
+                    // connection.manager.save(connection.manager.create("Operation", op));
+                    let newOp = await operationDao.save(op);
+                    console.log(`New op ${index}: ${JSON.stringify(newOp)}`)
+                } catch (error) {
+                    console.error(error)
+                }
+            }
+           
+        }
+
+        console.log("Loading msgs ")
 
         let messages = await connection.manager.find(UTMMessage)
         if(messages.length==0){
