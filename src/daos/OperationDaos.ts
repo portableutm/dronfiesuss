@@ -34,8 +34,8 @@ export class OperationDao {
         .createQueryBuilder("operation")
         .innerJoinAndSelect("operation.operation_volumes", "operation_volume")
         .where("(tsrange(operation_volume.\"effective_time_begin\", operation_volume.\"effective_time_end\") && tsrange(:date_begin, :date_end) ) "
-        + " OR (int4range(operation_volume.\"min_altitude\", operation_volume.\"max_altitude\") && int4range(:min_altitude, :max_altitude)) " 
-        + " OR (ST_Intersects(operation_volume.\"operation_geography\" ,ST_GeomFromGeoJSON(:geom)))")
+        + " AND (numrange(operation_volume.\"min_altitude\", operation_volume.\"max_altitude\") && numrange(:min_altitude, :max_altitude)) " 
+        + " AND (ST_Intersects(operation_volume.\"operation_geography\" ,ST_GeomFromGeoJSON(:geom)))")
         .setParameters({
             date_begin : volume.effective_time_begin,
             date_end : volume.effective_time_end,
@@ -46,29 +46,11 @@ export class OperationDao {
         .getMany()
     }
 
-    async getOperationByVolumeCount(volume : OperationVolume){
-        return this.repository
-        .createQueryBuilder("operation")
-        .innerJoinAndSelect("operation.operation_volumes", "operation_volume")
-        .where("(tsrange(operation_volume.\"effective_time_begin\", operation_volume.\"effective_time_end\") && tsrange(:date_begin, :date_end) ) "
-        + " AND (int4range(operation_volume.\"min_altitude\", operation_volume.\"max_altitude\") && int4range(:min_altitude, :max_altitude)) " 
-        + " AND (ST_Intersects(operation_volume.\"operation_geography\" ,ST_GeomFromGeoJSON(:geom)))")
-        .setParameters({
-            date_begin : volume.effective_time_begin,
-            date_end : volume.effective_time_end,
-            min_altitude : volume.min_altitude,
-            max_altitude : volume.max_altitude,
-            geom: JSON.stringify(volume.operation_geography)
-        })
-        .getCount()
-    }
-
     async getOperationVolumeByVolumeCount(volume : OperationVolume){
         return this.repositoryOperationVolume
         .createQueryBuilder("operation_volume")
         // .innerJoinAndSelect("operation.operation_volumes", "operation_volume")
-        .where(
-            "(tsrange(effective_time_begin, \"effective_time_end\") && tsrange(:date_begin, :date_end) ) "
+        .where("(tsrange(effective_time_begin, \"effective_time_end\") && tsrange(:date_begin, :date_end) ) "
         + " AND (numrange(\"min_altitude\", \"max_altitude\") && numrange(:min_altitude, :max_altitude)) " 
         + " AND (ST_Intersects(\"operation_geography\" ,ST_GeomFromGeoJSON(:geom)))"
         )
@@ -97,7 +79,13 @@ export class OperationDao {
     }
 
     async save(op:Operation) {
-        return this.repository.save(op);
+        try {
+            return await this.repository.save(op);
+
+        } catch (error) {
+            return {}
+        }
+        
     }
 
     async remove(id : number) {
