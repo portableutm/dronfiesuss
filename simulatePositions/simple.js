@@ -4,7 +4,7 @@ let {
 const https = require('http')
 
 let position = {
-    "altitude_gps": 30,
+    "altitude_gps": 35,
     "location": {
         "type": "Point",
         "coordinates": [
@@ -16,11 +16,13 @@ let position = {
     "gufi": "b92c7431-13c4-4c6c-9b4a-1c3c8eec8c63"
 }
 
-for (let index = 0; index < features.length; index++) {
-    const element = features[index];
-    position.location = element.geometry
-    sendPostion(position)
-}
+let position2 = Object.assign({}, position)
+
+// for (let index = 0; index < features.length; index++) {
+//     const element = features[index];
+//     position.location = element.geometry
+//     sendPostion(position)
+// }
 
 let index = 0;
 setInterval(function(){
@@ -31,6 +33,21 @@ setInterval(function(){
     index = ( index + 1 ) % features.length
     
     }, 1000);
+
+position2.gufi = "f7891e78-9bb4-431d-94d3-1a506910c254"
+let index2 = 0;
+setTimeout(()=>{
+    setInterval(function(){
+        const element = features[index2];
+        position2.location = element.geometry
+        position2.location.coordinates.map(coord=>coord*1.9)
+        console.log(`Enviando ${index2}:: ${JSON.stringify(position2)}`)
+        sendPostion(position2)
+        index2 = ( index2 + 1 ) % features.length
+        
+        }, 1000);
+}, 3000)
+
 
 function sendPostion(position) {
 
