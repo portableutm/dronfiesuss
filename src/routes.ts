@@ -22,39 +22,53 @@ const doRoutes = (route: String, Dao: any) => {
         route: `/${route}`,
         controller: Dao,
         action: "all",
-        // middlewares: [checkJwt]
+        middlewares: [checkJwt]
     }, {
         method: "get",
         route: `/${route}/:id`,
         controller: Dao,
         action: "one",
-        // middlewares: [checkJwt]
+        middlewares: [checkJwt]
     }, {
         method: "post",
         route: `/${route}`,
         controller: Dao,
-        action: "save"
+        action: "save",
+        middlewares: [checkJwt]
     }, {
         method: "delete",
         route: `/${route}/:id`,
         controller: Dao,
-        action: "remove"
+        action: "remove",
+        middlewares: [checkJwt]
     }];
 }
 
-let operations = [...doRoutes("operation", OperationController),
+let operations = [
 {
     method: "post",
     route: `/operation/geo`,
     controller: OperationController,
-    action: "getOperationByPoint"  
+    action: "getOperationByPoint",
+    middlewares: [checkJwt]  
 },
 {
     method: "post",
     route: `/operation/volume`,
     controller: OperationController,
-    action: "getOperationByVolumeOperation"  
-}]
+    action: "getOperationByVolumeOperation",
+    middlewares: [checkJwt]  
+},
+{
+    method: "get",
+    route: `/operation/creator`,
+    controller: OperationController,
+    action: "operationsByCreator",
+    middlewares: [checkJwt]  
+},
+...doRoutes("operation", OperationController)
+
+]
 
 let auth = [{
     method: "post",
