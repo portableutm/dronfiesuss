@@ -1,5 +1,6 @@
 import {NextFunction, Request, Response} from "express";
 import { OperationDao } from "../daos/OperationDaos";
+import { Role } from "../entities/User";
 
 export class OperationController {
 
@@ -43,8 +44,18 @@ export class OperationController {
       return response.json(await this.dao.getOperationByVolume(request.body))
     }
 
-    private parseQuery(query: Express.Request) {
+    async operationsByCreator(request: Request, response: Response, next: NextFunction) {
+      // let state = request.query.state;
+      let {username,role} = response.locals.jwtPayload
+      console.log(` ------------------ operationsByCreator ${username} ------------`)
+      let ops;
       
+      if(role == Role.PILOT){
+        ops = await this.dao.operationsByCreator(username)
+      }else{
+        ops = await this.dao.all()
+      }
+      return response.json({count:ops.length, ops});
     }
 
     async checkIntersection(operationVolume){

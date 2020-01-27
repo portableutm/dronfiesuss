@@ -93,4 +93,22 @@ export class OperationDao {
         await this.repository.remove(userToRemove);
     }
 
+    async operationsByCreator(username: string, filterParam?  :any) {
+        let filter : any = {}
+        if((filterParam!==undefined) && (filterParam.state !== undefined)){
+            filter.where = { state: filterParam.state}
+        }
+        // console.log(` ****** ***** Operations ${username}  ****** ***** `)
+
+        return this.repository.
+        createQueryBuilder("operation")
+        .innerJoinAndSelect("operation.creator", "creator")
+        .where(" creator.\"username\" =  :username"
+        )
+        .setParameters({
+            username : username,
+        })
+        .getMany()
+    }
+
 }   
