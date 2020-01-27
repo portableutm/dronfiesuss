@@ -3,6 +3,11 @@ import {
   } from "typeorm";
 import { Operation } from "./Operation";
 
+export enum NegotiationAgreementType {
+     INTERSECTION = "INTERSECTION" ,
+     REPLAN = "REPLAN"
+}
+
 @Entity()
 export class NegotiationAgreement {
     
@@ -30,7 +35,7 @@ export class NegotiationAgreement {
     @Column()
     'discovery_reference' ? : string;
     @Column()
-    'type' ? : "INTERSECTION" | "REPLAN";
+    'type' ? : NegotiationAgreementType //"INTERSECTION" | "REPLAN";
 
     @BeforeInsert()
     updateNegotiationId() {

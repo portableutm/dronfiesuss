@@ -1,10 +1,10 @@
 
 
 export enum Severity {
-    EMERGENCY,
-    ALERT,
-    CRITICAL,
-    WARNING,
-    NOTICE,
-    INFORMATIONAL,
+    EMERGENCY = "EMERGENCY",
+    ALERT = "ALERT",
+    CRITICAL = "CRITICAL",
+    WARNING = "WARNING",
+    NOTICE = "NOTICE",
+    INFORMATIONAL = "INFORMATIONAL",
 }
