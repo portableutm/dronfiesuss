@@ -1,17 +1,25 @@
 import { Request, Response, NextFunction } from "express";
 import * as jwt from "jsonwebtoken";
-import {jwtSecret} from "../config/config";
+import { jwtSecret } from "../config/config";
 
 export const checkJwt = (req: Request, res: Response, next: NextFunction) => {
   //Get the jwt token from the head
   const token = <string>req.headers["auth"];
+  const bypass = <string>req.headers["bypass"];
   let jwtPayload;
   console.log(`token ${token}`)
 
-  
   //Try to validate the token and get data
   try {
-    jwtPayload = <any>jwt.verify(token, jwtSecret);
+    if (token===undefined && bypass && process.env.NODE_ENV == "dev") {
+      jwtPayload = {
+        username: "User_9",
+        email: "User_9@dronfies.com",
+        role: "admin"
+      }
+    } else {
+      jwtPayload = <any>jwt.verify(token, jwtSecret);
+    }
     console.log(`jwtPayload ${JSON.stringify(jwtPayload)}`)
     res.locals.jwtPayload = jwtPayload;
   } catch (error) {
@@ -19,7 +27,6 @@ export const checkJwt = (req: Request, res: Response, next: NextFunction) => {
     res.status(401).send();
     return;
   }
-
   //The token is valid for 1 hour
   //We want to send a new token on every request
   // const user = jwtPayload;
