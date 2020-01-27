@@ -72,6 +72,9 @@ export async function initData(connection: Connection, callback ? : () => any) {
             try {
                 vehicles = await vehicleDao.all();
                 users = await connection.manager.find(User);
+                users.sort(function(a, b) {
+                    return a.username >= b.username;
+                });
             } catch (error) {
                 console.log(error)            
             }
@@ -82,7 +85,7 @@ export async function initData(connection: Connection, callback ? : () => any) {
             for (let index = 0; index < Operations.length; index++) {
                 const op = Operations[index];
                 // let op: Operation = Operations[0]
-                op.contact = users[index] //randomFromList(users)
+                op.creator = users[index] //randomFromList(users)
                 op.uas_registrations = [vehicles[index]] //[randomFromList(vehicles)]
         
                 try {
