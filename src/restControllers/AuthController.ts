@@ -4,6 +4,7 @@ import { User } from "../entities/User";
 import { UserDao } from "../daos/UserDaos";
 import { checkIfUnencryptedPasswordIsValid } from "../services/encrypter";
 import {jwtSecret} from "../config/config";
+import { getUserFields } from "../utils/authUtils";
 
 export class AuthController {
 
@@ -28,10 +29,11 @@ export class AuthController {
 
         if(credentialValid){
             //Sing JWT, valid for 1 hour
-            const user_obj = {
-                username: user.username,
-                email: user.email
-            }
+            const user_obj = getUserFields(user)
+            // {
+            //     username: user.username,
+            //     email: user.email
+            // }
             try {
                 const token = jwt.sign(
                     user_obj,
