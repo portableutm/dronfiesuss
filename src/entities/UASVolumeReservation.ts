@@ -43,13 +43,13 @@ export enum UASVolumeReservationCause {
 export class UASVolumeReservation {
     @PrimaryGeneratedColumn("uuid")
     'message_id' ? : string;
-    @Column()
+    @Column({nullable: true})
     'uss_name' ? : string;
-    @Column()
+    @Column({nullable: true})
     'type' ? : UASVolumeReservationType //"STATIC_ADVISORY" ,"DYNAMIC_RESTRICTION";
-    @Column("simple-array")
+    @Column("simple-array", {nullable: true})
     'permitted_uas' ? : UASVolumeReservationPermitedUas []
-    @Column("simple-array")
+    @Column("simple-array" , {nullable: true})
     'required_support' ? : UASVolumeReservationRequiredSupport []
 
     @ManyToMany(type => Operation)
@@ -58,23 +58,23 @@ export class UASVolumeReservation {
 
     'permitted_gufis' ? :Array <string>
 
-    @Column()
+    @Column({nullable:true})
     'cause' ? : UASVolumeReservationCause
 
     @Column("geometry", {nullable: true})
     'geography' ? : GeoJSON.Polygon
 
-    @Column({type: "timestamp without time zone"})
+    @Column({type: "timestamp without time zone", nullable:true})
     'effective_time_begin' ? : string
-    @Column({type: "timestamp without time zone"})
+    @Column({type: "timestamp without time zone", nullable:true})
     'effective_time_end' ? : string
-    @Column({type: "timestamp without time zone"})
+    @Column({type: "timestamp without time zone", nullable:true})
     'actual_time_end' ? : string
 
-    @Column({type: 'numeric'})
+    @Column({type: 'numeric', nullable:true})
     'min_altitude' ? : number //Altitude
-    @Column({type: 'numeric'})
+    @Column({type: 'numeric', nullable:true})
     'max_altitude' ? : number //Altitude
-    @Column()
+    @Column({nullable:true})
     'reason' ? : string
 }
