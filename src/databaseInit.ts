@@ -12,12 +12,14 @@ import { UTMMessage, Severity } from "./entities/UTMMessage";
 import { PriorityElements } from './entities/PriorityElements';
 import { ContingencyPlan } from './entities/ContingencyPlan';
 import { Position } from './entities/Position';
+import { UASVolumeReservation } from './entities/UASVolumeReservation';
 
 import { Users } from './data/users_data'; 
 import { Vehicles } from "./data/vehicle_data";
 import { UtmMessages } from "./data/utmMessage_data";
 import { Operations } from "./data/operations_data";
 import { Positions } from "./data/position_data";
+import { uasVolumeReservationList } from "./data/uasVolumeReservation_data";
 
 
 
@@ -105,6 +107,13 @@ export async function initData(connection: Connection, callback ? : () => any) {
         if(messages.length==0){
             UtmMessages.forEach(async (utmMessage)=>{
                 await connection.manager.save(UTMMessage, utmMessage)
+            })
+        }
+
+        let uasVolumeReservations = await connection.manager.find(UASVolumeReservation)
+        if(uasVolumeReservations.length==0){
+            uasVolumeReservationList.forEach(async (uasVolumeReservation)=>{
+                await connection.manager.save(UASVolumeReservation, uasVolumeReservation)
             })
         }
 

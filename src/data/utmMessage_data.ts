@@ -7,7 +7,8 @@ const enumValues = Object.keys(Severity)
 function getRandomSeverety() : Severity{
     // return Severity.EMERGENCY
     const randomIndex = Math.floor(Math.random() * enumValues.length)
-    return enumValues[randomIndex]
+    return Severity.INFORMATIONAL
+    // return enumValues[randomIndex]
 }
   
 
