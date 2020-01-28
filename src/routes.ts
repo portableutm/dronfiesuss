@@ -4,6 +4,7 @@ import { OperationController } from "./restControllers/OperationController";
 import { UTMMessageController } from "./restControllers/UtmMessageRestController";
 import { AuthController } from "./restControllers/AuthController";
 import { PositionController } from "./restControllers/PositionController";
+import { UASVolumeReservationController } from "./restControllers/UASVolumeReservationController";
 
 import { checkJwt } from "./middleware/checkJwt";
 
@@ -83,6 +84,7 @@ let r : CustomRoute[] = [
     ...doRoutes("utmmessage", UTMMessageController),
     ...doRoutes("vehicle", VehicleController), 
     ...doRoutes("position", PositionController), 
+    ...doRoutes("uasvolume", UASVolumeReservationController), 
     ...operations, 
     ...auth
 ];
