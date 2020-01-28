@@ -6,6 +6,13 @@ export class OperationController {
 
     private dao = new OperationDao()
 
+    /**
+     * Return all operations, if state passed return all operations with this state
+     * query params: state=OperationState 
+     * @param request 
+     * @param response 
+     * @param next 
+     */
     async all(request: Request, response: Response, next: NextFunction) {
       let state = request.query.state;
       let ops = await this.dao.all({state:state})
