@@ -15,8 +15,10 @@ export class UserDao {
     }
 
     async save(user:User) {
-
-        return this.userRepository.save(user);
+        console.log(`Save user: ${JSON.stringify(user)}`)
+        let u = await this.userRepository.insert(user)
+        // let u = await this.userRepository.save(user);
+        return u;
     }
 
     async remove(username : string) {
