@@ -9,3 +9,7 @@ export function getUserFields(user:User){
         role: user.role
     }
 }
+
+export function getPayloadFromResponse(response:any){
+    return response.locals.jwtPayload
+}
