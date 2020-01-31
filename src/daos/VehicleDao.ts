@@ -20,8 +20,25 @@ export class VehicleDao {
         // let v = vehiculos[0]
         console.log(`Dao vehiculo::vehicle>${JSON.stringify(v)}<`)
         return v;
-
     }
+
+    async oneByUser(id : string, username: string) {
+        console.log(`Dao vehiculo::id>${id}<`)
+        let v =  await this.repository.findOneOrFail(id,{
+            where : {
+                registeredBy : username
+            }
+        });
+        // let vehiculos = this.repository.find({
+        //     where: [
+        //       { uvin: id},
+        //     ]
+        //   });
+        // let v = vehiculos[0]
+        console.log(`Dao vehiculo::vehicle>${JSON.stringify(v)}<`)
+        return v;
+    }
+    
 
 //     {
 //         "nNumber": "",
