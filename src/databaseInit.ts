@@ -14,7 +14,7 @@ import { ContingencyPlan } from './entities/ContingencyPlan';
 import { Position } from './entities/Position';
 import { UASVolumeReservation } from './entities/UASVolumeReservation';
 
-import { Users } from './data/users_data'; 
+import { Users } from './data/users_data';
 import { Vehicles } from "./data/vehicle_data";
 import { UtmMessages } from "./data/utmMessage_data";
 import { Operations } from "./data/operations_data";
@@ -23,11 +23,11 @@ import { uasVolumeReservationList } from "./data/uasVolumeReservation_data";
 
 
 
-let randomFromList = (list : any[]) : any => {
+let randomFromList = (list: any[]): any => {
     return list[Math.floor(Math.random() * list.length)];
 }
 
-export async function initData(connection: Connection, callback ? : () => any) {
+export async function initData(connection: Connection, callback?: () => any) {
     try {
         let vehicleDao = new VehicleDao();
         let operationDao = new OperationDao();
@@ -35,19 +35,28 @@ export async function initData(connection: Connection, callback ? : () => any) {
         let users = await connection.manager.find(User);
         if (users.length == 0) {
             console.log("Loading Users")
-            let savedUser = Users.map(async user => {
+            // let savedUsers = Users.map(async user => {
+            //     try {
+            //         return await connection.manager.save(connection.manager.create("User", user))
+            //     } catch (error) {
+            //         console.error(error)
+            //     }
+            // })
+            for (let index = 0; index < Users.length; index++) {
+                const user = Users[index];
                 try {
-                    return await connection.manager.save(connection.manager.create("User", user))
+                    await connection.manager.save(connection.manager.create("User", user))
                 } catch (error) {
                     console.error(error)
                 }
-            })
+            }
             const vehicles: VehicleReg[] = await vehicleDao.all();
             if (vehicles.length == 0) {
                 users = await connection.manager.find(User);
-                console.log("Loading vehicles")
-                Vehicles.forEach(async vehicle => {
-                    let user: User = randomFromList(users)
+                console.log(`Loading vehicles: largo de usuarios ${users.length}`)
+                Vehicles.forEach(async (vehicle, idx) => {
+                    let user: User = users[idx] // randomFromList(users)
+                    console.log(`Vehicle ${JSON.stringify(vehicle)}, user:${JSON.stringify(user)}`)
                     vehicle.registeredBy = user
                     try {
                         await connection.manager.save(connection.manager.create("VehicleReg", vehicle))
@@ -64,21 +73,21 @@ export async function initData(connection: Connection, callback ? : () => any) {
             // operations  = await connection.manager.find(Operation)
             operations = await operationDao.all();
         } catch (error) {
-            console.log(error)            
+            console.log(error)
         }
         console.log(`operations ${operations.length}`)
         if (operations.length == 0) {
             console.log(`Loading operations ${operations.length}`)
-            let vehicles: VehicleReg[] 
+            let vehicles: VehicleReg[]
             let users
             try {
                 vehicles = await vehicleDao.all();
                 users = await connection.manager.find(User);
-                users.sort(function(a, b) {
+                users.sort(function (a, b) {
                     return a.username >= b.username;
                 });
             } catch (error) {
-                console.log(error)            
+                console.log(error)
             }
 
             console.log(`Vehicles: ${vehicles.length}`)
@@ -89,7 +98,7 @@ export async function initData(connection: Connection, callback ? : () => any) {
                 // let op: Operation = Operations[0]
                 op.creator = users[index] //randomFromList(users)
                 op.uas_registrations = [vehicles[index]] //[randomFromList(vehicles)]
-        
+
                 try {
                     // connection.manager.save(connection.manager.create("Operation", op));
                     let newOp = await operationDao.save(op);
@@ -98,30 +107,30 @@ export async function initData(connection: Connection, callback ? : () => any) {
                     console.error(error)
                 }
             }
-           
+
         }
 
         console.log("Loading msgs ")
 
         let messages = await connection.manager.find(UTMMessage)
-        if(messages.length==0){
-            UtmMessages.forEach(async (utmMessage)=>{
+        if (messages.length == 0) {
+            UtmMessages.forEach(async (utmMessage) => {
                 await connection.manager.save(UTMMessage, utmMessage)
             })
         }
 
         let uasVolumeReservations = await connection.manager.find(UASVolumeReservation)
-        if(uasVolumeReservations.length==0){
-            uasVolumeReservationList.forEach(async (uasVolumeReservation)=>{
+        if (uasVolumeReservations.length == 0) {
+            uasVolumeReservationList.forEach(async (uasVolumeReservation) => {
                 await connection.manager.save(UASVolumeReservation, uasVolumeReservation)
             })
         }
 
         let positions = await connection.manager.find(Position)
-        if(positions.length==0){
+        if (positions.length == 0) {
             let operations = await connection.manager.find(Operation);
 
-            Positions.forEach(async (position)=>{
+            Positions.forEach(async (position) => {
                 position.gufi = operations[0]
                 await connection.manager.save(Position, position)
             })
