@@ -53,10 +53,15 @@ export async function initData(connection: Connection, callback?: () => any) {
             const vehicles: VehicleReg[] = await vehicleDao.all();
             if (vehicles.length == 0) {
                 users = await connection.manager.find(User);
+                users.sort(function (a, b) {
+                    return a.username.localeCompare(b.username);
+                }); 
                 console.log(`Loading vehicles: largo de usuarios ${users.length}`)
-                Vehicles.forEach(async (vehicle, idx) => {
-                    let user: User = users[idx] // randomFromList(users)
-                    console.log(`Vehicle ${JSON.stringify(vehicle)}, user:${JSON.stringify(user)}`)
+                Vehicles.forEach(async (vehicle, idx) => { 
+                    let number = parseInt((vehicle.vehicleName.match(/\d+/g))[0])
+                    let user: User = users[number%2?0:1] // randomFromList(users)
+                    console.log(`Vehicle ${vehicle.vehicleName}, user:${user.username}`)
+                    // console.log(`Vehicle ${JSON.stringify(vehicle)}, user:${JSON.stringify(user)}`)
                     vehicle.registeredBy = user
                     try {
                         await connection.manager.save(connection.manager.create("VehicleReg", vehicle))
