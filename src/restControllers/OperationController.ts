@@ -153,6 +153,9 @@ function validateOperation(operation: any) {
   let errors = []
   // let op: Operation = operation
   let op = operation
+  if (op.operation_volumes.length != 1) {
+    errors.push(`Operation must have only 1 volume and has ${op.operation_volumes.length}`)
+  }
   for (let index = 0; index < op.operation_volumes.length; index++) {
     const element = op.operation_volumes[index];
     if (!(element.min_altitude > MIN_MIN_ALTITUDE)) {
@@ -174,17 +177,15 @@ function validateOperation(operation: any) {
       errors.push(`effective_time_begin ${element.effective_time_begin} must be lower than effective_time_end ${element.effective_time_end}`)
     } else
       if (difference < MIN_TIME_INTERVAL) {
-        errors.push(`The time interval must be greater than ${MIN_TIME_INTERVAL/60/1000} min and is ${difference /60/1000 } min`)
+        errors.push(`The time interval must be greater than ${MIN_TIME_INTERVAL / 60 / 1000} min and is ${difference / 60 / 1000} min`)
       } else
         if (difference > MAX_TIME_INTERVAL) {
-          errors.push(`The time interval must be lower than ${MAX_TIME_INTERVAL/60/1000/60} hours and is ${roundWithDecimals(difference /60/1000/60)} hours`)
+          errors.push(`The time interval must be lower than ${MAX_TIME_INTERVAL / 60 / 1000 / 60} hours and is ${roundWithDecimals(difference / 60 / 1000 / 60)} hours`)
         }
-
-
   }
   return errors
 }
 
-function roundWithDecimals(num){
+function roundWithDecimals(num) {
   return Math.round(num * 100) / 100
 }
