@@ -2,6 +2,7 @@
 const cron = require("node-cron");
 
 import { schedule } from "node-cron";
+import { proposedToAccepted } from "./operationCronJobs";
 
 export class CronService {
     tasks = {
@@ -11,8 +12,9 @@ export class CronService {
         console.log("<>    CRON SERVICE     <>")
         this.tasks['operationCron'] = undefined;
 
-        let operationCron = schedule("*/10 * * * * *", function() {
-            console.log("------------------- >> running a task every minute");
+        let operationCron = schedule("*/30 * * * * *", function() {
+            // console.log("------------------- >> running a task every minute");
+            proposedToAccepted();
         });
         operationCron.start();
         this.tasks['operationCron'] = operationCron;
