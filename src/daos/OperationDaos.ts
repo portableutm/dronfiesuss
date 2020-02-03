@@ -78,6 +78,14 @@ export class OperationDao {
         return this.repository.findOne(id);
     }
 
+    async oneByCreator(id : string, username:string) {
+        return this.repository.findOneOrFail(id, {
+            where : {
+                creator : username
+            }
+        });
+    }
+
     async save(op:Operation) {
         try {
             return await this.repository.save(op);
