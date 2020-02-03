@@ -103,8 +103,8 @@ export class Operation {
     'gcs_location'?: Point;
 
     //nulleable
-    @Column()
-    'faa_rule': OperatonFaaRule // "PART_107" | "PART_107X" | "PART_101E" | "OTHER";
+    @Column({ nullable: true })
+    'faa_rule'?: OperatonFaaRule // "PART_107" | "PART_107X" | "PART_101E" | "OTHER";
 
 
     //tiene que tener 1 elemento

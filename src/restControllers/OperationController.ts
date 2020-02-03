@@ -2,10 +2,12 @@ import { NextFunction, Request, Response } from "express";
 import { OperationDao } from "../daos/OperationDaos";
 import { Role } from "../entities/User";
 import { getPayloadFromResponse } from "../utils/authUtils";
+import { VehicleDao } from "../daos/VehicleDao";
 
 export class OperationController {
 
   private dao = new OperationDao()
+  private daoVehiculo = new VehicleDao()
 
   /**
    * Return all operations, if state passed return all operations with this state
@@ -53,21 +55,36 @@ export class OperationController {
    * @param next 
    */
   async save(request: Request, response: Response, next: NextFunction) {
+    let { username, role } = response.locals.jwtPayload
+  
+    try {
+      for (let index = 0; index < request.body.uas_registrations.length; index++) {
+        const element = request.body.uas_registrations[index];
+        let veh = await this.daoVehiculo.oneByUser(element, username)
+        request.body.uas_registrations[index] = veh
+      }
+
+    } catch (error) {
+      response.status(400)
+      return response.json(`Error with vehicle.`)
+    }
+    request.body.creator = username
+
     /**
      * interesccion con otras operaciones
      * interseccion con UVR
      */
     let op_vols = request.body.operation_volumes
     let error = false
-    if (op_vols !== undefined) {
-      for (let index = 0; index < op_vols.length; index++) {
-        const element = op_vols[index];
-        let intersect = await this.checkIntersection(element)
-        if (intersect) {
-          error = true
-        }
-      }
-    }
+    // if (op_vols !== undefined) {
+    //   for (let index = 0; index < op_vols.length; index++) {
+    //     const element = op_vols[index];
+    //     let intersect = await this.checkIntersection(element)
+    //     if (intersect) {
+    //       error = true
+    //     }
+    //   }
+    // }
     if (error) {
       return response.json({ "Error": `The operation registrated intersect with an other operation` })
     } else {
