@@ -3,6 +3,18 @@ import { OperationDao } from "../daos/OperationDaos";
 import { Role } from "../entities/User";
 import { getPayloadFromResponse } from "../utils/authUtils";
 import { VehicleDao } from "../daos/VehicleDao";
+import { Operation } from "../entities/Operation";
+
+
+const MIN_MIN_ALTITUDE = -300
+const MAX_MIN_ALTITUDE = 0
+
+const MIN_MAX_ALTITUDE = 0
+const MAX_MAX_ALTITUDE = 400
+
+
+const MIN_TIME_INTERVAL = 15 * (1000 * 60) // 15 minutos
+const MAX_TIME_INTERVAL = 5 * (1000 * 60 * 60) // 5 horas
 
 export class OperationController {
 
@@ -56,7 +68,7 @@ export class OperationController {
    */
   async save(request: Request, response: Response, next: NextFunction) {
     let { username, role } = response.locals.jwtPayload
-  
+    let errors = validateOperation(request.body)
     try {
       for (let index = 0; index < request.body.uas_registrations.length; index++) {
         const element = request.body.uas_registrations[index];
@@ -65,8 +77,9 @@ export class OperationController {
       }
 
     } catch (error) {
-      response.status(400)
-      return response.json(`Error with vehicle.`)
+      // response.status(400)
+      // return response.json(`Error with vehicle.`)
+      errors.push(`Error with vehicle`)
     }
     request.body.creator = username
 
@@ -85,12 +98,20 @@ export class OperationController {
     //     }
     //   }
     // }
-    if (error) {
-      return response.json({ "Error": `The operation registrated intersect with an other operation` })
-    } else {
+    if (errors.length == 0) {
       return response.json(await this.dao.save(request.body));
+    } else {
+      response.status(400)
+      return response.json(errors)
     }
+    // if (error) {
+    //   return response.json({ "Error": `The operation registrated intersect with an other operation` })
+    // } else {
+    //   return response.json(await this.dao.save(request.body));
+    // }
   }
+
+
 
   async getOperationByPoint(request: Request, response: Response, next: NextFunction) {
     return response.json(await this.dao.getOperationByPoint(request.body))
@@ -127,3 +148,43 @@ export class OperationController {
 
 }
 
+
+function validateOperation(operation: any) {
+  let errors = []
+  // let op: Operation = operation
+  let op = operation
+  for (let index = 0; index < op.operation_volumes.length; index++) {
+    const element = op.operation_volumes[index];
+    if (!(element.min_altitude > MIN_MIN_ALTITUDE)) {
+      errors.push(`Min altitude must be greater than ${MIN_MIN_ALTITUDE} and is ${element.min_altitude}`)
+    }
+    if (!(element.min_altitude < MAX_MIN_ALTITUDE)) {
+      errors.push(`Min altitude must be lower than ${MAX_MIN_ALTITUDE} and is ${element.min_altitude}`)
+    }
+    if (!(element.max_altitude > MIN_MAX_ALTITUDE)) {
+      errors.push(`Max altitude must be greater than ${MIN_MAX_ALTITUDE} and is ${element.max_altitude}`)
+    }
+    if (!(element.max_altitude < MAX_MAX_ALTITUDE)) {
+      errors.push(`Max altitude must be lower than ${MAX_MAX_ALTITUDE} and is ${element.max_altitude}`)
+    }
+    let effective_time_begin = new Date(element.effective_time_begin)
+    let effective_time_end = new Date(element.effective_time_end)
+    let difference = effective_time_end.getTime() - effective_time_begin.getTime()
+    if (difference <= 0) {
+      errors.push(`effective_time_begin ${element.effective_time_begin} must be lower than effective_time_end ${element.effective_time_end}`)
+    } else
+      if (difference < MIN_TIME_INTERVAL) {
+        errors.push(`The time interval must be greater than ${MIN_TIME_INTERVAL/60/1000} min and is ${difference /60/1000 } min`)
+      } else
+        if (difference > MAX_TIME_INTERVAL) {
+          errors.push(`The time interval must be lower than ${MAX_TIME_INTERVAL/60/1000/60} hours and is ${roundWithDecimals(difference /60/1000/60)} hours`)
+        }
+
+
+  }
+  return errors
+}
+
+function roundWithDecimals(num){
+  return Math.round(num * 100) / 100
+}
