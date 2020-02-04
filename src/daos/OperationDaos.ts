@@ -124,6 +124,7 @@ export class OperationDao {
     async getOperationsForCron(){
         return this.repository.
         createQueryBuilder("operation")
+        .innerJoinAndSelect("operation.operation_volumes", "operation_volume")
         .where("\"state\" in ('ACCEPTED', 'PROPOSED', 'ACTIVATED', 'NONCONFORMING', 'ROGUE', 'NOT_ACCEPTED')")
         .getMany()
     }
