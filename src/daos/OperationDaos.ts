@@ -119,4 +119,13 @@ export class OperationDao {
         .getMany()
     }
 
+    //     select * from operation
+    // where state in ('ACCEPTED', 'PROPOSED')
+    async getOperationsForCron(){
+        return this.repository.
+        createQueryBuilder("operation")
+        .where("\"state\" in ('ACCEPTED', 'PROPOSED', 'ACTIVATED', 'NONCONFORMING', 'ROGUE', 'NOT_ACCEPTED')")
+        .getMany()
+    }
+
 }   
