@@ -3,7 +3,7 @@ import { OperationDao } from "../daos/OperationDaos";
 import { Role } from "../entities/User";
 import { getPayloadFromResponse } from "../utils/authUtils";
 import { VehicleDao } from "../daos/VehicleDao";
-import { Operation } from "../entities/Operation";
+import { Operation, OperationState } from "../entities/Operation";
 
 
 const MIN_MIN_ALTITUDE = -300
@@ -82,6 +82,7 @@ export class OperationController {
       errors.push(`Error with vehicle`)
     }
     request.body.creator = username
+    request.body.state = OperationState.PROPOSED
 
     /**
      * interesccion con otras operaciones
