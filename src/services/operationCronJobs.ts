@@ -1,8 +1,9 @@
 import { OperationDao } from "../daos/OperationDaos";
 import { Operation, OperationState } from "../entities/Operation";
 import { getNow } from "./dateTimeService";
+import { OperationVolume } from "../entities/OperationVolume";
 
-let operationDao;
+let operationDao : OperationDao;
 
 export async function processOperations() {
     operationDao = new OperationDao()
@@ -53,7 +54,7 @@ async function processProposed(operation: Operation) {
     // try {
         for (let index = 0; index < operation.operation_volumes.length; index++) {
             const operationVolume = operation.operation_volumes[index];
-            let intersect = await checkIntersection(operationVolume)
+            let intersect = await checkIntersection(operation, operationVolume)
             if (intersect) {
                 return changeState(operation, OperationState.NOT_ACCEPTED)
             }
@@ -65,9 +66,11 @@ async function processProposed(operation: Operation) {
     
 }
 
-async function checkIntersection(operationVolume) {
+async function checkIntersection(operation: Operation, operationVolume:OperationVolume) {
     try {
-        let operationsCount = await operationDao.getOperationVolumeByVolumeCount(operationVolume)
+        // let operationsCount = await operationDao.getOperationVolumeByVolumeCount(operationVolume)
+        let operationsCount = await operationDao.getOperationVolumeByVolumeCountExcludingOneOperation(operation.gufi, operationVolume)
+        
         return operationsCount > 0;
     } catch (e) {
         console.log(e)
@@ -88,7 +91,6 @@ function processNotAccepted(operation: Operation) {
  */
 function processAccepted(operation: Operation) {
     let date = getNow()
-
     for (let index = 0; index < operation.operation_volumes.length; index++) {
         const operationVolume = operation.operation_volumes[index];
         let dateBegin = new Date(operationVolume.effective_time_begin)
@@ -104,7 +106,15 @@ function processAccepted(operation: Operation) {
  * @param operation 
  */
 function processActivated(operation: Operation) {
-
+    let date = getNow()
+    for (let index = 0; index < operation.operation_volumes.length; index++) {
+        const operationVolume = operation.operation_volumes[index];
+        let dateBegin = new Date(operationVolume.effective_time_begin)
+        let dateEnd = new Date(operationVolume.effective_time_end)
+        if ( (date.getTime() > dateEnd.getTime()) ) {
+            changeState(operation, OperationState.CLOSED) 
+        }
+    }
 }
 /**
  * The operation must be Nonconforming for no more than 30 seg
