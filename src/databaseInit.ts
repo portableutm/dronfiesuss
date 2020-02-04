@@ -83,7 +83,7 @@ export async function initData(connection: Connection, callback?: () => any) {
         console.log(`operations ${operations.length}`)
         if (operations.length == 0) {
             console.log(`Loading operations ${operations.length}`)
-            let vehicles: VehicleReg[]
+            let vehicles: VehicleReg[] 
             let users
             try {
                 vehicles = await vehicleDao.all();
@@ -107,7 +107,7 @@ export async function initData(connection: Connection, callback?: () => any) {
                 try {
                     // connection.manager.save(connection.manager.create("Operation", op));
                     let newOp = await operationDao.save(op);
-                    console.log(`New op ${index}: ${JSON.stringify(newOp)}`)
+                    // console.log(`New op ${index}: ${JSON.stringify(newOp)}`)
                 } catch (error) {
                     console.error(error)
                 }
