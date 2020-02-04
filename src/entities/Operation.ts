@@ -45,7 +45,8 @@ export enum OperationState {
     , ACTIVATED = "ACTIVATED"
     , CLOSED = "CLOSED"
     , NONCONFORMING = "NONCONFORMING"
-    , ROGUE = "ROGUE"
+    , ROGUE = "ROGUE",
+    NOT_ACCEPTED = "NOT_ACCEPTED"
 }
 export enum OperatonFaaRule {
     PART_107 = "PART_107"
