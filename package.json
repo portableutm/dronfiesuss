@@ -12,6 +12,7 @@
       "cross-env": "^6.0.3",
       "eslint-config-xo-typescript": "^0.21.0",
       "mocha": "^6.2.2",
+      "morgan": "^1.9.1",
       "nodemon": "^2.0.2",
       "nyc": "^15.0.0",
       "ts-node": "3.3.0",
