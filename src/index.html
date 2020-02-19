@@ -81,29 +81,51 @@
     var positions = {}
     var mymap;
 
-    function getCoords(position){
-      return [position.location.coordinates[1],position.location.coordinates[0]]
+    function getCoords(position) {
+      return [position.location.coordinates[1], position.location.coordinates[0]]
     }
 
-    function newPosition(position){
+    function newPosition(position) {
       console.log(`Processing ${JSON.stringify(position)}`)
-      if(positions[position.gufi] === undefined){
+      if (positions[position.gufi] === undefined) {
         console.log(`Nueva posicion`)
-        positions[position.gufi] = L.marker(getCoords(position)).addTo(mymap) 
+        positions[position.gufi] = L.marker(getCoords(position)).addTo(mymap)
       }
-      else{
+      else {
         console.log(`Actualizo posicion`)
         positions[position.gufi].setLatLng(getCoords(position))
       }
     }
 
     $(function () {
-        mymap = L.map('mapid').setView([
-            -34.9068213410793,-56.1636114120483], 12);
+      mymap = L.map('mapid').setView([
+        -34.9068213410793, -56.1636114120483], 12);
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-    }).addTo(mymap);
+      const queryString = window.location.search;
+      const urlParams = new URLSearchParams(queryString);
+      const geoserver = urlParams.get('geoserver')
+      if (geoserver) {
+        L.tileLayer.wms('http://localhost:8080/geoserver/Dronfies/wms?', {
+          service: "WMS",
+          version: "1.1.0",
+          request: "GetMap",
+          layers: "Dronfies:HYP_HR_SR_OB_DR",
+          srs: "EPSG:4326",
+        }).addTo(mymap);
+      } else {
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(mymap);
+      }
+      
+      // L.tileLayer.wms('http://localhost:8080/geoserver/Dronfies/wms?', {
+      //   service:"WMS",
+      //   version:"1.1.0",
+      //   request:"GetMap",
+      //   layers:"Dronfies:HYP_HR_SR_OB_DR",
+      //   srs:"EPSG:4326",
+      // }).addTo(mymap);
+
 
       const socket = io({
         transports: ['websocket']
@@ -121,7 +143,7 @@
       socket.on('new-position', function (position) {
         console.log(`New position ${position}`)
         newPosition(position)
-        
+
       });
     });
   </script>
