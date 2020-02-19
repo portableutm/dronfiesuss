@@ -69,7 +69,9 @@ class App {
     // Here we can add all the global middlewares for our application. (Those that will work across every contoller)
     private initializeMiddlewares() {
         this.app.use(express.json());
-        this.app.use(cors())
+        this.app.use(cors({
+            exposedHeaders: ['token'],
+          }))
         // this.app.use(morgan('dev'))
         this.app.use(function (req, res, next) {
             console.log(`body: ${JSON.stringify(req.body)}`)
