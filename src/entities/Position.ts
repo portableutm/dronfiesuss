@@ -25,7 +25,8 @@ export class Position {
     @Column("geometry", {nullable: true})
     'location': GeoJSON.Point;
     'time_measured': string;
-    
+
+    @Column({type: "timestamp"})
     'time_sent': string;
     'track_bearing': number;
     'track_bearing_reference': "TRUE_NORTH" | "MAGNETIC_NORTH";
