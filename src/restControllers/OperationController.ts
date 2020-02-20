@@ -159,16 +159,16 @@ function validateOperation(operation: any) {
   }
   for (let index = 0; index < op.operation_volumes.length; index++) {
     const element = op.operation_volumes[index];
-    if (!(element.min_altitude > MIN_MIN_ALTITUDE)) {
+    if (!(element.min_altitude >= MIN_MIN_ALTITUDE)) {
       errors.push(`Min altitude must be greater than ${MIN_MIN_ALTITUDE} and is ${element.min_altitude}`)
     }
-    if (!(element.min_altitude < MAX_MIN_ALTITUDE)) {
+    if (!(element.min_altitude <= MAX_MIN_ALTITUDE)) {
       errors.push(`Min altitude must be lower than ${MAX_MIN_ALTITUDE} and is ${element.min_altitude}`)
     }
-    if (!(element.max_altitude > MIN_MAX_ALTITUDE)) {
+    if (!(element.max_altitude >= MIN_MAX_ALTITUDE)) {
       errors.push(`Max altitude must be greater than ${MIN_MAX_ALTITUDE} and is ${element.max_altitude}`)
     }
-    if (!(element.max_altitude < MAX_MAX_ALTITUDE)) {
+    if (!(element.max_altitude <= MAX_MAX_ALTITUDE)) {
       errors.push(`Max altitude must be lower than ${MAX_MAX_ALTITUDE} and is ${element.max_altitude}`)
     }
     let effective_time_begin = new Date(element.effective_time_begin)
