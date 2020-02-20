@@ -1,13 +1,17 @@
 import {NextFunction, Request, Response} from "express";
 import { PositionDao } from "../daos/PositionDao";
+import { OperationDao } from "../daos/OperationDaos";
 
 // import { app } from "../index";
-import { sendPositionToMonitor } from "../services/asyncBrowserComunication";
+import { sendPositionToMonitor, sendOperationFlyStatus} from "../services/asyncBrowserComunication";
+import { Position } from "../entities/Position";
+import { OperationState } from "../entities/Operation";
 
 
 export class PositionController {
 
     private dao = new PositionDao()
+    private operationDao : OperationDao;
 
     async all(request: Request, response: Response, next: NextFunction) {
         return response.json(await this.dao.all());
@@ -19,10 +23,29 @@ export class PositionController {
 
     async save(request: Request, response: Response, next: NextFunction) {
         try{
-            let position = await this.dao.save(request.body)
+            let gufi = request.body.gufi
+            let position  = await this.dao.save(request.body)
+
+            console.log(`Entrando al checker con  ${JSON.stringify(position, null, 2)}`)
+            let res = await this.dao.checkPositionWithOperation(position)
+            let {inOperation} = res
+            if(!inOperation){
+                console.log("------------ Vuela fuera actualizo")
+                if(this.operationDao == undefined){
+                    this.operationDao = new OperationDao();
+                }
+                console.log(await this.operationDao.updateState(gufi, OperationState.ROGUE))
+                // let op = await this.operationDao.one(gufi);
+                // op.state = OperationState.ROGUE
+                // let savedOp = await this.operationDao.save(op);
+                // console.log(`Saved op ${JSON.stringify(savedOp)} `)
+            }else{
+                console.log("------------ Vuela ok")
+            }
+
+            sendOperationFlyStatus(inOperation)
             console.log(`Send new position ${position}`)
             sendPositionToMonitor(position)
-            // app.io.emit('new-position', position)
             return response.json(position);
 
         }catch(error){
@@ -30,5 +53,7 @@ export class PositionController {
         }
 
     }
+
+
 
 }
