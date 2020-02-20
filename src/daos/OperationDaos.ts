@@ -1,7 +1,7 @@
 import {getRepository} from "typeorm";
 
 import { Point } from "geojson";
-import { Operation } from "../entities/Operation";
+import { Operation, OperationState } from "../entities/Operation";
 import { OperationVolume } from "../entities/OperationVolume";
 
 export class OperationDao {
@@ -114,6 +114,12 @@ export class OperationDao {
         }
         
     }
+
+    async updateState(gufi, state : OperationState) {
+        return await this.repository.update(gufi, { state: state });
+    }
+
+    
 
     async remove(id : number) {
         let userToRemove = await this.repository.findOne(id);
