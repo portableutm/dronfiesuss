@@ -1,0 +1,253 @@
+<!doctype html>
+<html>
+
+<head>
+  <title>Socket.IO chat</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font: 13px Helvetica, Arial;
+    }
+
+    form {
+      background: #000;
+      padding: 3px;
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+    }
+
+    form input {
+      border: 0;
+      padding: 10px;
+      width: 90%;
+      margin-right: .5%;
+    }
+
+    form button {
+      width: 9%;
+      background: rgb(130, 224, 255);
+      border: none;
+      padding: 10px;
+    }
+
+    #messages {
+      list-style-type: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    #messages li {
+      padding: 5px 10px;
+    }
+
+    #messages li:nth-child(odd) {
+      background: #eee;
+    }
+
+    #messages {
+      margin-bottom: 40px
+    }
+
+    #mapid {
+      height: 400px;
+    }
+  </style>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css"
+    integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
+    crossorigin="" />
+
+</head>
+
+<body>
+  <div id="mapid"></div>
+  <ul id="messages"></ul>
+  <form action="">
+    <input id="m" autocomplete="off" /><button>Send</button>
+  </form>
+  <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
+  <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+  <!-- Make sure you put this AFTER Leaflet's CSS -->
+  <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"
+    integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew=="
+    crossorigin=""></script>
+
+  <script>
+    var positions = {}
+    var mymap;
+    var operationsLayerGroup
+
+    function getCoords(position) {
+      return [position.location.coordinates[1], position.location.coordinates[0]]
+    }
+
+    function newPosition(position) {
+      console.log(`Processing ${JSON.stringify(position)}`)
+      if (positions[position.gufi] === undefined) {
+        console.log(`Nueva posicion`)
+        positions[position.gufi] = L.marker(getCoords(position)).addTo(mymap)
+      }
+      else {
+        console.log(`Actualizo posicion`)
+        positions[position.gufi].setLatLng(getCoords(position))
+      }
+    }
+
+    $(function () {
+      mymap = L.map('mapid').setView([
+        -34.9068213410793, -56.1636114120483], 14);
+
+      const queryString = window.location.search;
+      const urlParams = new URLSearchParams(queryString);
+      const geoserver = urlParams.get('geoserver')
+      if (geoserver) {
+        L.tileLayer.wms('http://localhost:8080/geoserver/Dronfies/wms?', {
+          service: "WMS",
+          version: "1.1.0",
+          request: "GetMap",
+          layers: "Dronfies:HYP_HR_SR_OB_DR",
+          srs: "EPSG:4326",
+        }).addTo(mymap);
+      } else {
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(mymap);
+      }
+
+      const socket = io({
+        transports: ['websocket']
+      });
+      console.log('Conectado?')
+      $('form').submit(function () {
+        socket.emit('chat message', $('#m').val());
+        $('#m').val('');
+        return false;
+      });
+      socket.on('chat message', function (msg) {
+        $('#messages').append($('<li>').text(msg));
+        window.scrollTo(0, document.body.scrollHeight);
+      });
+      socket.on('new-position', function (position) {
+        console.log(`New position ${position}`)
+        newPosition(position)
+
+      });
+      // socket.on('position-status', function (inPosition) {
+      //   console.log(`Position Status ${inPosition}`)
+      //   // newPosition(position)
+      //   capaPoly.eachLayer(function (layer) {
+      //     if (inPosition) {
+      //       layer.setStyle({ fillColor: 'green' })
+      //     } else {
+      //       layer.setStyle({ fillColor: 'red' })
+      //     }
+      //   });
+      // });
+
+
+
+
+
+      // let poly = { "type": "Polygon", "coordinates": [[[-56.16361141204833, -34.90682134107926], [-56.163225173950195, -34.911255687582056], [-56.15453481674194, -34.91389506584019], [-56.15406274795532, -34.909020947652444], [-56.16361141204833, -34.90682134107926]]] }
+      // capaPoly = L.geoJSON(poly).addTo(mymap);
+
+      layers =[]
+
+      getOperations().then(function(json){
+        console.log("Agregando geojson al mapa")
+        let operations = json.ops
+        operations.forEach(op => {
+          geojsonFeature = op.operation_volumes[0].operation_geography
+          let str = `
+          <br />${op.operation_volumes[0].effective_time_begin} y ${op.operation_volumes[0].effective_time_end} <br /> 
+          ${op.operation_volumes[0].min_altitude} y ${op.operation_volumes[0].max_altitude}`
+
+          let layerJson = L.geoJSON(geojsonFeature)
+          layers.push(layerJson)
+          layerJson.bindPopup(`<b>gufi</b>:${op.gufi}<br /><b>State</b>:${op.state}${str}`)
+          layerJson.addTo(mymap)
+        })
+      })
+
+      // operationsLayerGroup = L.LayerGroup(layers)
+      
+
+      getUvr().then(function(json){
+        console.log("Agregando UVRS al mapa")
+        let uvrs = json
+        uvrs.forEach(uvr => {
+          geojsonFeature = uvr.geography
+          let str = `
+          <br />${uvr.effective_time_begin} y ${uvr.effective_time_end} <br /> 
+          ${uvr.min_altitude} y ${uvr.max_altitude}`
+          let layerJson = L.geoJSON(geojsonFeature)
+          layerJson.setStyle({ fillColor: 'red' })
+          layerJson.bindPopup(`<b>message_id</b>:${uvr.message_id}${str}`)
+          layerJson.addTo(mymap)
+        })
+      })
+
+
+
+    });
+
+    function getOperations() {
+      var headers = new Headers();
+      headers.append("Content-Type", "application/json");
+      headers.append("bypass", "a");
+      var miInit = {
+        method: 'GET',
+        headers: headers,
+        mode: 'cors',
+        cache: 'default'
+      };
+      var host = "localhost"
+      var port = "3000"
+      var httpSchema = "http"
+      var url = `${httpSchema}://${host}:${port}`
+      var operationsUrl = `${url}/operation`
+
+      return fetch(operationsUrl, miInit)
+        .then(function (response) {
+          return response.json();
+        })
+        .then(function (json) {
+          console.log(json)
+          return json
+        })
+    }
+
+    function getUvr() {
+      var headers = new Headers();
+      headers.append("Content-Type", "application/json");
+      headers.append("bypass", "a");
+      var miInit = {
+        method: 'GET',
+        headers: headers,
+        mode: 'cors',
+        cache: 'default'
+      };
+      var host = "localhost"
+      var port = "3000"
+      var httpSchema = "http"
+      var url = `${httpSchema}://${host}:${port}`
+      var uasvolumeUrl = `${url}/uasvolume`
+
+      return fetch(uasvolumeUrl, miInit)
+        .then(function (response) {
+          return response.json();
+        })
+        .then(function (json) {
+          console.log(json)
+          return json
+        })
+    }
+  </script>
+</body>
+
+</html>

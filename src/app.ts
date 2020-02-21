@@ -130,6 +130,10 @@ class App {
             res.sendFile(__dirname + '/index.html');
         });
 
+        this.app.get('/ops', function (req, res) {
+            res.sendFile(__dirname + '/operations.html');
+        });
+
 
         // this.app.listen(this.port, () => {
         //     console.log(`Server running on port ${this.port}`);
