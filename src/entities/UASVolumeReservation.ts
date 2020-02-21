@@ -52,7 +52,7 @@ export class UASVolumeReservation {
     @Column("simple-array" , {nullable: true})
     'required_support' ? : UASVolumeReservationRequiredSupport []
 
-    @ManyToMany(type => Operation)
+    @ManyToMany(type => Operation, { nullable : true})
     @JoinTable()
     'permitted_operations' ? : Operation[]; 
 
@@ -75,6 +75,7 @@ export class UASVolumeReservation {
     'min_altitude' ? : number //Altitude
     @Column({type: 'numeric', nullable:true})
     'max_altitude' ? : number //Altitude
+    
     @Column({nullable:true})
     'reason' ? : string
 }
