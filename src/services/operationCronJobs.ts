@@ -2,11 +2,14 @@ import { OperationDao } from "../daos/OperationDaos";
 import { Operation, OperationState } from "../entities/Operation";
 import { getNow } from "./dateTimeService";
 import { OperationVolume } from "../entities/OperationVolume";
+import { UASVolumeReservationDao } from "../daos/UASVolumeReservationDao";
 
 let operationDao : OperationDao;
+let uvrDao : UASVolumeReservationDao;
 
 export async function processOperations() {
     operationDao = new OperationDao()
+    uvrDao = new UASVolumeReservationDao()
     // let op : Operation
     // let operations = await operationDao.all({state:OperationState.PROPOSED})
     let operations = await operationDao.getOperationsForCron()
@@ -55,6 +58,7 @@ async function processProposed(operation: Operation) {
         for (let index = 0; index < operation.operation_volumes.length; index++) {
             const operationVolume = operation.operation_volumes[index];
             let intersect = await checkIntersection(operation, operationVolume)
+            console.log(`Intersects is ${intersect}`)
             if (intersect) {
                 return changeState(operation, OperationState.NOT_ACCEPTED)
             }
@@ -68,10 +72,14 @@ async function processProposed(operation: Operation) {
 
 async function checkIntersection(operation: Operation, operationVolume:OperationVolume) {
     try {
-        // let operationsCount = await operationDao.getOperationVolumeByVolumeCount(operationVolume)
-        let operationsCount = await operationDao.getOperationVolumeByVolumeCountExcludingOneOperation(operation.gufi, operationVolume)
         
-        return operationsCount > 0;
+        let operationsCount = await operationDao.getOperationVolumeByVolumeCountExcludingOneOperation(operation.gufi, operationVolume)
+        console.log(`Count uvr`)
+        let uvrCount = await uvrDao.countUvrIntersections(operationVolume)
+        console.log(`Count uvr ${uvrCount}`)
+
+        // return operationsCount > 0 ;
+        return (operationsCount > 0) || (uvrCount > 0) ;
     } catch (e) {
         console.log(e)
         return true //TODO throw exception
