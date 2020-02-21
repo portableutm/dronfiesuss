@@ -32,7 +32,7 @@ export class OperationDao {
     async getOperationByVolume(volume : OperationVolume){
         return this.repository
         .createQueryBuilder("operation")
-        .innerJoinAndSelect("operation.operation_volumes", "operation_volume")
+        .innerJoin("operation.operation_volumes", "operation_volume")
         .where("(tsrange(operation_volume.\"effective_time_begin\", operation_volume.\"effective_time_end\") && tsrange(:date_begin, :date_end) ) "
         + " AND (numrange(operation_volume.\"min_altitude\", operation_volume.\"max_altitude\") && numrange(:min_altitude, :max_altitude)) " 
         + " AND (ST_Intersects(operation_volume.\"operation_geography\" ,ST_GeomFromGeoJSON(:geom)))")
@@ -82,6 +82,24 @@ export class OperationDao {
         })
         .getCount()
     }
+
+    // async getOperationVolumeByVolume(volume : OperationVolume){
+    //     return this.repository
+    //     .createQueryBuilder("operation")
+    //     .innerJoin("operation.operation_volumes", "operation_volume")
+    //     .where("(tsrange(operation_volume.\"effective_time_begin\", operation_volume.\"effective_time_end\") && tsrange(:date_begin, :date_end) ) "
+    //     + " AND (numrange(\"min_altitude\", \"max_altitude\") && numrange(:min_altitude, :max_altitude)) " 
+    //     + " AND (ST_Intersects(\"operation_geography\" ,ST_GeomFromGeoJSON(:geom)))"
+    //     )
+    //     .setParameters({
+    //         date_begin : volume.effective_time_begin,
+    //         date_end : volume.effective_time_end,
+    //         min_altitude : volume.min_altitude,
+    //         max_altitude : volume.max_altitude,
+    //         geom: JSON.stringify(volume.operation_geography)
+    //     })
+    //     .getMany();
+    // }
 
     async all(filterParam?  :any) {
         // console.log(`OperationDao.all -> ${JSON.stringify(filterParam)}`)
