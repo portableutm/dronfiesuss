@@ -1,6 +1,7 @@
 let {
     features
-} = require('./curvaSobrePyxis')
+// } = require('./curvaSobrePyxis')
+} = require('./curvaSobreOperation')
 const https = require('http')
 
 let position = {
@@ -34,19 +35,19 @@ setInterval(function(){
     
     }, 1000);
 
-position2.gufi = "f7891e78-9bb4-431d-94d3-1a506910c254"
-let index2 = 0;
-setTimeout(()=>{
-    setInterval(function(){
-        const element = features[index2];
-        position2.location = element.geometry
-        position2.location.coordinates.map(coord=>coord*1.9)
-        console.log(`Enviando ${index2}:: ${JSON.stringify(position2)}`)
-        sendPostion(position2)
-        index2 = ( index2 + 1 ) % features.length
-        
-        }, 1000);
-}, 3000)
+    // position2.gufi = "f7891e78-9bb4-431d-94d3-1a506910c254"
+    // let index2 = 0;
+    // setTimeout(()=>{
+    //     setInterval(function(){
+    //         const element = features[index2];
+    //         position2.location = element.geometry
+    //         position2.location.coordinates.map(coord=>coord*1.9)
+    //         console.log(`Enviando ${index2}:: ${JSON.stringify(position2)}`)
+    //         sendPostion(position2)
+    //         index2 = ( index2 + 1 ) % features.length
+            
+    //         }, 1000);
+    // }, 3000)
 
 
 function sendPostion(position) {
