@@ -53,7 +53,9 @@ export class OperationVolume {
     @Column()
     'beyond_visual_line_of_sight': boolean;
 
-    @ManyToOne(type => Operation, user => user.operation_volumes)
+    @ManyToOne(type => Operation, user => user.operation_volumes, {
+      onDelete: "CASCADE"
+    })
     operation: Operation
 }
 

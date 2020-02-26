@@ -111,7 +111,7 @@ export class Operation {
     //tiene que tener 1 elemento
     @OneToMany(type => OperationVolume, operation_volume => operation_volume.operation, {
         eager: true,
-        cascade: true
+        cascade: true,
     })
     'operation_volumes': OperationVolume[];
 
