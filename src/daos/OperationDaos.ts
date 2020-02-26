@@ -143,6 +143,9 @@ export class OperationDao {
         let userToRemove = await this.repository.findOne(id);
         await this.repository.remove(userToRemove);
     }
+    async removeOperation(entity : Operation) {
+        return await this.repository.remove(entity);
+    }
 
     async operationsByCreator(username: string, filterParam?  :any) {
         let filter : any = {}
