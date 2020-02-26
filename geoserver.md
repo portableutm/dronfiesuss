@@ -24,3 +24,6 @@ L.tileLayer.wms('http://localhost:8080/geoserver/Dronfies/wms?', {
           srs: "EPSG:4326",
         }
 ```
+
+## Get data
+ - Natural Earth http://www.naturalearthdata.com/ bad resolution raster images
