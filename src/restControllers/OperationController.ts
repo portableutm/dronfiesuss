@@ -30,7 +30,7 @@ export class OperationController {
    */
   //solo admin   
   async all(request: Request, response: Response, next: NextFunction) {
-    let { role } = getPayloadFromResponse(response)
+    let { role, username } = getPayloadFromResponse(response)
     if (role == Role.ADMIN) {
       let state = request.query.state
       let ops = await this.dao.all({ state: state })
@@ -146,6 +146,31 @@ export class OperationController {
       return true //TODO throw exception
     }
   }
+
+  async remove(request: Request, response: Response, next: NextFunction){
+    let opToRemove //= await this.dao.one(request.params.id);
+    // let { username, role } = response.locals.jwtPayload
+
+    try {
+      let { role, username } = getPayloadFromResponse(response)
+      if (role == Role.ADMIN) {
+        opToRemove = await this.dao.one(request.params.id);
+      } else {
+        opToRemove = await this.dao.oneByCreator(request.params.id, username);
+      }
+      console.log(`Will remove the operation ${opToRemove.gufi}`)
+      let removedOperation = await this.dao.removeOperation(opToRemove) 
+      console.log(`Removed the operation ${removedOperation.gufi}`)
+      return response.json(removedOperation)
+    } catch (error) {
+      return response.sendStatus(404)
+    }
+
+  }
+      // async remove(request: Request, response: Response, next: NextFunction) {
+    //     // let userToRemove = await this.dao.one(request.params.id);
+    //     await this.dao.remove(request.params.username);
+    // }
 
 }
 
