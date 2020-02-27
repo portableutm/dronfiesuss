@@ -29,6 +29,7 @@ class App {
     private cronService: CronService;
 
     constructor(controllers: any[], port: number, connName: string, callback?: (param?: any) => void) {
+        process.env.TZ="Etc/GMT"
         console.log(`Constructor-> port:${port} connName:${connName}`)
         this.app = express();
         this.port = port;
