@@ -3,7 +3,7 @@ import { hashPassword } from "../services/encrypter";
 
 
 let nums = [1,2,3,4,5,6,7,8,9] 
-export const Users = nums.map(num => `User_${num}`).map((username, idx) => {
+export let Users = nums.map(num => `User_${num}`).map((username, idx) => {
     let user : User = {
         username : username,
         email : `${username}@dronfies.com`,
@@ -14,5 +14,16 @@ export const Users = nums.map(num => `User_${num}`).map((username, idx) => {
     }
     return user
 })
+
+let user : User = {
+    username : "admin",
+    email : `admin@dronfies.com`,
+    firstName : `Admin`,
+    lastName : `Admin`,
+    password : hashPassword(`admin`),
+    role : Role.ADMIN
+}
+
+Users.push(user)
 
 
