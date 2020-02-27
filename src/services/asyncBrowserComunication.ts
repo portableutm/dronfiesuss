@@ -4,8 +4,12 @@ import { User } from "../entities/User";
 
 
 
-export function sendPositionToMonitor(position : Position){
+export function sendPositionToMonitor(position ){
     app.io.emit('new-position', position)
+}
+
+export function sendOperationFlyStatus(inOperation ){
+    app.io.emit('position-status', inOperation)
 }
 
 
