@@ -5,7 +5,7 @@ import { UTMMessageController } from "./restControllers/UtmMessageRestController
 import { AuthController } from "./restControllers/AuthController";
 import { PositionController } from "./restControllers/PositionController";
 import { UASVolumeReservationController } from "./restControllers/UASVolumeReservationController";
-import { TestController } from "./restControllers/testController";
+// import { TestController } from "./restControllers/testController";
 
 import { checkJwt } from "./middleware/checkJwt";
 
@@ -90,20 +90,28 @@ let r : CustomRoute[] = [
     ...auth
 ];
 
-if(process.env.NODE_ENV == "dev"){
-    let testRoute : CustomRoute = {
-        action : "changeDate",
-        controller : TestController,
-        method : "post",
-        middlewares : [checkJwt] ,
-        route : "/changeDate"
-    }
-    // testRoute.action = "changeDate"
-    // testRoute.controller = TestController
-    // testRoute.method= "POST"
-    // testRoute.middlewares = [checkJwt] 
-    // testRoute.route = "changeDate"
-    r.push(testRoute)
-}
+// if(process.env.NODE_ENV == "dev"){
+//     let testRoute : CustomRoute = {
+//         action : "changeDate",
+//         controller : TestController,
+//         method : "post",
+//         middlewares : [checkJwt] ,
+//         route : "/changeDate"
+//     }
+//     let testRoute2 : CustomRoute = {
+//         action : "echo",
+//         controller : TestController,
+//         method : "post",
+//         middlewares : [checkJwt] ,
+//         route : "/echo"
+//     }
+//     // testRoute.action = "changeDate"
+//     // testRoute.controller = TestController
+//     // testRoute.method= "POST"
+//     // testRoute.middlewares = [checkJwt] 
+//     // testRoute.route = "changeDate"
+//     r.push(testRoute)
+//     r.push(testRoute2)
+// }
   
 export const Routes = r;
