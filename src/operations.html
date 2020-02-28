@@ -209,7 +209,9 @@
       var host = "localhost"
       var port = "3000"
       var httpSchema = "http"
-      var url = `${httpSchema}://${host}:${port}`
+      // var url = `${httpSchema}://${host}:${port}`
+      var url = window.location.origin //|| `${httpSchema}://${host}:${port}`
+
       var operationsUrl = `${url}/operation`
 
       return fetch(operationsUrl, miInit)
@@ -235,7 +237,7 @@
       var host = "localhost"
       var port = "3000"
       var httpSchema = "http"
-      var url = `${httpSchema}://${host}:${port}`
+      var url = window.location.origin //|| `${httpSchema}://${host}:${port}`
       var uasvolumeUrl = `${url}/uasvolume`
 
       return fetch(uasvolumeUrl, miInit)
