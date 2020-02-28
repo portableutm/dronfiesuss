@@ -14,7 +14,6 @@
       "nodemon": "^2.0.2",
       "nyc": "^15.0.0",
       "tsconfig-paths": "^3.9.0",
-      "typescript": "3.3.3333",
       "xo": "^0.25.3"
    },
    "dependencies": {
@@ -43,6 +42,7 @@
       "swagger-typescript-codegen": "^3.0.1",
       "ts-node": "3.3.0",
       "ts-node-dev": "^1.0.0-pre.44",
+      "typescript": "^3.3.3333",
       "typeorm": "0.2.20"
    },
    "scripts": {
