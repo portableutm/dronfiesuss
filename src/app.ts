@@ -139,8 +139,9 @@ class App {
         // this.app.listen(this.port, () => {
         //     console.log(`Server running on port ${this.port}`);
         // });
+        const port = process.env.PORT || this.port;
 
-        server.listen(this.port, () => {
+        server.listen(port, () => {
             console.log(`Server running on port ${this.port}`);
             if (callback !== undefined) {
                 this.initedRest = true;
