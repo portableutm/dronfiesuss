@@ -7,7 +7,10 @@ if(process.env.NODE_ENV == "dev"){
     app = new App(controllers, 3000, "dev");
     app.listen();
     
-} else {
+} else if(process.env.NODE_ENV == "production"){
+    console.log("DEV env")
+    app = new App(controllers, 80, "cloud");
+    app.listen();
     
 }
 
