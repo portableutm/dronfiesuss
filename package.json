@@ -14,7 +14,7 @@
       "nodemon": "^2.0.2",
       "nyc": "^15.0.0",
       "tsconfig-paths": "^3.9.0",
-      "typescript": "3.3.3333",
+      "typescript": "^3.3.3333",
       "xo": "^0.25.3"
    },
    "dependencies": {
