@@ -13,7 +13,7 @@ export const checkJwt = (req: Request, res: Response, next: NextFunction) => {
 
   //Try to validate the token and get data
   try {
-    if (token===undefined && bypass && process.env.NODE_ENV == "dev") {
+    if (token===undefined && bypass && (process.env.NODE_ENV == "dev" || process.env.NODE_ENV == "cloud" ) ) {
       jwtPayload = {
         username: "User_9",
         email: "User_9@dronfies.com",
