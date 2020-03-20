@@ -103,8 +103,12 @@ function processAccepted(operation: Operation) {
         const operationVolume = operation.operation_volumes[index];
         let dateBegin = new Date(operationVolume.effective_time_begin)
         let dateEnd = new Date(operationVolume.effective_time_end)
+        console.log(`(${date.toISOString()} >= ${dateBegin.toISOString()}) && (${date.toISOString()} < ${dateEnd.toISOString()})`)
         if ((date.getTime() >= dateBegin.getTime()) && (date.getTime() < dateEnd.getTime())) {
             changeState(operation, OperationState.ACTIVATED)
+        }
+        if ( (date.getTime() > dateEnd.getTime()) ) {
+            changeState(operation, OperationState.CLOSED) 
         }
     }
 }
