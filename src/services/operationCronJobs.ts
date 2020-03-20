@@ -143,14 +143,14 @@ function processNonconforming(operation: Operation) {
 function processRouge(operation: Operation) {
     let date = getNow()
 
-    // for (let index = 0; index < operation.operation_volumes.length; index++) {
-    //     const operationVolume = operation.operation_volumes[index];
-    //     let dateBegin = new Date(operationVolume.effective_time_begin)
-    //     let dateEnd = new Date(operationVolume.effective_time_end)
-    //     if ((date.getTime() >= dateBegin.getTime()) && (date.getTime() < dateEnd.getTime())) {
-    //         changeState(operation, OperationState.ACTIVATED)
-    //     }
-    // }
+    for (let index = 0; index < operation.operation_volumes.length; index++) {
+        const operationVolume = operation.operation_volumes[index];
+        let dateBegin = new Date(operationVolume.effective_time_begin)
+        let dateEnd = new Date(operationVolume.effective_time_end)
+        if ( (date.getTime() > dateEnd.getTime()) ) {
+            changeState(operation, OperationState.CLOSED)
+        }
+    }
 }
 
 async function changeState(operation: Operation, newState: OperationState) {
