@@ -36,4 +36,7 @@ export class Position {
     'uss_name': string;
     'discovery_reference' ? : string;
     'vdop_gps': number;
+
+    @Column({nullable:true})
+    'heading'?: number;
 }
