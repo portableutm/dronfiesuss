@@ -13,6 +13,6 @@ export PGPASSWORD=test
 echo "Create database"
 # createdb app  -U test -h localhost 
 # psql -c "CREATE DATABASE app" "user=test dbname=test password=test host=postgres"
-psql -d test -U test -h postgres -c "CREATE DATABASE test" 
+psql -d app -U test -h postgres -c "CREATE DATABASE test" 
 echo "Add postgis extension"
-psql -d app -U test -h postgres -c "CREATE EXTENSION postgis;CREATE EXTENSION postgis_topology;"
+psql -d test -U test -h postgres -c "CREATE EXTENSION postgis;CREATE EXTENSION postgis_topology;"
