@@ -1,4 +1,6 @@
 import "reflect-metadata";
+require('dotenv').config()
+import { jwtSecret } from "./config/config";
 import * as express from 'express';
 import { Request, Response } from "express";
 import { Connection } from 'typeorm';
@@ -30,11 +32,11 @@ class App {
 
     constructor(controllers: any[], port: number, connName: string, callback?: (param?: any) => void) {
         process.env.TZ="Etc/GMT"
-        console.log(`Constructor-> port:${port} connName:${connName}`)
         this.app = express();
-        this.port = port;
-        this.connectionName = connName;
-
+        this.port = Number.parseInt(process.env.PORT) || port;
+        this.connectionName = process.env.DATABASE_CONNECTION_NAME || connName;
+        
+        console.log(`Constructor-> port:${this.port} connName:${this.connectionName}`)
 
         this.initializeModels(callback ? callback : () => { });
         this.initializeMiddlewares();
