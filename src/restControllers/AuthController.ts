@@ -13,6 +13,7 @@ export class AuthController {
     async login(request: Request, response: Response, next: NextFunction) {
         let username :string = request.body.username
         let password :string = request.body.password
+        let format :string = request.body.format
         console.log(`username: ${username}, password:${password}`)
 
         let user : User
@@ -30,10 +31,6 @@ export class AuthController {
         if(credentialValid){
             //Sing JWT, valid for 1 hour
             const user_obj = getUserFields(user)
-            // {
-            //     username: user.username,
-            //     email: user.email
-            // }
             try {
                 const token = jwt.sign(
                     user_obj,
@@ -41,7 +38,12 @@ export class AuthController {
                     { expiresIn: "1h" }
                 );    
                 console.log(`token:${token}(${typeof token})`)
-                return response.send(token);
+                if(format){
+                    response.json({token})
+                }else{
+                    return response.send(token);
+                }
+                
             } catch (error) {
                 console.log(`Error al obtener token`)
                 console.error(error)
@@ -55,3 +57,4 @@ export class AuthController {
 
     }
 }
+

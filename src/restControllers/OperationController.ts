@@ -4,6 +4,7 @@ import { Role } from "../entities/User";
 import { getPayloadFromResponse } from "../utils/authUtils";
 import { VehicleDao } from "../daos/VehicleDao";
 import { Operation, OperationState } from "../entities/Operation";
+import { validateStringDateIso , dateTimeStringFormat } from "../utils/validationUtils"
 
 
 const MIN_MIN_ALTITUDE = -300
@@ -79,7 +80,7 @@ export class OperationController {
     } catch (error) {
       // response.status(400)
       // return response.json(`Error with vehicle.`)
-      errors.push(`Error with vehicle`)
+      errors.push(`The selected vehicle doesn't exists or you no are the owner.`)
     }
     request.body.creator = username
     request.body.state = OperationState.PROPOSED
@@ -108,7 +109,7 @@ export class OperationController {
     // if (error) {
     //   return response.json({ "Error": `The operation registrated intersect with an other operation` })
     // } else {
-    //   return response.json(await this.dao.save(request.body));
+    //   return response.json(await this.dao.save(request.body)); 
     // }
   }
 
@@ -147,7 +148,7 @@ export class OperationController {
     }
   }
 
-  async remove(request: Request, response: Response, next: NextFunction){
+  async remove(request: Request, response: Response, next: NextFunction) {
     let opToRemove //= await this.dao.one(request.params.id);
     // let { username, role } = response.locals.jwtPayload
 
@@ -159,7 +160,7 @@ export class OperationController {
         opToRemove = await this.dao.oneByCreator(request.params.id, username);
       }
       console.log(`Will remove the operation ${opToRemove.gufi}`)
-      let removedOperation = await this.dao.removeOperation(opToRemove) 
+      let removedOperation = await this.dao.removeOperation(opToRemove)
       console.log(`Removed the operation ${removedOperation.gufi}`)
       return response.json(removedOperation)
     } catch (error) {
@@ -167,10 +168,10 @@ export class OperationController {
     }
 
   }
-      // async remove(request: Request, response: Response, next: NextFunction) {
-    //     // let userToRemove = await this.dao.one(request.params.id);
-    //     await this.dao.remove(request.params.username);
-    // }
+  // async remove(request: Request, response: Response, next: NextFunction) {
+  //     // let userToRemove = await this.dao.one(request.params.id);
+  //     await this.dao.remove(request.params.username);
+  // }
 
 }
 
@@ -195,6 +196,14 @@ function validateOperation(operation: any) {
     }
     if (!(element.max_altitude <= MAX_MAX_ALTITUDE)) {
       errors.push(`Max altitude must be lower than ${MAX_MAX_ALTITUDE} and is ${element.max_altitude}`)
+    }
+    const effectiveTimeBeginValid = validateStringDateIso(element.effective_time_begin)
+    if(!effectiveTimeBeginValid){
+      errors.push(`effective_time_begin ${element.effective_time_begin} must have the format ${dateTimeStringFormat}`)
+    }
+    const effectiveTimeEndValid = validateStringDateIso(element.effective_time_end)
+    if(!effectiveTimeEndValid){
+      errors.push(`effective_time_end ${element.effective_time_end} must have the format ${dateTimeStringFormat}`)
     }
     let effective_time_begin = new Date(element.effective_time_begin)
     let effective_time_end = new Date(element.effective_time_end)
