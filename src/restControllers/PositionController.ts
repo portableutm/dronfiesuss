@@ -73,7 +73,7 @@ export class PositionController {
 function validatePosition(position: any) {
     let errors = []
     if(position.heading != undefined){
-        if (!( (typeof position.heading == 'number') && (position.heading > -180) && (position.heading < 180) ) ) {
+        if (!( (typeof position.heading == 'number') && (position.heading >= -180) && (position.heading <= 180) ) ) {
             errors.push('Invalid heading')
         }
     }
