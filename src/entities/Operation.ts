@@ -134,6 +134,9 @@ export class Operation {
     @Column({ nullable: true })
     'contact'?: string;
 
+    @Column({ nullable: true })
+    'contact_phone'?: string;
+
     //no obligatorio
     @ManyToMany(type => ContingencyPlan
         , { eager: true, cascade: true },
