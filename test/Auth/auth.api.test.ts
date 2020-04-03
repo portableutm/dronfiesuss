@@ -14,17 +14,27 @@ describe(' >>> Auth test <<< ', function () {
         await initAsync()
     })
 
-    it("should get 403 when fetch protected resource", (done) => {
+    it("should get 403 when fetch protected resource", async () => {
         chai.request(app.app)
-            .get('/vehicle/')
-            .end((err, res) => {
-                res.should.have.status(401);
-                // res.body.should.be.a('array')
-                done();
+        .get('/vehicle/')
+        .end((err, res) => {
+            res.should.have.status(401);
+        });
+    });
 
-            });
-    })
-    it("should get token when give correct credentials", (done) => {
+    // it("should get 403 when fetch protected resource", (done) => {
+    //     chai.request(app.app)
+    //         .get('/vehicle/')
+    //         .end((err, res) => {
+    //             res.should.have.status(401);
+    //             // res.body.should.be.a('array')
+    //             done();
+
+    //         });
+    // })
+
+    it("should get token when give correct credentials", async () => {
+        // it("should get token when give correct credentials", (done) => {
         chai.request(app.app)
             .post('/auth/login')
             .send({
@@ -35,10 +45,11 @@ describe(' >>> Auth test <<< ', function () {
                 console.log(`token::${JSON.stringify(res.text)}, error:${err}`)
                 res.should.have.status(200);
                 res.text.should.be.a('string')
-                done();
+                // done();
             });
     })
-    it("should get error 401 when give incorrect credentials", (done) => {
+    it("should get error 401 when give incorrect credentials", async () => {
+        // it("should get error 401 when give incorrect credentials", (done) => {
         chai.request(app.app)
             .post('/auth/login')
             .send({
@@ -49,12 +60,13 @@ describe(' >>> Auth test <<< ', function () {
                 res.should.have.status(401);
                 // res.body.should.be.a('array')
                 // res.body.length.should.be.gt(5)
-                done();
+                // done();
 
             });
     })
 
-    it("should get data from api when use token", (done) => {
+    it("should get data from api when use token", async () => {
+        // it("should get data from api when use token", (done) => {
         chai.request(app.app)
             .post('/auth/login')
             .send({
@@ -72,56 +84,11 @@ describe(' >>> Auth test <<< ', function () {
                     .end((err, res) => {
                         res.should.have.status(200);
                         // res.body.should.be.a('array')
-                        done();
+                        // done();
 
                     });
                 // done();
             });
     })
-
-    // it("should get all vehicles record", (done) => {
-    //     // app.printStatus()
-    //     chai.request(app.app)
-    //         .get('/vehicle')
-    //         .end((err, res) => {
-    //             // console.log("Prueba")
-    //             // console.log(res.body)
-    //             res.should.have.status(200);
-    //             res.body.should.be.a('array')
-    //             res.body.length.should.be.gt(5)
-    //             done();
-
-    //          });
-    // });
-
-    // it("should insert a new vehicle", async () => {
-    //     let dao = new VehicleDao()
-    //     let vehicles = await dao.all()
-    //     let vehicleCountPreInsert = vehicles.length
-    //     let vehicleToInsert = {
-    //         "nNumber": "",
-    //         "faaNumber": "faaNumber_81128",
-    //         "vehicleName": "vehicle_name828",
-    //         "manufacturer": "PIXHAWK",
-    //         "model": "model_828",
-    //         "class": "Fixed wing",
-    //         "accessType": "",
-    //         "vehicleTypeId": "",
-    //         "org-uuid": "",
-    //         "registeredBy":"User_1"
-    //     }
-    //     chai.request(app.app)
-    //         .post('/vehicle')
-    //         .send(vehicleToInsert)
-    //         .end(
-    //             async (err, res) => {
-    //             // console.log(res.body)
-    //             res.should.have.status(200);
-    //             res.body.should.have.property('uvin');
-    //             let vehicles = await dao.all()
-    //             vehicles.length.should.be.gt(vehicleCountPreInsert )
-    //          });
-    // });
-
 
 });

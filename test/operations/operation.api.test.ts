@@ -8,7 +8,7 @@ import { VehicleDao } from "../../src/daos/VehicleDao";
 
 import { app, init, initAsync } from "../../src/index";
 
-describe(' >>> Operation test <<< ', function () {
+describe.skip(' >>> Operation test <<< ', function () {
 
     before(async () => {
         await initAsync()

@@ -18,19 +18,14 @@ describe('>>> Vehicle entity <<< ', function () {
         await initAsync()
     })
 
-    it("should get all vehicles record", (done) => {
-        // app.printStatus()
+    it("should get all vehicles record", async () => {
         chai.request(app.app)
             .get('/vehicle')
             .set('bypass', 'a')
             .end((err, res) => {
-                // console.log("Prueba")
-                // console.log(res.body)
                 res.should.have.status(200);
                 res.body.should.be.a('array')
                 res.body.length.should.be.gt(5)
-                done();
-
             });
     });
 
@@ -71,14 +66,10 @@ describe('>>> Vehicle entity <<< ', function () {
         chai.request(app.app)
             .get(`/vehicle/${vehicle.uvin}`)
             .set('bypass', 'a')
-            // .query({id: vehicle.uvin})
             .end(
                 async (err, res) => {
-                    console.log(res.body)
                     res.should.have.status(200);
                     res.body.should.have.property('uvin');
-                    // let vehicles = await dao.all()
-                    // vehicles.length.should.be.gt(vehicleCountPreInsert )
                 });
     });
 

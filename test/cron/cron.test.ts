@@ -8,7 +8,7 @@ import { VehicleDao } from "../../src/daos/VehicleDao";
 
 import { app, init, initAsync } from "../../src/index";
 
-describe('>>> Cron test <<<', function () {
+describe.skip('>>> Cron test <<<', function () {
 
     before(async () => {
         await initAsync()

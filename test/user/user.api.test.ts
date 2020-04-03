@@ -1,12 +1,16 @@
 let chai = require('chai');
 let chaiHttp = require('chai-http');
 
+
 // Configure chai
 chai.use(chaiHttp);
 chai.should();
-import { VehicleDao } from "../../src/daos/VehicleDao";
 
+import { UserDao } from "../../src/daos/UserDaos";
 import { app, init, initAsync } from "../../src/index";
+
+import {User, Role} from "../../src/entities/User";
+import { hashPassword } from "../../src/services/encrypter";
 
 describe('>>> User test <<<', function () {
 
@@ -14,119 +18,55 @@ describe('>>> User test <<<', function () {
         await initAsync()
     })
 
-    it("Should get all users")
-    it("Should get a users")
-    it("Should create a new user")
+    it("Should get all users", async () => {
+        chai.request(app.app)
+            .get('/user')
+            .set('bypass', 'a')
+            .end((err, res) => {
+                res.should.have.status(200);
+                res.body.should.be.a('array')
+                res.body.length.should.be.gt(5)
+            });
+    });
 
+    it("Should create a new user", async () => {
+        let dao = new UserDao()
+        let users = await dao.all()
+        let CountPreInsert = users.length
+        let user : User = {
+            username : "UserToInsert",
+            email : `userToInsert@dronfies.com`,
+            firstName : `Admin`,
+            lastName : `Admin`,
+            password : hashPassword(`admin`),
+            role : Role.ADMIN
+        }
+        chai.request(app.app)
+            .post('/user')
+            .set('bypass', 'a')
+            .send(user)
+            .end(
+                async (err, res) => {
+                    res.should.have.status(200);
+                    res.body.should.have.property('username');
+                    let users = await dao.all()
+                    users.length.should.be.gt(CountPreInsert)
+                });
+    });
 
-    // it("should get 403 when fetch protected resource", (done) => {
-    //     chai.request(app.app)
-    //         .get('/operation/')
-    //         .end((err, res) => {
-    //             res.should.have.status(401);
-    //             // res.body.should.be.a('array')
-    //             done();
-
-    //         });
-    // })
-    // it("should get token when give correct credentials", (done) => {
-    //     chai.request(app.app)
-    //         .post('/auth/login')
-    //         .send({
-    //             "username": "User_1",
-    //             "password": "User_1"
-    //         })
-    //         .end((err, res) => {
-    //             console.log(`token::${JSON.stringify(res.text)}, error:${err}`)
-    //             res.should.have.status(200);
-    //             res.text.should.be.a('string')
-    //             done();
-    //         });
-    // })
-    // it("should get error 401 when give incorrect credentials", (done) => {
-    //     chai.request(app.app)
-    //         .post('/auth/login')
-    //         .send({
-    //             "username": "User_1",
-    //             "password": "User_1_Incorrect"
-    //         })
-    //         .end((err, res) => {
-    //             res.should.have.status(401);
-    //             // res.body.should.be.a('array')
-    //             // res.body.length.should.be.gt(5)
-    //             done();
-
-    //         });
-    // })
-
-    // it("should get data from api when use token", (done) => {
-    //     chai.request(app.app)
-    //         .post('/auth/login')
-    //         .send({
-    //             "username": "User_1",
-    //             "password": "User_1"
-    //         })
-    //         .end((err, res) => {
-    //             console.log(`token::${JSON.stringify(res.text)}, error:${err}`)
-    //             res.should.have.status(200);
-    //             res.text.should.be.a('string')
-    //             let token = res.text
-    //             chai.request(app.app)
-    //                 .get('/vehicle/')
-    //                 .set('auth', token)
-    //                 .end((err, res) => {
-    //                     res.should.have.status(200);
-    //                     // res.body.should.be.a('array')
-    //                     done();
-
-    //                 });
-    //             // done();
-    //         });
-    // })
-
-    // it("should get all vehicles record", (done) => {
-    //     // app.printStatus()
-    //     chai.request(app.app)
-    //         .get('/vehicle')
-    //         .end((err, res) => {
-    //             // console.log("Prueba")
-    //             // console.log(res.body)
-    //             res.should.have.status(200);
-    //             res.body.should.be.a('array')
-    //             res.body.length.should.be.gt(5)
-    //             done();
-
-    //          });
-    // });
-
-    // it("should insert a new vehicle", async () => {
-    //     let dao = new VehicleDao()
-    //     let vehicles = await dao.all()
-    //     let vehicleCountPreInsert = vehicles.length
-    //     let vehicleToInsert = {
-    //         "nNumber": "",
-    //         "faaNumber": "faaNumber_81128",
-    //         "vehicleName": "vehicle_name828",
-    //         "manufacturer": "PIXHAWK",
-    //         "model": "model_828",
-    //         "class": "Fixed wing",
-    //         "accessType": "",
-    //         "vehicleTypeId": "",
-    //         "org-uuid": "",
-    //         "registeredBy":"User_1"
-    //     }
-    //     chai.request(app.app)
-    //         .post('/vehicle')
-    //         .send(vehicleToInsert)
-    //         .end(
-    //             async (err, res) => {
-    //             // console.log(res.body)
-    //             res.should.have.status(200);
-    //             res.body.should.have.property('uvin');
-    //             let vehicles = await dao.all()
-    //             vehicles.length.should.be.gt(vehicleCountPreInsert )
-    //          });
-    // });
+    it("Should get a users", async () => {
+        let dao = new UserDao()
+        let users = await dao.all()
+        let user = users[0]
+        chai.request(app.app)
+            .get(`/user/${user.username}`)
+            .set('bypass', 'a')
+            .end(
+                async (err, res) => {
+                    res.should.have.status(200);
+                    res.body.should.have.property('username');
+                });
+    });
 
 
 });
