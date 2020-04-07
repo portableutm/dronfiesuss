@@ -1,24 +1,40 @@
 let chai = require('chai');
 let chaiHttp = require('chai-http');
+var assert = chai.assert;
 
-
-// Configure chai
 chai.use(chaiHttp);
 chai.should();
 
 import { UserDao } from "../../src/daos/UserDaos";
 import { app, init, initAsync } from "../../src/index";
 
-import {User, Role} from "../../src/entities/User";
+import { User, Role } from "../../src/entities/User";
 import { hashPassword } from "../../src/services/encrypter";
 
-describe('>>> User test <<<', function () {
+import * as request from 'supertest';
 
-    before(async () => {
-        await initAsync()
+describe('>>> User rest controller test <<<', function () {
+
+    before( function(done) {
+        initAsync()
+        .then(done)
+        .catch(done)
     })
 
-    it("Should get all users", async () => {
+    it("GET /user Should get all users", (done) => {
+        // it("Should get all users", (done) => {
+        request(app.app)
+            .get('/user')
+            .set('bypass', 'a')
+            .set('Accept', 'application/json')
+            .expect('Content-Type', /json/)
+            .expect(function (res) {
+                res.body.length.should.be.eq(11)
+            })
+            .expect(200, done)
+    });
+
+    it("GET /user Should get all users", (done) => {
         chai.request(app.app)
             .get('/user')
             .set('bypass', 'a')
@@ -26,46 +42,137 @@ describe('>>> User test <<<', function () {
                 res.should.have.status(200);
                 res.body.should.be.a('array')
                 res.body.length.should.be.gt(5)
+                res.body.length.should.be.eq(11)
+                done();
             });
     });
 
-    it("Should create a new user", async () => {
+    it("POST /user Should create a new user", function (done) {
         let dao = new UserDao()
-        let users = await dao.all()
-        let CountPreInsert = users.length
-        let user : User = {
-            username : "UserToInsert",
-            email : `userToInsert@dronfies.com`,
-            firstName : `Admin`,
-            lastName : `Admin`,
-            password : hashPassword(`admin`),
-            role : Role.ADMIN
-        }
-        chai.request(app.app)
-            .post('/user')
-            .set('bypass', 'a')
-            .send(user)
-            .end(
-                async (err, res) => {
-                    res.should.have.status(200);
-                    res.body.should.have.property('username');
-                    let users = await dao.all()
-                    users.length.should.be.gt(CountPreInsert)
+        dao.all().then(function (users) {
+            let CountPreInsert = users.length
+            let user: User = {
+                username: "UserToInsert",
+                email: `userToInsert@dronfies.com`,
+                firstName: `Admin`,
+                lastName: `Admin`,
+                password: hashPassword(`admin`),
+                role: Role.ADMIN
+            }
+
+            request(app.app)
+                .post('/user')
+                .set('bypass', 'a')
+                .set('Accept', 'application/json')
+                .expect('Content-Type', /json/)
+                .send(user)
+                .expect(function (res) {
+                    // res.body.should.have.property('username').equal(user.username + "---");
+                    res.body.should.have.property('username').equal(user.username);
+                    res.body.should.have.property('email').equal(user.email);
+                    res.body.should.have.property('firstName').equal(user.firstName);
+                    res.body.should.have.property('lastName').equal(user.lastName);
+                    res.body.should.have.property('role').equal(user.role);
+                    
+                })
+                .then(res => { 
+                    dao.all().then(function (users) {
+                        // assert.ok(results.status === 200);
+                        // assert.equal("", "-")
+                        // console.log("esto entra")
+                        assert.equal(users.length, CountPreInsert-2)
+                        // users.length.should.be.gt(CountPreInsert-2)
+                        done();
+                    }).catch(err => { 
+                        console.error(err);
+                        done(err); 
+                    });
+                    
+                    // done();
+                })
+                .catch(err => { 
+                    console.error(err);
+                    done(err); 
                 });
+        })
     });
 
-    it("Should get a users", async () => {
+    it("POST /user Should create a new user", function (done) {
         let dao = new UserDao()
-        let users = await dao.all()
-        let user = users[0]
-        chai.request(app.app)
-            .get(`/user/${user.username}`)
-            .set('bypass', 'a')
-            .end(
-                async (err, res) => {
-                    res.should.have.status(200);
-                    res.body.should.have.property('username');
+        dao.all().then(function (users) {
+            let CountPreInsert = users.length
+            let user: User = {
+                username: "UserToInsert",
+                email: `userToInsert@dronfies.com`,
+                firstName: `Admin`,
+                lastName: `Admin`,
+                password: hashPassword(`admin`),
+                role: Role.ADMIN
+            }
+
+            request(app.app)
+                .post('/user')
+                .set('bypass', 'a')
+                .set('Accept', 'application/json')
+                .expect('Content-Type', /json/)
+                .send(user)
+                .expect(function (res) {
+                    res.body.should.have.property('username').equal(user.username);
+                    res.body.should.have.property('email').equal(user.email);
+                    res.body.should.have.property('firstName').equal(user.firstName);
+                    res.body.should.have.property('lastName').equal(user.lastName);
+                    res.body.should.have.property('role').equal(user.role);
+                    
+                })
+                .then(res => { 
+                    dao.all().then(function (users) {
+                        // assert.ok(results.status === 200);
+                        // assert.equal("", "-")
+                        // console.log("esto entra")
+                        assert.equal(users.length, CountPreInsert)
+                        done();
+                    }).catch(err => { 
+                        console.error(err);
+                        done(err); 
+                    });
+                    
+                })
+                .catch(err => { 
+                    console.error(err);
+                    done(err); 
                 });
+   
+        })
+    });
+
+    it.only("GET /user/{username} Should get a users",  function(done) {
+        let dao = new UserDao()
+        dao.all()
+        .then(function(users){
+            let user = users[0]
+            chai.request(app.app)
+                .get(`/user/${user.username}`)
+                .set('bypass', 'a')
+                .then(res => { 
+                    res.should.have.status(200);
+                    res.body.should.have.property('username').equal(user.username);
+                    res.body.should.have.property('email').equal(user.email);
+                    res.body.should.have.property('firstName').equal(user.firstName);
+                    res.body.should.have.property('lastName').equal(user.lastName);
+                    res.body.should.have.property('role').equal(user.role);
+                    done()
+                    
+                })
+                .catch(err => { 
+                    console.error(err);
+                    done(err)
+                });
+        })
+        .catch(err => { 
+            console.error(err);
+            done(err)
+        });
+    
     });
 
 
