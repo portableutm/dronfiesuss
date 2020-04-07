@@ -12,27 +12,32 @@ import { VehicleDao } from "../../src/daos/VehicleDao";
 
 import { app, init, initAsync } from "../../src/index";
 
-describe('>>> Vehicle entity <<< ', function () {
+describe.only('>>> Vehicle entity <<< ', function () {
 
-    before(async () => {
-        await initAsync()
+    before(function (done) {
+        this.timeout(3000);
+        initAsync()
+            .then(done)
+            .catch(done)
     })
 
-    it("should get all vehicles record", async () => {
+    it("should get all vehicles record", function (done) {
         chai.request(app.app)
             .get('/vehicle')
             .set('bypass', 'a')
-            .end((err, res) => {
+            .then(function (res) {
                 res.should.have.status(200);
                 res.body.should.be.a('array')
                 res.body.length.should.be.gt(5)
-            });
+                done();
+            })
+            .catch(done);
     });
 
-    it("should insert a new vehicle", async () => {
+    it("should insert a new vehicle", function (done) {
+        let vehicleCountPreInsert = 9 // from data // vehicles.length
         let dao = new VehicleDao()
-        let vehicles = await dao.all()
-        let vehicleCountPreInsert = vehicles.length
+        // let vehicles = await dao.all()
         let vehicleToInsert = {
             "nNumber": "",
             "faaNumber": "faaNumber_81128",
@@ -43,34 +48,52 @@ describe('>>> Vehicle entity <<< ', function () {
             "accessType": "",
             "vehicleTypeId": "",
             "org-uuid": "",
-            "registeredBy": "User_1"
+            "registeredBy": "admin"
         }
         chai.request(app.app)
             .post('/vehicle')
             .set('bypass', 'a')
             .send(vehicleToInsert)
-            .end(
-                async (err, res) => {
-                    // console.log(res.body)
-                    res.should.have.status(200);
-                    res.body.should.have.property('uvin');
-                    let vehicles = await dao.all()
-                    vehicles.length.should.be.gt(vehicleCountPreInsert)
-                });
+            .then(function (res) {
+                res.should.have.status(200);
+                res.body.should.have.property('uvin');
+                dao.all().then(function(vehicles){
+                    vehicles.length.should.be.eq(vehicleCountPreInsert+1)
+                    done();
+                })
+                .catch(done)
+            })
+            .catch(done);
     });
 
-    it("should get a vehicle", async () => {
-        let dao = new VehicleDao()
-        let vehicles = await dao.all()
-        let vehicle = vehicles[0]
+    it("should get a vehicle", function (done) {
+        let uvin = "bd9b2eb6-7ab7-442e-b99c-78890581f198";
         chai.request(app.app)
-            .get(`/vehicle/${vehicle.uvin}`)
+            .get(`/vehicle/${uvin}`)
             .set('bypass', 'a')
-            .end(
-                async (err, res) => {
-                    res.should.have.status(200);
-                    res.body.should.have.property('uvin');
-                });
+            .then(function (res) {
+                res.should.have.status(200);
+                res.body.should.have.property('uvin');
+                res.body.should.have.property('vehicleName').equal("vehicle_name9");
+                done();
+            })
+            .catch(done)
+
+    });
+
+    it("GET /vehicle/${cualquierVehiiculo} should not get a vehicle", function (done) {
+        let uvin = "bd9c2ea6-7ab7-442e-b99c-78890181c198";
+        chai.request(app.app)
+            .get(`/vehicle/${uvin}`)
+            .set('bypass', 'a')
+            .then(function (res) {
+                res.should.have.status(404);
+                // res.body.should.have.property('uvin');
+                // res.body.should.have.property('vehicleName').equal("vehicle_name9");
+                done();
+            })
+            .catch(done)
+
     });
 
 
