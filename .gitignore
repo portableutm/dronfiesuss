@@ -6,3 +6,5 @@ tmp/
 temp/
 geoserver/
 .env
+coverage/
+.nyc_output/
