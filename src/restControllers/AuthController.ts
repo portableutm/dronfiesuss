@@ -21,7 +21,7 @@ export class AuthController {
             user = await this.dao.one(username)  
               
         } catch (error) {
-            console.log(`Error al obtener usuarios`)
+            // console.log(`Error al obtener usuarios`)
             // console.error(error)
             return response.sendStatus(401);
         }

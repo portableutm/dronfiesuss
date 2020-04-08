@@ -83,13 +83,13 @@ function validateEmail(mail) {
     return false
 }
 
-function trimFields(user:User){
-    // user.email = user.email.trim
-    user.firstName = user.firstName.trim()
-    user.lastName = user.lastName.trim()
-    user.username = user.username.trim()
+// function trimFields(user:User){
+//     // user.email = user.email.trim
+//     user.firstName = user.firstName.trim()
+//     user.lastName = user.lastName.trim()
+//     user.username = user.username.trim()
     
-}
+// }
 
 function validateUser(user: User) {
     // console.log("Validando usuarios")
@@ -105,6 +105,9 @@ function validateUser(user: User) {
         errors.push("Invalid last name")
     }
     if(!genericTextLenghtValidation(user.password) ){
+        errors.push("Invalid password")
+    }
+    if(!genericTextLenghtValidation(user.username) ){
         errors.push("Invalid username")
     }
     return errors
