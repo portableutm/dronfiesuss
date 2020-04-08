@@ -2,6 +2,7 @@
 
 import { User } from "../entities/User";
 
+// getUserFields for payload
 export function getUserFields(user:User){
     return {
         username: user.username,
