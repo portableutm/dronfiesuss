@@ -24,7 +24,11 @@ export class UserController {
     async one(request: Request, response: Response, next: NextFunction) {
         let { role } = getPayloadFromResponse(response)
         if (role == Role.ADMIN) {
-            return response.json(await this.dao.one(request.params.id));
+            try {
+                return response.json(await this.dao.one(request.params.id));
+            } catch (error) {
+                return response.sendStatus(404)   
+            }
         }
         else {
             return response.sendStatus(401)
@@ -88,8 +92,8 @@ function trimFields(user:User){
 }
 
 function validateUser(user: User) {
-    console.log("Validando usuarios")
-    console.log(user)
+    // console.log("Validando usuarios")
+    // console.log(user)
     let errors = []
     if (!validateEmail(user.email)){
         errors.push("Invalid email")
