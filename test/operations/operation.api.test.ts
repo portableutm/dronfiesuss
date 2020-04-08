@@ -14,7 +14,7 @@ import { app, initAsync } from "../../src/index";
 import { Role } from "../../src/entities/User";
 import { OperationState, Operation } from "../../src/entities/Operation";
 
-describe.only(' >>> Operation test <<< ', function () {
+describe(' >>> Operation test <<< ', function () {
 
     // this.timeout(3000);
     before(function (done) {
