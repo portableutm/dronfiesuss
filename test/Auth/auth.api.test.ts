@@ -46,12 +46,46 @@ describe(' >>> Auth test <<< ', function () {
             })
             .catch(done)
     })
-    it("should get error 401 when give incorrect credentials", function (done) {
+
+    it("should get token as a json when give correct credentials", function (done) {
+        // it("should get token when give correct credentials", (done) => {
+        chai.request(app.app)
+            .post('/auth/login')
+            .send({
+                "username": "admin",
+                "password": "admin",
+                "format": "json",
+            })
+            .then(function (res) {
+                res.should.have.status(200);
+                res.body.should.be.a('object')
+                res.body.token.should.be.a('string')
+                done();
+            })
+            .catch(done)
+    })
+
+    it("should get error 401 when give incorrect password", function (done) {
         // it("should get error 401 when give incorrect credentials", (done) => {
         chai.request(app.app)
             .post('/auth/login')
             .send({
                 "username": "admin",
+                "password": "incorrect"
+            })
+            .then(function (res) {
+                res.should.have.status(401);
+                done();
+            })
+            .catch(done)
+    })
+
+    it("should get error 401 when give incorrect username", function (done) {
+        // it("should get error 401 when give incorrect credentials", (done) => {
+        chai.request(app.app)
+            .post('/auth/login')
+            .send({
+                "username": "asdfasdfknlasdflkn",
                 "password": "incorrect"
             })
             .then(function (res) {
