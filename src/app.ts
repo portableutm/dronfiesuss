@@ -31,15 +31,15 @@ class App {
     private cronService: CronService;
 
     constructor(controllers: any[], port: number, connName: string, callback?: (param?: any) => void) {
-        process.env.TZ="Etc/GMT"
+        process.env.TZ = "Etc/GMT"
         this.app = express();
         this.port = Number.parseInt(process.env.PORT) || port;
         this.connectionName = process.env.DATABASE_CONNECTION_NAME || connName;
-        
+
         console.log(`Constructor-> port:${this.port} connName:${this.connectionName}`)
 
-        this.initializeModels(callback ? callback : () => { });
         this.initializeMiddlewares();
+        this.initializeModels(callback ? callback : () => { });
 
 
         // this.initializeControllers(controllers);
@@ -61,7 +61,9 @@ class App {
         await initData(connection, () => {
             this.initedDB = true;
             try {
-                this.cronService = new CronService()
+                if (process.env.NODE_ENV != "test") {
+                    this.cronService = new CronService()
+                }
             } catch (error) {
                 console.error(`Error while starting cronService ${error}`)
             }
@@ -74,14 +76,16 @@ class App {
         this.app.use(express.json());
         this.app.use(cors({
             exposedHeaders: ['token'],
-          }))
+        }))
         // this.app.use(morgan('dev'))
-        this.app.use(function (req, res, next) {
-            console.log(`body: ${JSON.stringify(req.body)}`)
-            console.log(`query: ${JSON.stringify(req.query)}`)
-            console.log(`params: ${JSON.stringify(req.params)}`)
-            next()
-        })
+
+        // this.app.use(function (req, res, next) {
+        //     console.log(`body: ${JSON.stringify(req.body)}`)
+        //     console.log(`query: ${JSON.stringify(req.query)}`)
+        //     console.log(`params: ${JSON.stringify(req.params)}`)
+        //     next()
+        // })
+
         Routes.forEach(route => {
             (this.app as any)[route.method](route.route, route.middlewares ? route.middlewares : (req, res, next) => { return next() }, (req: Request, res: Response, next: Function) => {
                 const result = (new (route.controller as any))[route.action](req, res, next);
