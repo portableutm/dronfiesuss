@@ -10,71 +10,66 @@ import { app, init, initAsync } from "../../src/index";
 
 describe(' >>> Auth test <<< ', function () {
 
-    before(async () => {
-        await initAsync()
+    before(function (done) {
+        this.timeout(3000);
+        initAsync()
+            .then(done)
+            .catch(done)
     })
 
-    it("should get 403 when fetch protected resource", async () => {
+    it("should get 401 when fetch protected resource", function (done) {
         chai.request(app.app)
-        .get('/vehicle/')
-        .end((err, res) => {
-            res.should.have.status(401);
-        });
+            .get('/vehicle/')
+            .then(res => {
+                res.should.have.status(401);
+                done()
+            })
+            .catch(err => {
+                console.error(err);
+                done(err)
+            });
     });
 
-    // it("should get 403 when fetch protected resource", (done) => {
-    //     chai.request(app.app)
-    //         .get('/vehicle/')
-    //         .end((err, res) => {
-    //             res.should.have.status(401);
-    //             // res.body.should.be.a('array')
-    //             done();
 
-    //         });
-    // })
-
-    it("should get token when give correct credentials", async () => {
+    it("should get token when give correct credentials", function (done) {
         // it("should get token when give correct credentials", (done) => {
         chai.request(app.app)
             .post('/auth/login')
             .send({
-                "username": "User_1",
-                "password": "User_1"
+                "username": "admin",
+                "password": "admin"
             })
-            .end((err, res) => {
-                console.log(`token::${JSON.stringify(res.text)}, error:${err}`)
+            .then(function (res) {
                 res.should.have.status(200);
                 res.text.should.be.a('string')
-                // done();
-            });
+                done();
+            })
+            .catch(done)
     })
-    it("should get error 401 when give incorrect credentials", async () => {
+    it("should get error 401 when give incorrect credentials", function (done) {
         // it("should get error 401 when give incorrect credentials", (done) => {
         chai.request(app.app)
             .post('/auth/login')
             .send({
-                "username": "User_1",
-                "password": "User_1_Incorrect"
+                "username": "admin",
+                "password": "incorrect"
             })
-            .end((err, res) => {
+            .then(function (res) {
                 res.should.have.status(401);
-                // res.body.should.be.a('array')
-                // res.body.length.should.be.gt(5)
-                // done();
-
-            });
+                done();
+            })
+            .catch(done)
     })
 
-    it("should get data from api when use token", async () => {
+    it("should get data from api when use token", function (done) {
         // it("should get data from api when use token", (done) => {
         chai.request(app.app)
             .post('/auth/login')
             .send({
-                "username": "User_1",
-                "password": "User_1"
+                "username": "admin",
+                "password": "admin"
             })
-            .end((err, res) => {
-                console.log(`token::${JSON.stringify(res.text)}, error:${err}`)
+            .then(function (res) {
                 res.should.have.status(200);
                 res.text.should.be.a('string')
                 let token = res.text
@@ -83,12 +78,10 @@ describe(' >>> Auth test <<< ', function () {
                     .set('auth', token)
                     .end((err, res) => {
                         res.should.have.status(200);
-                        // res.body.should.be.a('array')
-                        // done();
-
+                        done();
                     });
-                // done();
-            });
+            })
+            .catch(done)
     })
 
 });
