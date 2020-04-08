@@ -12,16 +12,18 @@ import { User, Role } from "../../src/entities/User";
 import { hashPassword } from "../../src/services/encrypter";
 
 import * as request from 'supertest';
+import { getToken } from "../../src/services/tokenService";
 
 describe('>>> User rest controller test <<<', function () {
 
     before(function (done) {
+        this.timeout(3000);
         initAsync()
             .then(done)
             .catch(done)
     })
 
-    it("GET /user Should get all users", (done) => {
+    it("GET /user Should get all users",  function (done) {
         // it("Should get all users", (done) => {
         request(app.app)
             .get('/user')
@@ -34,7 +36,14 @@ describe('>>> User rest controller test <<<', function () {
             .expect(200, done)
     });
 
-    it("GET /user Should get all users", (done) => {
+    it("GET /user Should not get all users for anonymus user",  function (done) {
+        request(app.app)
+            .get('/user')
+            .set('Accept', 'application/json')
+            .expect(401, done)
+    });
+
+    it("GET /user Should get all users",  function (done) {
         chai.request(app.app)
             .get('/user')
             .set('bypass', 'a')
@@ -54,9 +63,9 @@ describe('>>> User rest controller test <<<', function () {
             let user: User = {
                 username: "UserToInsert",
                 email: `userToInsert@dronfies.com`,
-                firstName: `Admin`,
-                lastName: `Admin`,
-                password: hashPassword(`admin`),
+                firstName: `Algun`,
+                lastName: `Nombre`,
+                password: `password`,
                 role: Role.ADMIN
             }
 
@@ -92,6 +101,80 @@ describe('>>> User rest controller test <<<', function () {
         })
     });
 
+    it("POST /user Should not create a new user with existing username", function (done) {
+        let dao = new UserDao()
+        dao.all().then(function (users) {
+            let CountPreInsert = users.length
+            let user: User = {
+                username: "admin",
+                email: `userToInsert@dronfies.com`,
+                firstName: `Otro`,
+                lastName: `Nombrenuevo`,
+                password: `password`,
+                role: Role.PILOT
+            }
+
+            request(app.app)
+                .post('/user')
+                .set('bypass', 'a')
+                .set('Accept', 'application/json')
+                .expect('Content-Type', /json/)
+                .send(user)
+                .then(res => {
+                    res.should.have.status(400);
+                    dao.all().then(function (newUsers) {
+                        assert.equal(newUsers.length, CountPreInsert)
+                        done();
+                    }).catch(err => {
+                        console.error(err);
+                        done(err);
+                    });
+
+                })
+                .catch(err => {
+                    console.error(err);
+                    done(err);
+                });
+        })
+    });
+
+    it("POST /user Should not create a new user with existing email", function (done) {
+        let dao = new UserDao()
+        dao.all().then(function (users) {
+            let CountPreInsert = users.length
+            let user: User = {
+                username: "wakawaka",
+                email: `admin@dronfies.com`,
+                firstName: `NewName`,
+                lastName: `NewLastName`,
+                password: `password`,
+                role: Role.PILOT
+            }
+
+            request(app.app)
+                .post('/user')
+                .set('bypass', 'a')
+                .set('Accept', 'application/json')
+                .expect('Content-Type', /json/)
+                .send(user)
+                .then(res => {
+                    res.should.have.status(400);
+                    dao.all().then(function (newUsers) {
+                        assert.equal(newUsers.length, CountPreInsert)
+                        done();
+                    }).catch(err => {
+                        console.error(err);
+                        done(err);
+                    });
+
+                })
+                .catch(err => {
+                    console.error(err);
+                    done(err);
+                });
+        })
+    });
+
     it("GET /user/{username} Should get a users", function (done) {
         let dao = new UserDao()
         dao.all()
@@ -119,7 +202,36 @@ describe('>>> User rest controller test <<<', function () {
                 console.error(err);
                 done(err)
             });
+    });
 
+    it("GET /user/{username} Should not get a users with PILOT user", function (done) {
+        let dao = new UserDao()
+        let token = getToken('maurine@dronfies.com', 'MaurineFowlie', Role.PILOT)
+        dao.all()
+            .then(function (users) {
+                let user = users[0]
+                chai.request(app.app)
+                    .get(`/user/${user.username}`)
+                    .set('auth', token)
+                    .then(res => {
+                        res.should.have.status(401);
+                        // res.body.should.have.property('username').equal(user.username);
+                        // res.body.should.have.property('email').equal(user.email);
+                        // res.body.should.have.property('firstName').equal(user.firstName);
+                        // res.body.should.have.property('lastName').equal(user.lastName);
+                        // res.body.should.have.property('role').equal(user.role);
+                        done()
+
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        done(err)
+                    });
+            })
+            .catch(err => {
+                console.error(err);
+                done(err)
+            });
     });
 
     it("GET /user/notUserName Should resturn STATUS 404", function (done) {
@@ -135,17 +247,6 @@ describe('>>> User rest controller test <<<', function () {
                 console.error(err);
                 done(err)
             });
-
-        // let dao = new UserDao()
-        // dao.all()
-        //     .then(function (users) {
-        //         let user = users[0]
-
-        //     })
-        //     .catch(err => {
-        //         console.error(err);
-        //         done(err)
-        //     });
 
     });
 
