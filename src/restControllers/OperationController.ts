@@ -127,7 +127,7 @@ export class OperationController {
   async operationsByCreator(request: Request, response: Response, next: NextFunction) {
     // let state = request.query.state;
     let { username, role } = response.locals.jwtPayload
-    console.log(` ------------------ operationsByCreator ${username} ------------`)
+    // console.log(` ------------------ operationsByCreator ${username} ------------`)
     let ops;
 
     // if(role == Role.PILOT){
@@ -143,7 +143,7 @@ export class OperationController {
       let operationsCount = await this.dao.getOperationVolumeByVolumeCount(operationVolume)
       return operationsCount > 0;
     } catch (e) {
-      console.log(e)
+      // console.log(e)
       return true //TODO throw exception
     }
   }
@@ -159,9 +159,9 @@ export class OperationController {
       } else {
         opToRemove = await this.dao.oneByCreator(request.params.id, username);
       }
-      console.log(`Will remove the operation ${opToRemove.gufi}`)
+      // console.log(`Will remove the operation ${opToRemove.gufi}`)
       let removedOperation = await this.dao.removeOperation(opToRemove)
-      console.log(`Removed the operation ${removedOperation.gufi}`)
+      // console.log(`Removed the operation ${removedOperation.gufi}`)
       return response.json(removedOperation)
     } catch (error) {
       return response.sendStatus(404)

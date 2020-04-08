@@ -14,19 +14,20 @@ export class AuthController {
         let username :string = request.body.username
         let password :string = request.body.password
         let format :string = request.body.format
-        console.log(`username: ${username}, password:${password}`)
+        // console.log(`username: ${username}, password:${password}`)
 
         let user : User
         try {
-            user = await this.dao.one(username)    
+            user = await this.dao.one(username)  
+              
         } catch (error) {
-            // console.log(`Error al obtener usuarios`)
-            console.error(error)
+            console.log(`Error al obtener usuarios`)
+            // console.error(error)
             return response.sendStatus(401);
         }
         
         let credentialValid : boolean = checkIfUnencryptedPasswordIsValid(password, user.password)
-        console.log(`- credentialValid: ${credentialValid}`)
+        // console.log(`- credentialValid: ${credentialValid}`)
 
         if(credentialValid){
             //Sing JWT, valid for 1 hour
@@ -37,7 +38,7 @@ export class AuthController {
                     jwtSecret,
                     { expiresIn: "1h" }
                 );    
-                console.log(`token:${token}(${typeof token})`)
+                // console.log(`token:${token}(${typeof token})`)
                 if(format){
                     response.json({token})
                 }else{
@@ -45,8 +46,8 @@ export class AuthController {
                 }
                 
             } catch (error) {
-                console.log(`Error al obtener token`)
-                console.error(error)
+                // console.log(`Error al obtener token`)
+                // console.error(error)
                 return response.sendStatus(401);
             }
             
