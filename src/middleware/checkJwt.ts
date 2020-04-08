@@ -12,12 +12,15 @@ export const checkJwt = (req: Request, res: Response, next: NextFunction) => {
 
   //Try to validate the token and get data
   try {
-    if (token===undefined && bypass && (process.env.NODE_ENV == "dev") ) {
+    if (token===undefined && bypass && ((process.env.NODE_ENV == "dev") || (process.env.NODE_ENV == "test")) ) {
       jwtPayload = {
-        username: "User_9",
-        email: "User_9@dronfies.com",
+        username: "admin",
+        email: "admin@dronfies.com",
         role: "admin"
       }
+      // console.log(" ********* ******** ******* ")
+      // console.log(`Using bypass: this only for dev or test. ${JSON.stringify(jwtPayload)}`)
+      // console.log(" ********* ******** ******* ")
     } else {
       jwtPayload = <any>jwt.verify(token, jwtSecret);
     }
