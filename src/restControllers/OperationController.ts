@@ -4,7 +4,7 @@ import { Role } from "../entities/User";
 import { getPayloadFromResponse } from "../utils/authUtils";
 import { VehicleDao } from "../daos/VehicleDao";
 import { Operation, OperationState } from "../entities/Operation";
-import { validateStringDateIso , dateTimeStringFormat } from "../utils/validationUtils"
+import { validateStringDateIso, dateTimeStringFormat } from "../utils/validationUtils"
 
 
 const MIN_MIN_ALTITUDE = -300
@@ -89,8 +89,8 @@ export class OperationController {
      * interesccion con otras operaciones
      * interseccion con UVR
      */
-    let op_vols = request.body.operation_volumes
-    let error = false
+    // let op_vols = request.body.operation_volumes
+    // let error = false
     // if (op_vols !== undefined) {
     //   for (let index = 0; index < op_vols.length; index++) {
     //     const element = op_vols[index];
@@ -100,6 +100,7 @@ export class OperationController {
     //     }
     //   }
     // }
+    // console.log(errors)
     if (errors.length == 0) {
       return response.json(await this.dao.save(request.body));
     } else {
@@ -138,15 +139,15 @@ export class OperationController {
     return response.json({ count: ops.length, ops });
   }
 
-  async checkIntersection(operationVolume) {
-    try {
-      let operationsCount = await this.dao.getOperationVolumeByVolumeCount(operationVolume)
-      return operationsCount > 0;
-    } catch (e) {
-      // console.log(e)
-      return true //TODO throw exception
-    }
-  }
+  // async checkIntersection(operationVolume) {
+  //   try {
+  //     let operationsCount = await this.dao.getOperationVolumeByVolumeCount(operationVolume)
+  //     return operationsCount > 0;
+  //   } catch (e) {
+  //     // console.log(e)
+  //     return true //TODO throw exception
+  //   }
+  // }
 
   async remove(request: Request, response: Response, next: NextFunction) {
     let opToRemove //= await this.dao.one(request.params.id);
@@ -182,41 +183,42 @@ function validateOperation(operation: any) {
   let op = operation
   if (op.operation_volumes.length != 1) {
     errors.push(`Operation must have only 1 volume and has ${op.operation_volumes.length}`)
-  }
-  for (let index = 0; index < op.operation_volumes.length; index++) {
-    const element = op.operation_volumes[index];
-    if (!(element.min_altitude >= MIN_MIN_ALTITUDE)) {
-      errors.push(`Min altitude must be greater than ${MIN_MIN_ALTITUDE} and is ${element.min_altitude}`)
-    }
-    if (!(element.min_altitude <= MAX_MIN_ALTITUDE)) {
-      errors.push(`Min altitude must be lower than ${MAX_MIN_ALTITUDE} and is ${element.min_altitude}`)
-    }
-    if (!(element.max_altitude >= MIN_MAX_ALTITUDE)) {
-      errors.push(`Max altitude must be greater than ${MIN_MAX_ALTITUDE} and is ${element.max_altitude}`)
-    }
-    if (!(element.max_altitude <= MAX_MAX_ALTITUDE)) {
-      errors.push(`Max altitude must be lower than ${MAX_MAX_ALTITUDE} and is ${element.max_altitude}`)
-    }
-    const effectiveTimeBeginValid = validateStringDateIso(element.effective_time_begin)
-    if(!effectiveTimeBeginValid){
-      errors.push(`effective_time_begin ${element.effective_time_begin} must have the format ${dateTimeStringFormat}`)
-    }
-    const effectiveTimeEndValid = validateStringDateIso(element.effective_time_end)
-    if(!effectiveTimeEndValid){
-      errors.push(`effective_time_end ${element.effective_time_end} must have the format ${dateTimeStringFormat}`)
-    }
-    let effective_time_begin = new Date(element.effective_time_begin)
-    let effective_time_end = new Date(element.effective_time_end)
-    let difference = effective_time_end.getTime() - effective_time_begin.getTime()
-    if (difference <= 0) {
-      errors.push(`effective_time_begin ${element.effective_time_begin} must be lower than effective_time_end ${element.effective_time_end}`)
-    } else
-      if (difference < MIN_TIME_INTERVAL) {
-        errors.push(`The time interval must be greater than ${MIN_TIME_INTERVAL / 60 / 1000} min and is ${difference / 60 / 1000} min`)
+  } else {
+    for (let index = 0; index < op.operation_volumes.length; index++) {
+      const element = op.operation_volumes[index];
+      if (!(element.min_altitude >= MIN_MIN_ALTITUDE)) {
+        errors.push(`Min altitude must be greater than ${MIN_MIN_ALTITUDE} and is ${element.min_altitude}`)
+      }
+      if (!(element.min_altitude <= MAX_MIN_ALTITUDE)) {
+        errors.push(`Min altitude must be lower than ${MAX_MIN_ALTITUDE} and is ${element.min_altitude}`)
+      }
+      if (!(element.max_altitude >= MIN_MAX_ALTITUDE)) {
+        errors.push(`Max altitude must be greater than ${MIN_MAX_ALTITUDE} and is ${element.max_altitude}`)
+      }
+      if (!(element.max_altitude <= MAX_MAX_ALTITUDE)) {
+        errors.push(`Max altitude must be lower than ${MAX_MAX_ALTITUDE} and is ${element.max_altitude}`)
+      }
+      const effectiveTimeBeginValid = validateStringDateIso(element.effective_time_begin)
+      if (!effectiveTimeBeginValid) {
+        errors.push(`effective_time_begin ${element.effective_time_begin} must have the format ${dateTimeStringFormat}`)
+      }
+      const effectiveTimeEndValid = validateStringDateIso(element.effective_time_end)
+      if (!effectiveTimeEndValid) {
+        errors.push(`effective_time_end ${element.effective_time_end} must have the format ${dateTimeStringFormat}`)
+      }
+      let effective_time_begin = new Date(element.effective_time_begin)
+      let effective_time_end = new Date(element.effective_time_end)
+      let difference = effective_time_end.getTime() - effective_time_begin.getTime()
+      if (difference <= 0) {
+        errors.push(`effective_time_begin ${element.effective_time_begin} must be lower than effective_time_end ${element.effective_time_end}`)
       } else
-        if (difference > MAX_TIME_INTERVAL) {
-          errors.push(`The time interval must be lower than ${MAX_TIME_INTERVAL / 60 / 1000 / 60} hours and is ${roundWithDecimals(difference / 60 / 1000 / 60)} hours`)
-        }
+        if (difference < MIN_TIME_INTERVAL) {
+          errors.push(`The time interval must be greater than ${MIN_TIME_INTERVAL / 60 / 1000} min and is ${difference / 60 / 1000} min`)
+        } else
+          if (difference > MAX_TIME_INTERVAL) {
+            errors.push(`The time interval must be lower than ${MAX_TIME_INTERVAL / 60 / 1000 / 60} hours and is ${roundWithDecimals(difference / 60 / 1000 / 60)} hours`)
+          }
+    }
   }
   return errors
 }
