@@ -14,7 +14,7 @@ import { ContingencyPlan } from './entities/ContingencyPlan';
 import { Position } from './entities/Position';
 import { UASVolumeReservation } from './entities/UASVolumeReservation';
 
-import { Users } from './data/users_data';
+import { Users, getUserListAsMap } from './data/users_data';
 import { Vehicles } from "./data/vehicle_data";
 import { UtmMessages } from "./data/utmMessage_data";
 import { Operations } from "./data/operations_data";
@@ -56,11 +56,11 @@ export async function initData(connection: Connection, callback?: () => any) {
                 users.sort(function (a, b) {
                     return a.username.localeCompare(b.username);
                 }); 
-                console.log(`Loading vehicles: largo de usuarios ${users.length}`)
+                // console.log(`Loading vehicles: largo de usuarios ${users.length}`)
                 Vehicles.forEach(async (vehicle, idx) => { 
                     let number = parseInt((vehicle.vehicleName.match(/\d+/g))[0])
                     let user: User = users[number%2?0:1] // randomFromList(users)
-                    console.log(`Vehicle ${vehicle.vehicleName}, user:${user.username}`)
+                    // console.log(`Vehicle ${vehicle.vehicleName}, user:${user.username}`)
                     // console.log(`Vehicle ${JSON.stringify(vehicle)}, user:${JSON.stringify(user)}`)
                     vehicle.registeredBy = user
                     try {
@@ -80,9 +80,9 @@ export async function initData(connection: Connection, callback?: () => any) {
         } catch (error) {
             console.log(error)
         }
-        console.log(`operations ${operations.length}`)
+        // console.log(`operations ${operations.length}`)
         if (operations.length == 0) {
-            console.log(`Loading operations ${operations.length}`)
+            // console.log(`Loading operations ${operations.length}`)
             let vehicles: VehicleReg[] 
             let users
             try {
@@ -95,13 +95,18 @@ export async function initData(connection: Connection, callback?: () => any) {
                 console.log(error)
             }
 
-            console.log(`Vehicles: ${vehicles.length}`)
-            console.log(`Users: ${users.length}`)
+            // console.log(`Vehicles: ${vehicles.length}`)
+            // console.log(`Users: ${users.length}`)
+            let userMap = getUserListAsMap(users)
+            Operations[0].creator = userMap['MaurineFowlie']
+            Operations[1].creator = userMap['admin']
+            Operations[2].creator = userMap['MaurineFowlie']
+            Operations[3].creator = userMap['MonroBhatia']
 
             for (let index = 0; index < Operations.length; index++) {
-                const op = Operations[index];
+                const op : Operation = Operations[index];
                 // let op: Operation = Operations[0]
-                op.creator = users[index] //randomFromList(users)
+                // op.creator = users[index] //randomFromList(users)
                 op.uas_registrations = [vehicles[index]] //[randomFromList(vehicles)]
 
                 try {

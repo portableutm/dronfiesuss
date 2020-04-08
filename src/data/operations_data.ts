@@ -22,7 +22,7 @@ op.state = OperationState.PROPOSED
 op.priority_elements = new PriorityElements()
 op.priority_elements.priority_level = Severity.ALERT
 op.priority_elements.priority_status = PriorityStatus.NONE //"NONE";
-op.contact = "Charly Good"
+op.contact = "Renate Penvarden"
 
 op.contingency_plans = new Array <ContingencyPlan>();
 let contingency_plan = new ContingencyPlan();
@@ -56,7 +56,7 @@ op.contingency_plans.push(contingency_plan)
 
 
 op.operation_volumes = new Array < OperationVolume > ();
-op.operation_volumes[0] = new OperationVolume()
+op.operation_volumes[0] = new OperationVolume() 
 op.operation_volumes[0].effective_time_begin = "2019-12-11T19:59:10Z"
 op.operation_volumes[0].effective_time_end = "2019-12-11T20:59:10Z"
 op.operation_volumes[0].min_altitude = 10
@@ -142,10 +142,10 @@ op4.operation_volumes[0].operation_geography = {"type": "Polygon","coordinates":
 
 
 export let Operations = []
-Operations.push(op4)
-Operations.push(op3)
-Operations.push(op2)
 Operations.push(op)
+Operations.push(op2)
+Operations.push(op3)
+Operations.push(op4)
 
 
 

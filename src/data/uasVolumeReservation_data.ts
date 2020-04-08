@@ -10,6 +10,7 @@ uasVolumeReservation.cause = UASVolumeReservationCause.MUNICIPALITY
 uasVolumeReservation.type = UASVolumeReservationType.DYNAMIC_RESTRICTION
 uasVolumeReservation.effective_time_begin = "2019-12-11T19:59:10Z"
 uasVolumeReservation.effective_time_end = "2019-12-11T20:59:10Z"
+
 uasVolumeReservation.min_altitude = 20
 uasVolumeReservation.max_altitude = 50
 uasVolumeReservation.permitted_uas = []
@@ -25,4 +26,9 @@ uasVolumeReservation.cause = UASVolumeReservationCause.SECURITY
 uasVolumeReservation.permitted_uas.push( UASVolumeReservationPermitedUas.RADIO_LINE_OF_SIGHT)
 uasVolumeReservation.type = UASVolumeReservationType.STATIC_ADVISORY
 
+uasVolumeReservation.effective_time_begin = "2020-02-18T16:05:16Z"
+uasVolumeReservation.effective_time_end =   "2020-02-18T22:59:10Z"
+
 uasVolumeReservationList.push(deepCopy(uasVolumeReservation))
+
+// console.log(JSON.stringify(uasVolumeReservationList, null, 1))
