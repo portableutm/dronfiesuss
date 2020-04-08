@@ -12,7 +12,7 @@ import { VehicleDao } from "../../src/daos/VehicleDao";
 
 import { app, init, initAsync } from "../../src/index";
 
-describe.only('>>> Vehicle entity <<< ', function () {
+describe('>>> Vehicle entity <<< ', function () {
 
     before(function (done) {
         this.timeout(3000);
@@ -65,6 +65,7 @@ describe.only('>>> Vehicle entity <<< ', function () {
             })
             .catch(done);
     });
+    
 
     it("should get a vehicle", function (done) {
         let uvin = "bd9b2eb6-7ab7-442e-b99c-78890581f198";
@@ -78,7 +79,20 @@ describe.only('>>> Vehicle entity <<< ', function () {
                 done();
             })
             .catch(done)
+    });
 
+    it("should not get a vehicle for anonymous user", function (done) {
+        let uvin = "bd9b2eb6-7ab7-442e-b99c-78890581f198";
+        chai.request(app.app)
+            .get(`/vehicle/${uvin}`)
+            // .set('bypass', 'a')
+            .then(function (res) {
+                res.should.have.status(401);
+                // res.body.should.have.property('uvin');
+                // res.body.should.have.property('vehicleName').equal("vehicle_name9");
+                done();
+            })
+            .catch(done)
     });
 
     it("GET /vehicle/${cualquierVehiiculo} should not get a vehicle", function (done) {
