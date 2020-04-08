@@ -10,12 +10,12 @@ export class UserDao {
     }
 
     async one(username : string) {
-        console.log(`username: ${username}`)
+        // console.log(`username: ${username}`)
         return this.userRepository.findOneOrFail(username);
     }
 
     async save(user:User) {
-        console.log(`Save user: ${JSON.stringify(user)}`)
+        // console.log(`Save user: ${JSON.stringify(user)}`)
         let u = await this.userRepository.insert(user)
         // let u = await this.userRepository.save(user);
         return u;
