@@ -6,10 +6,6 @@ chai.use(chaiHttp);
 chai.should();
 import { VehicleDao } from "../../src/daos/VehicleDao";
 
-// import App from "../../src/app";
-// const controllers = [];
-// const app = new App(controllers, 3000, "test");
-
 import { app, init, initAsync } from "../../src/index";
 
 describe('>>> Vehicle entity <<< ', function () {
