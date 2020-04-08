@@ -31,7 +31,7 @@ export class PositionController {
                 let position = await this.dao.save(request.body)
 
                 //check if position is inside de operation volume of associated operation 
-                console.log(`Entrando al checker con  ${JSON.stringify(position, null, 2)}`)
+                // console.log(`Entrando al checker con  ${JSON.stringify(position, null, 2)}`)
                 let res = await this.dao.checkPositionWithOperation(position)
                 let { inOperation } = res
                 if (!inOperation) {
@@ -40,7 +40,11 @@ export class PositionController {
                         this.operationDao = new OperationDao();
                     }
                     //if position is not inside the associated operation then change operation status as ROUGE
-                    console.log(await this.operationDao.updateState(gufi, OperationState.ROGUE))
+
+                    // console.log(await this.operationDao.updateState(gufi, OperationState.ROGUE))
+                    this.operationDao.updateState(gufi, OperationState.ROGUE)
+
+                    
                     // let op = await this.operationDao.one(gufi); 
                     // op.state = OperationState.ROGUE
                     // let savedOp = await this.operationDao.save(op);
