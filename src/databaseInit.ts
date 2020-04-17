@@ -17,10 +17,13 @@ import { UASVolumeReservation } from './entities/UASVolumeReservation';
 import { Users, getUserListAsMap } from './data/users_data';
 import { Vehicles } from "./data/vehicle_data";
 import { UtmMessages } from "./data/utmMessage_data";
-import { Operations } from "./data/operations_data";
+import { Operations as ops } from "./data/operations_data";
 import { Positions } from "./data/position_data";
 import { uasVolumeReservationList } from "./data/uasVolumeReservation_data";
+import { deepCopy } from './utils/entitiesUtils';
 
+
+let Operations = deepCopy(ops)
 
 
 let randomFromList = (list: any[]): any => {
