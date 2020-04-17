@@ -1,4 +1,5 @@
-import {Entity, PrimaryGeneratedColumn, Column, Unique, PrimaryColumn} from "typeorm";
+import {Entity, PrimaryGeneratedColumn, Column, Unique, PrimaryColumn, OneToOne, JoinColumn} from "typeorm";
+import { UserStatus } from "./UserStatus";
 
 // export type Role = "admin" | "pilot"
 
@@ -26,9 +27,11 @@ export class User {
     @Column()
     password: string;
 
-    @Column()
+    @Column({default:Role.PILOT})
     role: Role;
 
-
+    @OneToOne("UserStatus", {lazy:true, cascade : ["insert"]   })
+    @JoinColumn()
+    status? : UserStatus
 
 }
