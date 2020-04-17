@@ -428,7 +428,7 @@ describe('>>> User rest controller test <<<', function () {
 
     });
 
-    describe.only("Testing User Status", function () {
+    describe("Testing User Status", function () {
 
         it("POST /user/register Should create a new user with status UNCONFIRMED", function (done) {
             let dao = new UserDao()
