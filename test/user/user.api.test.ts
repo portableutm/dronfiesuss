@@ -13,6 +13,8 @@ import { hashPassword } from "../../src/services/encrypter";
 
 import * as request from 'supertest';
 import { getToken } from "../../src/services/tokenService";
+import { Status } from "../../src/entities/UserStatus";
+import { stat } from "fs";
 
 describe('>>> User rest controller test <<<', function () {
 
@@ -23,7 +25,7 @@ describe('>>> User rest controller test <<<', function () {
             .catch(done)
     })
 
-    it("GET /user Should get all users",  function (done) {
+    it("GET /user Should get all users", function (done) {
         // it("Should get all users", (done) => {
         request(app.app)
             .get('/user')
@@ -36,14 +38,14 @@ describe('>>> User rest controller test <<<', function () {
             .expect(200, done)
     });
 
-    it("GET /user Should not get all users for anonymus user",  function (done) {
+    it("GET /user Should not get all users for anonymus user", function (done) {
         request(app.app)
             .get('/user')
             .set('Accept', 'application/json')
             .expect(401, done)
     });
 
-    it("GET /user Should not get all users for non ADMIN user",  function (done) {
+    it("GET /user Should not get all users for non ADMIN user", function (done) {
         let token = getToken('maurine@dronfies.com', 'MaurineFowlie', Role.PILOT)
         request(app.app)
             .get('/user')
@@ -52,7 +54,7 @@ describe('>>> User rest controller test <<<', function () {
             .expect(401, done)
     });
 
-    it("GET /user Should get all users",  function (done) {
+    it("GET /user Should get all users", function (done) {
         chai.request(app.app)
             .get('/user')
             .set('bypass', 'a')
@@ -94,7 +96,7 @@ describe('>>> User rest controller test <<<', function () {
                 })
                 .then(res => {
                     dao.all().then(function (newUsers) {
-                        assert.equal(newUsers.length, CountPreInsert+1)
+                        assert.equal(newUsers.length, CountPreInsert + 1)
                         done();
                     }).catch(err => {
                         console.error(err);
@@ -131,11 +133,11 @@ describe('>>> User rest controller test <<<', function () {
                 // .expect('Content-Type', /json/)
                 .send(user)
                 // .expect(function (res) {
-                    // res.body.should.have.property('username').equal(user.username);
-                    // res.body.should.have.property('email').equal(user.email);
-                    // res.body.should.have.property('firstName').equal(user.firstName);
-                    // res.body.should.have.property('lastName').equal(user.lastName);
-                    // res.body.should.have.property('role').equal(user.role);
+                // res.body.should.have.property('username').equal(user.username);
+                // res.body.should.have.property('email').equal(user.email);
+                // res.body.should.have.property('firstName').equal(user.firstName);
+                // res.body.should.have.property('lastName').equal(user.lastName);
+                // res.body.should.have.property('role').equal(user.role);
                 // })
                 .then(res => {
                     res.should.have.status(401);
@@ -254,7 +256,7 @@ describe('>>> User rest controller test <<<', function () {
             lastName: `NewLastName`,
             password: `password`,
             role: Role.PILOT
-        },{
+        }, {
             username: "wakawaka",
             email: `admin@dronfies.com`,
             firstName: `NewName`,
@@ -325,7 +327,7 @@ describe('>>> User rest controller test <<<', function () {
                 //     password: `password`,
                 //     role: Role.PILOT
                 // }
-    
+
                 request(app.app)
                     .post('/user')
                     .set('bypass', 'a')
@@ -341,7 +343,7 @@ describe('>>> User rest controller test <<<', function () {
                             console.error(err);
                             done(err);
                         });
-    
+
                     })
                     .catch(err => {
                         console.error(err);
@@ -426,5 +428,155 @@ describe('>>> User rest controller test <<<', function () {
 
     });
 
+    describe.only("Testing User Status", function () {
+
+        it("POST /user/register Should create a new user with status UNCONFIRMED", function (done) {
+            let dao = new UserDao()
+            dao.all().then(function (users) {
+                let CountPreInsert = users.length
+                let user: User = {
+                    username: "unconfirmedTestUser",
+                    email: `unconfirmedTestUser@dronfies.com`,
+                    firstName: `unconfirmedTestUser`,
+                    lastName: `unconfirmedTestUser`,
+                    password: `unconfirmedTestUser`,
+                    role: Role.PILOT
+                }
+
+                chai.request(app.app)
+                    .post('/user/register')
+                    .set('Accept', 'application/json')
+                    .send(user)
+                    .then(res => {
+                        res.should.have.status(200);
+                        res.body.should.have.property('username').equal(user.username);
+                        res.body.should.have.property('email').equal(user.email);
+                        res.body.should.have.property('firstName').equal(user.firstName);
+                        res.body.should.have.property('lastName').equal(user.lastName);
+                        res.body.should.have.property('role').equal(Role.PILOT);
+
+                        dao.all()
+                            .then(function (newUsers) {
+                                assert.equal(newUsers.length, CountPreInsert + 1)
+                                dao.one(user.username)
+                                    .then(function (newUser) {
+                                        // console.log(`>${JSON.stringify(newUser, null, 2)}<`)
+                                        getUserStatus(newUser)
+                                            .then(status => {
+                                                // console.log(status)
+                                                status.should.have.property("status").equal(Status.UNCONFIRMED)
+                                                done();
+                                            }).catch(done)
+                                    }).catch(done)
+                            }).catch(done);
+                    }).catch(done)
+            }).catch(done)
+        });
+
+        it("POST /user/confirm confirm unconfirmedTestUser", function (done) {
+            let dao = new UserDao()
+            let user: User = {
+                username: "unconfirmedTestUser",
+                email: `unconfirmedTestUser@dronfies.com`,
+                firstName: `unconfirmedTestUser`,
+                lastName: `unconfirmedTestUser`,
+                password: `unconfirmedTestUser`,
+                role: Role.PILOT
+            }
+
+            dao.one(user.username)
+                .then(function (newUser) {
+                    console.log(`Get the user to change status ${newUser.username}`)
+                    getUserStatus(newUser)
+                        .then(status => {
+                            console.log(`Get the status ${JSON.stringify(status)}`)
+                            status.should.have.property("status").equal(Status.UNCONFIRMED)
+                            // let confirmJson = {
+                            //     id: user.username,
+                            //     token: status.token
+                            // }
+
+                            let confirmJson = {
+                                username: "unconfirmedTestUser",
+                                token: status.token
+                            }
+
+                            chai.request(app.app)
+                                .post('/user/confirm')
+                                .set('Accept', 'application/json')
+                                .send(confirmJson)
+                                .then(res => {
+                                    res.should.have.status(200);
+                                    res.body.should.have.property('message').equal("Confirmed user");
+                                    dao.one(user.username)
+                                        .then(function (newUser) {
+                                            getUserStatus(newUser)
+                                                .then(status => {
+                                                    console.log(`Test ${JSON.stringify(status)}`)
+                                                    status.should.have.property("status").equal(Status.CONFIRMED)
+                                                    done();
+                                                }).catch(done)
+                                        }).catch(done)
+                                }).catch(done)
+                        }).catch(done)
+                }).catch(done)
+            });
+
+
+
+        // it("POST /user Should create a new user with status UNCONFIRMED", function (done) {
+        //     let dao = new UserDao()
+        //     dao.all().then(function (users) {
+        //         let CountPreInsert = users.length
+        //         let user: User = {
+        //             username: "unconfirmedTestUser",
+        //             email: `unconfirmedTestUser@dronfies.com`,
+        //             firstName: `unconfirmedTestUser`,
+        //             lastName: `unconfirmedTestUser`,
+        //             password: `unconfirmedTestUser`,
+        //             role: Role.PILOT
+        //         }
+
+        //         chai.request(app.app)
+        //             .post('/user/register')
+        //             .set('bypass', 'a')
+        //             .set('Accept', 'application/json')
+        //             .send(user)
+        //             .then(res => {
+        //                 res.body.should.have.property('username').equal(user.username);
+        //                 res.body.should.have.property('email').equal(user.email);
+        //                 res.body.should.have.property('firstName').equal(user.firstName);
+        //                 res.body.should.have.property('lastName').equal(user.lastName);
+        //                 res.body.should.have.property('role').equal(Role.PILOT);
+
+        //                 dao.all().then(function (newUsers) {
+        //                     assert.equal(newUsers.length, CountPreInsert+1)
+        //                     dao.one(user.username).then(function(newUser){
+        //                         newUser.should.have.property("status").equal(Status.UNCONFIRMED)
+        //                     })
+        //                     done();
+        //                 }).catch(err => {
+        //                     console.error(err);
+        //                     done(err);
+        //                 });
+
+        //             })
+        //             .catch(err => {
+        //                 console.error(err);
+        //                 done(err);
+        //             });
+
+        //     })
+        // });
+
+    })
+
+
 
 });
+
+
+async function getUserStatus(newUser: User) {
+    let status = await newUser.status
+    return status;
+}
