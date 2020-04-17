@@ -5,7 +5,6 @@ import { UTMMessageController } from "./restControllers/UtmMessageRestController
 import { AuthController } from "./restControllers/AuthController";
 import { PositionController } from "./restControllers/PositionController";
 import { UASVolumeReservationController } from "./restControllers/UASVolumeReservationController";
-// import { TestController } from "./restControllers/testController";
 
 import { checkJwt } from "./middleware/checkJwt";
 
@@ -68,8 +67,24 @@ let operations = [
     action: "operationsByCreator",
     middlewares: [checkJwt]  
 },
-...doRoutes("operation", OperationController)
+...doRoutes("operation", OperationController)]
 
+let user = [
+    {
+        method: "post",
+        route: `/user/register`,
+        controller: UserController,
+        action: "userRegister",
+        // middlewares: [checkJwt]  
+    },
+    {
+        method: "post",
+        route: `/user/confirm`,
+        controller: UserController,
+        action: "confirmUser",
+        // middlewares: [checkJwt]  
+    },
+    ...doRoutes("user", UserController)
 ]
 
 let auth = [{
@@ -81,7 +96,7 @@ let auth = [{
 }]
 
 let r : CustomRoute[] = [
-    ...doRoutes("user",UserController),
+    ...user, // ...doRoutes("user",UserController),
     ...doRoutes("utmmessage", UTMMessageController),
     ...doRoutes("vehicle", VehicleController), 
     ...doRoutes("position", PositionController), 
