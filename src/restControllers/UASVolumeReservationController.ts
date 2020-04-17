@@ -7,40 +7,49 @@ import { OperationDao } from "../daos/OperationDaos";
 import { Operation, OperationState } from "../entities/Operation";
 import { validateStringDateIso, dateTimeStringFormat } from "../utils/validationUtils"
 
-
-// import { app } from "../index";
-// import { sendPositionToMonitor } from "../services/asyncBrowserComunication";
-
-
 export class UASVolumeReservationController {
 
     private dao = new UASVolumeReservationDao()
     private operationDao = new OperationDao()
 
     async all(request: Request, response: Response, next: NextFunction) {
-        return response.json(await this.dao.all());
+        try {
+            let list = await this.dao.all()
+            return response.json(list);
+        } catch (error) {
+            response.status(400)
+            return response.json(error)
+            
+        }
     }
 
     async one(request: Request, response: Response, next: NextFunction) {
+        try {
+            let uas = await this.dao.one(request.params.id)
+            return response.json(uas);
+        } catch (error) {
+            return response.sendStatus(404)  
+        }
         return response.json(await this.dao.one(request.params.id));
     }
 
     async save(request: Request, response: Response, next: NextFunction) {
         try {
-            console.log(`\n**********************************`)
+            // console.log(`\n**********************************`)
             let errors = validateOperation(request.body)
             let entitie = await this.dao.save(request.body)
             if (errors.length == 0) {
                 entitie = await this.dao.save(request.body)
-                console.log(`New uvr ${entitie.message_id}`)
+                // console.log(`New uvr ${entitie.message_id}`)
                 //get operations that need to chage the state
                 let volume = createVolumeFromUvr(entitie)
                 let operations = await this.operationDao.getOperationByVolume(volume)
+                // console.log(JSON.stringify(operations, null, 2))
                 for (let index = 0; index < operations.length; index++) {
                     const op: Operation = operations[index];
-                    console.log(`The operation ${op.gufi} intersect with this uvr`)
+                    // console.log(`The operation ${op.gufi} intersect with this uvr`)
                     let newState: OperationState = getNextOperationState(op)
-                    console.log(`The opertion ${op.gufi} chage the state from ${op.state} to ${newState}`)
+                    // console.log(`The opertion ${op.gufi} chage the state from ${op.state} to ${newState}`)
                     if (newState != op.state) {
                         op.state = newState
                         this.operationDao.updateState(op.gufi, newState)
@@ -71,13 +80,6 @@ function createVolumeFromUvr(uvr: UASVolumeReservation) {
 }
 
 function getNextOperationState(operation: Operation) {
-    // PROPOSED = "PROPOSED"
-    // , ACCEPTED = "ACCEPTED"
-    // , ACTIVATED = "ACTIVATED"
-    // , CLOSED = "CLOSED"
-    // , NONCONFORMING = "NONCONFORMING"
-    // , ROGUE = "ROGUE",
-    // NOT_ACCEPTED = "NOT_ACCEPTED"
     let newState: OperationState = operation.state
     switch (operation.state) {
         case OperationState.PROPOSED:
@@ -94,8 +96,8 @@ function getNextOperationState(operation: Operation) {
         case OperationState.NONCONFORMING:
             newState = OperationState.ROGUE
             break;
-        case OperationState.ROGUE:
-            break;
+        // case OperationState.ROGUE:
+        //     break;
         default:
             break;
     }
