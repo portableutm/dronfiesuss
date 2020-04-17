@@ -5,6 +5,7 @@ import { UserDao } from "../daos/UserDaos";
 import { checkIfUnencryptedPasswordIsValid } from "../services/encrypter";
 import {jwtSecret} from "../config/config";
 import { getUserFields } from "../utils/authUtils";
+import { Status } from "../entities/UserStatus";
 
 export class AuthController {
 
@@ -19,10 +20,16 @@ export class AuthController {
         let user : User
         try {
             user = await this.dao.one(username)  
+            
+            const status = await user.status;
+            if(status.status == Status.UNCONFIRMED){
+                response.statusCode = 401
+                return response.json({token:"", error:"Unconfirmed user"})
+            }
               
         } catch (error) {
             // console.log(`Error al obtener usuarios`)
-            // console.error(error)
+            console.error(error)
             return response.sendStatus(401);
         }
         
@@ -40,7 +47,7 @@ export class AuthController {
                 );    
                 // console.log(`token:${token}(${typeof token})`)
                 if(format){
-                    response.json({token})
+                    return response.json({token})
                 }else{
                     return response.send(token);
                 }
