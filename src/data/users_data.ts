@@ -1,5 +1,6 @@
 import { User, Role } from "../entities/User";
 import { hashPassword } from "../services/encrypter";
+import { UserStatus, Status } from "../entities/UserStatus";
 
 
 // let nums = [1,2,3,4,5,6,7,8,9] 
@@ -41,28 +42,28 @@ export let Users = [
         email: `renate@dronfies.com`,
         "firstName": "Renate",
         "lastName": "Penvarden",
-        "password": "xD6lJ9ATuA",
+        "password": hashPassword("xD6lJ9ATuA"),
         "username": "RenatePenvarden",
         "role": Role.PILOT
     }, {
         email: `maurine@dronfies.com`,
         "firstName": "Maurine",
         "lastName": "Fowlie",
-        "password": "eGWQtF",
+        "password": hashPassword("eGWQtF"),
         "username": "MaurineFowlie",
         "role": Role.PILOT
     }, {
         email: `jiditha@dronfies.com`,
         "firstName": "Juditha",
         "lastName": "Strut",
-        "password": "XvwUDyUKc",
+        "password": hashPassword("XvwUDyUKc"),
         "username": "JudithaStrut",
         "role": Role.PILOT
     }, {
         email: `monro@dronfies.com`,
         "firstName": "Monro",
         "lastName": "Bhatia",
-        "password": "OnLzzH6Hf",
+        "password": hashPassword("OnLzzH6Hf"),
         "username": "MonroBhatia",
         "role": Role.PILOT
     }, {
@@ -76,39 +77,46 @@ export let Users = [
         email: `trula@dronfies.com`,
         "firstName": "Trula",
         "lastName": "Remon",
-        "password": "vqpZSu",
+        "password": hashPassword("vqpZSu"),
         "username": "TrulaRemon",
         "role": Role.PILOT
     }, {
         email: `jacquenette@dronfies.com`,
         "firstName": "Jacquenette",
         "lastName": "Witcherley",
-        "password": "4O5ZtfWoD",
+        "password": hashPassword("4O5ZtfWoD"),
         "username": "JacquenetteWitcherley",
         "role": Role.PILOT
     }, {
         email: `bettye@dronfies.com`,
         "firstName": "Bettye",
         "lastName": "Stopford",
-        "password": "lY8csYMID",
+        "password": hashPassword("lY8csYMID"),
         "username": "BettyeStopford",
         "role": Role.PILOT
     }, {
         email: `mair@dronfies.com`,
         "firstName": "Mair",
         "lastName": "Giurio",
-        "password": "xlr3T40",
+        "password": hashPassword("xlr3T40"),
         "username": "MairGiurio",
         "role": Role.PILOT
     }, {
         email: `gay@dronfies.com`,
         "firstName": "Gay",
         "lastName": "Oxtarby",
-        "password": "wgHcqd",
+        "password": hashPassword("wgHcqd"),
         "username": "GayOxtarby",
         "role": Role.PILOT
     }
-]
+].map(user => {
+    let u : any = user
+    let status = new UserStatus()
+    status.status = Status.CONFIRMED
+    u.status = status
+    return u
+
+})
 
 export function getUserListAsMap(Users){
     let UsersObj = {}
