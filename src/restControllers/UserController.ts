@@ -2,10 +2,14 @@ import { NextFunction, Request, Response } from "express";
 import { User, Role } from "../entities/User";
 import { UserDao } from "../daos/UserDaos";
 import { hashPassword } from "../services/encrypter";
+import { sendMail } from "../services/mailService";
 import { getPayloadFromResponse } from "../utils/authUtils";
 import { genericTextLenghtValidation } from "../utils/validationUtils";
+import { buildConfirmationLink, buildConfirmationHtmlMail, buildConfirmationTextMail } from "../utils/mailContentUtil";
 import { UserStatus, Status } from "../entities/UserStatus";
 import { UserStatusDao } from "../daos/UserStatusDao";
+import { frontEndUrl } from "../config/config";
+
 
 export class UserController {
 
@@ -70,24 +74,20 @@ export class UserController {
 
             user.role = Role.PILOT;
 
-            // user.status = new UserStatus()
-            // user.status.status = Status.UNCONFIRMED
-            // user.status.token = generateToken();
 
             let status = new UserStatus()
             status.status = Status.UNCONFIRMED
             status.token = generateToken();
-            let s = await this.userStatusDao.save(status)   
-            // console.log(JSON.stringify(s , null, 2))
-
+            
             user.status = status
-
+            
             let errors = validateUser(user)
             if (errors.length == 0) {
+                //TODO do transaction with this two saves
+                let s = await this.userStatusDao.save(status)   
                 user.password = hashPassword(user.password)
                 let insertedDetails = await this.dao.save(user)
-                // console.log(JSON.stringify(user, null, 2))
-                // console.log(JSON.stringify(insertedDetails, null, 2))
+                sendMailToConfirm(user, status)
                 return response.json(user);
             } else {
                 response.status(400)
@@ -103,23 +103,20 @@ export class UserController {
     async confirmUser(request: Request, response: Response, next: NextFunction) {
         try {
 
-            console.log(`confirm user: ${JSON.stringify(request.body)}`)
+            // console.log(`confirm user: ${JSON.stringify(request.body)}`)
 
             let token = request.body.token
             let user = await this.dao.one(request.body.username)
 
-            // console.log(`Will change ${user.username}`)
-            
             let status = await user.status;
-            console.log(`Estado que obtengo de bbdd ${JSON.stringify(status, null, 2)}`)
+            // console.log(`Estado que obtengo de bbdd ${JSON.stringify(status, null, 2)}`)
             if(token == status.token){
                 try {
                     status.status = Status.CONFIRMED
-                    console.log(`Estado antes de pasar al save ${JSON.stringify(status, null, 2)}`)
+                    // console.log(`Estado antes de pasar al save ${JSON.stringify(status, null, 2)}`)
                     let info = await this.userStatusDao.save(status)   
-                    console.log(`Info del save ${JSON.stringify(info, null, 2)}`)
-                    console.log(`Estado antes de pasar al save ${JSON.stringify(status, null, 2)}`)
-                    // console.log(info)
+                    // console.log(`Info del save ${JSON.stringify(info, null, 2)}`)
+                    // console.log(`Estado antes de pasar al save ${JSON.stringify(status, null, 2)}`)
                     return response.json( {message:"Confirmed user"} );
                 } catch (error) {
                     // response.statusCode = 400
@@ -130,18 +127,13 @@ export class UserController {
             }else{
                 console.log(`${token} == ${status.token}`)
                 response.statusCode = 401
-                    return response.json({error:"Invalid token"})
+                    return response.json({error:"Invalid link"})
             }
         } catch (error) {
             return response.sendStatus(404)
         }
 
     }
-
-
-
-
-
 
     // async remove(request: Request, response: Response, next: NextFunction) {
     //     // let userToRemove = await this.dao.one(request.params.id);
@@ -191,4 +183,13 @@ function validateUser(user: User) {
 function generateToken(): String {
     let d = new Date();
     return hashPassword(d.toUTCString())
+}
+
+function sendMailToConfirm(user: User, status:UserStatus){
+    let confirmSubjcet = "Confirm registered user on dronfies utm"
+    let link = buildConfirmationLink(user.username, status.token, frontEndUrl)
+    let textContent = buildConfirmationTextMail(user.username, link)
+    let htmlContent = buildConfirmationHtmlMail(user.username, link)
+    
+    sendMail([user.email], confirmSubjcet, textContent, htmlContent)
 }
