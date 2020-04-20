@@ -5,6 +5,7 @@ import { UTMMessageController } from "./restControllers/UtmMessageRestController
 import { AuthController } from "./restControllers/AuthController";
 import { PositionController } from "./restControllers/PositionController";
 import { UASVolumeReservationController } from "./restControllers/UASVolumeReservationController";
+import { NotamController } from "./restControllers/NotamRestController";
 
 import { checkJwt } from "./middleware/checkJwt";
 
@@ -97,6 +98,7 @@ let auth = [{
 
 let r : CustomRoute[] = [
     ...user, // ...doRoutes("user",UserController),
+    ...doRoutes("notam", NotamController),
     ...doRoutes("utmmessage", UTMMessageController),
     ...doRoutes("vehicle", VehicleController), 
     ...doRoutes("position", PositionController), 
