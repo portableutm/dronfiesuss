@@ -26,7 +26,6 @@ describe('>>> User rest controller test <<<', function () {
     })
 
     it("GET /user Should get all users", function (done) {
-        // it("Should get all users", (done) => {
         request(app.app)
             .get('/user')
             .set('bypass', 'a')
@@ -436,7 +435,7 @@ describe('>>> User rest controller test <<<', function () {
                 let CountPreInsert = users.length
                 let user: User = {
                     username: "unconfirmedTestUser",
-                    email: `unconfirmedTestUser@dronfies.com`,
+                    email: `ealonzo@dronfies.com`,
                     firstName: `unconfirmedTestUser`,
                     lastName: `unconfirmedTestUser`,
                     password: `unconfirmedTestUser`,
