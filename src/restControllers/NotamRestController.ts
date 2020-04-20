@@ -1,13 +1,14 @@
 import {NextFunction, Request, Response} from "express";
-import { UTMMessageDao } from "../daos/UtmMessageDao";
+import {  NotamDao } from "../daos/NotamDao";
 
-export class UTMMessageController {
+export class NotamController {
 
-    private dao = new UTMMessageDao()
+    private dao = new NotamDao()
 
     async all(request: Request, response: Response, next: NextFunction) {
         try {
             let list = await this.dao.all()
+            // console.log(`Las no tams: ${JSON.stringify(list)}`)
             return response.json(list);
             
         } catch (error) {
