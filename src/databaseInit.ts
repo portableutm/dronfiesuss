@@ -19,8 +19,10 @@ import { Vehicles } from "./data/vehicle_data";
 import { UtmMessages } from "./data/utmMessage_data";
 import { Operations as ops } from "./data/operations_data";
 import { Positions } from "./data/position_data";
+import { NotamsList } from "./data/notams_data";
 import { uasVolumeReservationList } from "./data/uasVolumeReservation_data";
 import { deepCopy } from './utils/entitiesUtils';
+import { Notams } from './entities/Notams';
 
 
 let Operations = deepCopy(ops)
@@ -125,6 +127,17 @@ export async function initData(connection: Connection, callback?: () => any) {
 
         console.log("Loading msgs ")
 
+        try {
+            let ntms = await connection.manager.find(Notams)
+            if (ntms.length == 0) {
+                NotamsList.forEach(async (ntm) => {
+                    await connection.manager.save(Notams, ntm)
+                })
+            }
+        } catch (error) {
+            console.log(`Error when load notams ${JSON.stringify(error)}`)
+        }
+
         let messages = await connection.manager.find(UTMMessage)
         if (messages.length == 0) {
             UtmMessages.forEach(async (utmMessage) => {
@@ -148,6 +161,9 @@ export async function initData(connection: Connection, callback?: () => any) {
                 await connection.manager.save(Position, position)
             })
         }
+
+        
+        
 
 
         if (callback !== undefined) {
