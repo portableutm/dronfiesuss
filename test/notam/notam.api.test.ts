@@ -13,7 +13,7 @@ import { getToken } from "../../src/services/tokenService";
 import { Role } from "../../src/entities/User";
 import { Notams } from "../../src/entities/Notams";
 
-describe(' >>> Notams test <<< ', function () {
+describe.only(' >>> Notams test <<< ', function () {
 
     before(function (done) {
         this.timeout(5000);
@@ -70,10 +70,10 @@ describe(' >>> Notams test <<< ', function () {
             .set('auth', token)
             .send(notam1)
             .then(res => {
-                console.log(res.body)
+                // console.log(res.body)
                 res.should.have.status(200);
                 let notam : Notams = res.body
-                notam.should.have.property('message_id')
+                notam.should.have.property('message_id').be.a("string")
                 done()
             })
             .catch(function(error){

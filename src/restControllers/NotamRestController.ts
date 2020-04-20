@@ -30,8 +30,12 @@ export class NotamController {
 
     async save(request: Request, response: Response, next: NextFunction) {
         try {
-            let one = await this.dao.save(request.body)
-            return response.json(one);
+            let notam = request.body
+            let one = await this.dao.save(notam)
+            let id = one.identifiers[0]
+            notam.message_id = id.message_id
+            // console.log(JSON.stringify(one, null, 2))
+            return response.json(notam);
             
         } catch (error) {
             response.statusCode = 400
