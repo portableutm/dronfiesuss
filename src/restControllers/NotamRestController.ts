@@ -7,8 +7,32 @@ export class NotamController {
 
     async all(request: Request, response: Response, next: NextFunction) {
         try {
+            let date = request.query.date
+            let polygonStr = request.query.polygon 
+
+            let polygon  = undefined
+            if(polygonStr){
+                polygon = JSON.parse(decodeURIComponent(polygonStr))
+            }
+            let list
+            if(date || polygon ){
+                list = await this.dao.getNotamByDateAndArea(date, polygon)
+            }else{
+                list = await this.dao.all()
+            }
+            return response.json(list);
+        } catch (error) {
+            console.error("error")
+            console.error(error)
+            response.statusCode = 400
+            return response.json(error)
+        }
+    }
+
+
+    async allWithFilters(request: Request, response: Response, next: NextFunction) {
+        try {
             let list = await this.dao.all()
-            // console.log(`Las no tams: ${JSON.stringify(list)}`)
             return response.json(list);
             
         } catch (error) {
