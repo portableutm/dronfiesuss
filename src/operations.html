@@ -59,7 +59,12 @@
     }
   </style>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css"
-    integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
+  integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
+  crossorigin="" />
+
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/0.2.3/leaflet.draw.css"
+    
     crossorigin="" />
 
 </head>
@@ -76,6 +81,12 @@
   <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"
     integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew=="
     crossorigin=""></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/0.2.3/leaflet.draw.js"
+    
+    crossorigin=""></script>
+
+    
 
   <script>
     var positions = {}
@@ -119,136 +130,242 @@
         }).addTo(mymap);
       }
 
-      const socket = io(window.location.origin, {
-        transports: ['websocket']
+
+      // Initialise the FeatureGroup to store editable layers
+      var editableLayers = new L.FeatureGroup();
+      mymap.addLayer(editableLayers);
+
+      var drawPluginOptions = {
+        position: 'topright',
+        draw: {
+          polygon: {
+            allowIntersection: false, // Restricts shapes to simple polygons
+            drawError: {
+              color: '#e1e100', // Color the shape will turn when intersects
+              message: '<strong>Oh snap!<strong> you can\'t draw that!' // Message that will show when intersect
+            },
+            shapeOptions: {
+              color: '#97009c'
+            }
+          },
+          // disable toolbar item by setting it to false
+          polyline: false,
+          circle: false, // Turns off this drawing tool
+          rectangle: false,
+          marker: false,
+        },
+        edit: {
+          featureGroup: editableLayers, //REQUIRED!!
+          remove: false
+        }
+      };
+
+      // Initialise the draw control and pass it the FeatureGroup of editable layers
+      var drawControl = new L.Control.Draw(drawPluginOptions);
+      mymap.addControl(drawControl);
+
+      var editableLayers = new L.FeatureGroup();
+      mymap.addLayer(editableLayers);
+
+      mymap.on('draw:created', function (e) {
+        var type = e.layerType,
+          layer = e.layer;
+
+        if (type === 'marker') {
+          layer.bindPopup('A popup!');
+        }
+        var shape = layer.toGeoJSON()
+        var shape_for_db = JSON.stringify(shape);
+        console.log(shape_for_db)
+        console.log("-------------------------")
+        var polygon = JSON.stringify(shape.geometry)
+        console.log(polygon)
+        console.log("-------------------------")
+        console.log(encodeURIComponent(polygon))
+        console.log("-------------------------")
+        console.log(decodeURIComponent(polygon))
+        console.log("-------------------------")
+         
+        editableLayers.addLayer(layer);
       });
-      console.log('Conectado?')
-      $('form').submit(function () {
-        socket.emit('chat message', $('#m').val());
-        $('#m').val('');
-        return false;
-      });
-      socket.on('chat message', function (msg) {
-        $('#messages').append($('<li>').text(msg));
-        window.scrollTo(0, document.body.scrollHeight);
-      });
-      socket.on('new-position', function (position) {
-        console.log(`New position ${position}`)
-        newPosition(position)
-
-      });
-      // socket.on('position-status', function (inPosition) {
-      //   console.log(`Position Status ${inPosition}`)
-      //   // newPosition(position)
-      //   capaPoly.eachLayer(function (layer) {
-      //     if (inPosition) {
-      //       layer.setStyle({ fillColor: 'green' })
-      //     } else {
-      //       layer.setStyle({ fillColor: 'red' })
-      //     }
-      //   });
-      // });
 
 
 
 
 
-      // let poly = { "type": "Polygon", "coordinates": [[[-56.16361141204833, -34.90682134107926], [-56.163225173950195, -34.911255687582056], [-56.15453481674194, -34.91389506584019], [-56.15406274795532, -34.909020947652444], [-56.16361141204833, -34.90682134107926]]] }
-      // capaPoly = L.geoJSON(poly).addTo(mymap);
 
-      layers =[]
+        const socket = io(window.location.origin, {
+          transports: ['websocket']
+        });
+        console.log('Conectado?')
+        $('form').submit(function () {
+          socket.emit('chat message', $('#m').val());
+          $('#m').val('');
+          return false;
+        });
+        socket.on('chat message', function (msg) {
+          $('#messages').append($('<li>').text(msg));
+          window.scrollTo(0, document.body.scrollHeight);
+        });
+        socket.on('new-position', function (position) {
+          console.log(`New position ${position}`)
+          newPosition(position)
 
-      getOperations().then(function(json){
-        console.log("Agregando geojson al mapa")
-        let operations = json.ops
-        operations.forEach(op => {
-          geojsonFeature = op.operation_volumes[0].operation_geography
-          let str = `
+        });
+        // socket.on('position-status', function (inPosition) {
+        //   console.log(`Position Status ${inPosition}`)
+        //   // newPosition(position)
+        //   capaPoly.eachLayer(function (layer) {
+        //     if (inPosition) {
+        //       layer.setStyle({ fillColor: 'green' })
+        //     } else {
+        //       layer.setStyle({ fillColor: 'red' })
+        //     }
+        //   });
+        // });
+
+
+
+
+
+        // let poly = { "type": "Polygon", "coordinates": [[[-56.16361141204833, -34.90682134107926], [-56.163225173950195, -34.911255687582056], [-56.15453481674194, -34.91389506584019], [-56.15406274795532, -34.909020947652444], [-56.16361141204833, -34.90682134107926]]] }
+        // capaPoly = L.geoJSON(poly).addTo(mymap);
+
+        layers = []
+
+        getOperations().then(function (json) {
+          console.log("Agregando geojson al mapa")
+          let operations = json.ops
+          operations.forEach(op => {
+            geojsonFeature = op.operation_volumes[0].operation_geography
+            let str = `
           <br />${op.operation_volumes[0].effective_time_begin} y ${op.operation_volumes[0].effective_time_end} <br /> 
           ${op.operation_volumes[0].min_altitude} y ${op.operation_volumes[0].max_altitude}`
 
-          let layerJson = L.geoJSON(geojsonFeature)
-          layers.push(layerJson)
-          layerJson.bindPopup(`<b>gufi</b>:${op.gufi}<br /><b>State</b>:${op.state}${str}`)
-          layerJson.addTo(mymap)
+            let layerJson = L.geoJSON(geojsonFeature)
+            layers.push(layerJson)
+            layerJson.bindPopup(`<b>gufi</b>:${op.gufi}<br /><b>State</b>:${op.state}${str}`)
+            layerJson.addTo(mymap)
+          })
         })
-      })
 
-      // operationsLayerGroup = L.LayerGroup(layers)
-      
+        // operationsLayerGroup = L.LayerGroup(layers)
 
-      getUvr().then(function(json){
-        console.log("Agregando UVRS al mapa")
-        let uvrs = json
-        uvrs.forEach(uvr => {
-          geojsonFeature = uvr.geography
-          let str = `
+
+        getUvr().then(function (json) {
+          console.log("Agregando UVRS al mapa")
+          let uvrs = json
+          uvrs.forEach(uvr => {
+            geojsonFeature = uvr.geography
+            let str = `
           <br />${uvr.effective_time_begin} y ${uvr.effective_time_end} <br /> 
           ${uvr.min_altitude} y ${uvr.max_altitude}`
-          let layerJson = L.geoJSON(geojsonFeature)
-          layerJson.setStyle({ fillColor: 'red' })
-          layerJson.bindPopup(`<b>message_id</b>:${uvr.message_id}${str}`)
-          layerJson.addTo(mymap)
+            let layerJson = L.geoJSON(geojsonFeature)
+            layerJson.setStyle({ fillColor: 'red' })
+            layerJson.bindPopup(`<b>message_id</b>:${uvr.message_id}${str}`)
+            layerJson.addTo(mymap)
+          })
         })
-      })
 
-
-
-    });
-
-    function getOperations() {
-      var headers = new Headers();
-      headers.append("Content-Type", "application/json");
-      headers.append("bypass", "a");
-      var miInit = {
-        method: 'GET',
-        headers: headers,
-        mode: 'cors',
-        cache: 'default'
-      };
-      var host = "localhost"
-      var port = "3000"
-      var httpSchema = "http"
-      // var url = `${httpSchema}://${host}:${port}`
-      var url = window.location.origin //|| `${httpSchema}://${host}:${port}`
-
-      var operationsUrl = `${url}/operation`
-
-      return fetch(operationsUrl, miInit)
-        .then(function (response) {
-          return response.json();
+        getNotams().then(function (json) {
+          console.log("Agregando NOTAMS al mapa")
+          let notams = json
+          notams.forEach(notam => {
+            geojsonFeature = notam.geography
+            let str = `
+          <b>text</b>:${notam.text}<br />
+          <b>message_id</b>:${notam.message_id}<br />
+          <br />${notam.effective_time_begin} y ${notam.effective_time_end}  `
+            let layerJson = L.geoJSON(geojsonFeature)
+            layerJson.setStyle({ fillColor: 'green' })
+            layerJson.bindPopup(`${str}`)
+            layerJson.addTo(mymap)
+          })
         })
-        .then(function (json) {
-          console.log(json)
-          return json
-        })
-    }
 
-    function getUvr() {
-      var headers = new Headers();
-      headers.append("Content-Type", "application/json");
-      headers.append("bypass", "a");
-      var miInit = {
-        method: 'GET',
-        headers: headers,
-        mode: 'cors',
-        cache: 'default'
-      };
-      var host = "localhost"
-      var port = "3000"
-      var httpSchema = "http"
-      var url = window.location.origin //|| `${httpSchema}://${host}:${port}`
-      var uasvolumeUrl = `${url}/uasvolume`
 
-      return fetch(uasvolumeUrl, miInit)
-        .then(function (response) {
-          return response.json();
-        })
-        .then(function (json) {
-          console.log(json)
-          return json
-        })
-    }
+
+      });
+
+      function getOperations() {
+        var headers = new Headers();
+        headers.append("Content-Type", "application/json");
+        headers.append("bypass", "a");
+        var miInit = {
+          method: 'GET',
+          headers: headers,
+          mode: 'cors',
+          cache: 'default'
+        };
+        var host = "localhost"
+        var port = "3000"
+        var httpSchema = "http"
+        // var url = `${httpSchema}://${host}:${port}`
+        var url = window.location.origin //|| `${httpSchema}://${host}:${port}`
+
+        var operationsUrl = `${url}/operation`
+
+        return fetch(operationsUrl, miInit)
+          .then(function (response) {
+            return response.json();
+          })
+          .then(function (json) {
+            console.log(json)
+            return json
+          })
+      }
+
+      function getUvr() {
+        var headers = new Headers();
+        headers.append("Content-Type", "application/json");
+        headers.append("bypass", "a");
+        var miInit = {
+          method: 'GET',
+          headers: headers,
+          mode: 'cors',
+          cache: 'default'
+        };
+        var host = "localhost"
+        var port = "3000"
+        var httpSchema = "http"
+        var url = window.location.origin //|| `${httpSchema}://${host}:${port}`
+        var uasvolumeUrl = `${url}/uasvolume`
+
+        return fetch(uasvolumeUrl, miInit)
+          .then(function (response) {
+            return response.json();
+          })
+          .then(function (json) {
+            console.log(json)
+            return json
+          })
+      }
+
+      function getNotams() {
+        var headers = new Headers();
+        headers.append("Content-Type", "application/json");
+        headers.append("bypass", "a");
+        var miInit = {
+          method: 'GET',
+          headers: headers,
+          mode: 'cors',
+          cache: 'default'
+        };
+        var host = "localhost"
+        var port = "3000"
+        var httpSchema = "http"
+        var url = window.location.origin //|| `${httpSchema}://${host}:${port}`
+        var uasvolumeUrl = `${url}/notam`
+
+        return fetch(uasvolumeUrl, miInit)
+          .then(function (response) {
+            return response.json();
+          })
+          .then(function (json) {
+            console.log(json)
+            return json
+          })
+      }
   </script>
 </body>
 
