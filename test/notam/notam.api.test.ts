@@ -38,6 +38,125 @@ describe.only(' >>> Notams test <<< ', function () {
             .catch(done);
     });
 
+    describe(' Testing notams filters', function(){
+
+        it("/GET /notam with polygon should get 1 notam with id 1b5f39e6-11e8-4f6b-b32c-3c94bee4a892 ", function (done) {
+            let token = getToken('maurine@dronfies.com', 'MaurineFowlie', Role.PILOT)
+            let polygon = "%7B%22type%22%3A%22Polygon%22%2C%22coordinates%22%3A%5B%5B%5B-56.143227%2C-34.898885%5D%2C%5B-56.143827%2C-34.902756%5D%2C%5B-56.128893%2C-34.901912%5D%2C%5B-56.128893%2C-34.897688%5D%2C%5B-56.143227%2C-34.898885%5D%5D%5D%7D"
+            chai.request(app.app)
+                .get('/notam/')
+                .set('Accept', 'application/json')
+                .query({polygon: polygon}) 
+                .set('auth', token)
+                .then(res => {
+                    // console.log(`Response::${JSON.stringify(res.body)}`)
+                    res.should.have.status(200);
+                    res.body.length.should.be.eq(1)
+                    res.body[0].should.have.property("message_id").equal("1b5f39e6-11e8-4f6b-b32c-3c94bee4a892")
+                    done()
+                })
+                .catch(done);
+        });
+    
+        it("/GET /notam with polygon should get 1 notam f2308be3-80a5-4247-964a-b541a1634331", function (done) {
+            let token = getToken('maurine@dronfies.com', 'MaurineFowlie', Role.PILOT)
+            let polygon = "%7B%22type%22%3A%22Polygon%22%2C%22coordinates%22%3A%5B%5B%5B-56.175671%2C-34.922182%5D%2C%5B-56.173267%2C-34.927319%5D%2C%5B-56.145029%2C-34.923519%5D%2C%5B-56.143913%2C-34.919578%5D%2C%5B-56.175671%2C-34.922182%5D%5D%5D%7D"
+            chai.request(app.app)
+                .get('/notam/')
+                .set('Accept', 'application/json')
+                .query({polygon: polygon}) 
+                .set('auth', token)
+                .then(res => {
+                    res.should.have.status(200);
+                    res.body.length.should.be.eq(1)     
+                    res.body[0].should.have.property("message_id").equal("f2308be3-80a5-4247-964a-b541a1634331")
+                    done()
+                })
+                .catch(done);
+        });
+    
+        it("/GET /notam with polygon should not get any notam", function (done) {
+            let token = getToken('maurine@dronfies.com', 'MaurineFowlie', Role.PILOT)
+            let polygon = "%7B%22type%22%3A%22Polygon%22%2C%22coordinates%22%3A%5B%5B%5B-56.224079%2C-34.906065%5D%2C%5B-56.230602%2C-34.917889%5D%2C%5B-56.210346%2C-34.920845%5D%2C%5B-56.203308%2C-34.905924%5D%2C%5B-56.224079%2C-34.906065%5D%5D%5D%7D"
+            chai.request(app.app)
+                .get('/notam/')
+                .set('Accept', 'application/json')
+                .query({polygon: polygon}) 
+                .set('auth', token)
+                .then(res => {
+                    res.should.have.status(200);
+                    res.body.length.should.be.eq(0)     
+                    done()
+                })
+                .catch(done);
+        });
+
+
+        it("/GET /notam with date:2020-04-11T16:00:00Z should get 1 notam with id 1b5f39e6-11e8-4f6b-b32c-3c94bee4a892 ", function (done) {
+            let token = getToken('maurine@dronfies.com', 'MaurineFowlie', Role.PILOT)
+            let polygon = "%7B%22type%22%3A%22Polygon%22%2C%22coordinates%22%3A%5B%5B%5B-56.143227%2C-34.898885%5D%2C%5B-56.143827%2C-34.902756%5D%2C%5B-56.128893%2C-34.901912%5D%2C%5B-56.128893%2C-34.897688%5D%2C%5B-56.143227%2C-34.898885%5D%5D%5D%7D"
+            let date = "2020-04-11T16:00:00Z"
+            chai.request(app.app)
+                .get('/notam/')
+                .set('Accept', 'application/json')
+                .query({date:date}) 
+                .set('auth', token)
+                .then(res => {
+                    // console.log(`Response::${JSON.stringify(res.body)}`)
+                    res.should.have.status(200);
+                    res.body.length.should.be.eq(1)
+                    res.body[0].should.have.property("message_id").equal("1b5f39e6-11e8-4f6b-b32c-3c94bee4a892")
+                    done()
+                })
+                .catch(done);
+        });
+
+        it("/GET /notam with polygon and date:2020-04-11T16:00:00Z should get 1 notam with id 1b5f39e6-11e8-4f6b-b32c-3c94bee4a892 ", function (done) {
+            let token = getToken('maurine@dronfies.com', 'MaurineFowlie', Role.PILOT)
+            let polygon = "%7B%22type%22%3A%22Polygon%22%2C%22coordinates%22%3A%5B%5B%5B-56.143227%2C-34.898885%5D%2C%5B-56.143827%2C-34.902756%5D%2C%5B-56.128893%2C-34.901912%5D%2C%5B-56.128893%2C-34.897688%5D%2C%5B-56.143227%2C-34.898885%5D%5D%5D%7D"
+            let date = "2020-04-11T16:00:00Z"
+            chai.request(app.app)
+                .get('/notam/')
+                .set('Accept', 'application/json')
+                .query({polygon: polygon, date:date}) 
+                .set('auth', token)
+                .then(res => {
+                    // console.log(`Response::${JSON.stringify(res.body)}`)
+                    res.should.have.status(200);
+                    res.body.length.should.be.eq(1)
+                    res.body[0].should.have.property("message_id").equal("1b5f39e6-11e8-4f6b-b32c-3c94bee4a892")
+                    done()
+                })
+                .catch(done);
+        });
+
+        it("/GET /notam with polygon and date:2020-04-11T12:00:00Z should any notam (date is before the 1b5f39e6-11e8-4f6b-b32c-3c94bee4a892 notam) ", function (done) {
+            let token = getToken('maurine@dronfies.com', 'MaurineFowlie', Role.PILOT)
+            let polygon = "%7B%22type%22%3A%22Polygon%22%2C%22coordinates%22%3A%5B%5B%5B-56.143227%2C-34.898885%5D%2C%5B-56.143827%2C-34.902756%5D%2C%5B-56.128893%2C-34.901912%5D%2C%5B-56.128893%2C-34.897688%5D%2C%5B-56.143227%2C-34.898885%5D%5D%5D%7D"
+            let date = "2020-04-11T12:00:00Z"
+            chai.request(app.app)
+                .get('/notam/')
+                .set('Accept', 'application/json')
+                .query({polygon: polygon, date:date}) 
+                .set('auth', token)
+                .then(res => {
+                    // console.log(`Response::${JSON.stringify(res.body)}`)
+                    res.should.have.status(200);
+                    res.body.length.should.be.eq(0)
+                    // res.body[0].should.have.property("message_id").equal("1b5f39e6-11e8-4f6b-b32c-3c94bee4a892")
+                    done()
+                })
+                .catch(done);
+        });
+    
+    
+    
+        
+    })
+    
+
+ 
+
     it("/GET /notam/f2308be3-80a5-4247-964a-b541a1634331 should get a notam ", function (done) {
         let message_id ="f2308be3-80a5-4247-964a-b541a1634331"
         let token = getToken('maurine@dronfies.com', 'MaurineFowlie', Role.PILOT)
