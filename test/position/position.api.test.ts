@@ -9,11 +9,12 @@ import { app, initAsync } from "../../src/index";
 
 import { getToken } from "../../src/services/tokenService";
 import { Role } from "../../src/entities/User";
+import { TEST_TIMEOUT } from "../conf"; 
 
 describe('>>> Position entity <<< ', function () {
 
     before(function (done) {
-        this.timeout(3000);
+        this.timeout(TEST_TIMEOUT);
         initAsync()
             .then(done)
             .catch(done)

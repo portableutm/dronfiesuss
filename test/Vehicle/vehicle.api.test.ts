@@ -6,12 +6,13 @@ chai.use(chaiHttp);
 chai.should();
 import { VehicleDao } from "../../src/daos/VehicleDao";
 
-import { app, init, initAsync } from "../../src/index";
+import { app, initAsync } from "../../src/index";
+import { TEST_TIMEOUT } from "../conf"; 
 
 describe('>>> Vehicle entity <<< ', function () {
 
     before(function (done) {
-        this.timeout(3000);
+        this.timeout(TEST_TIMEOUT);
         initAsync()
             .then(done)
             .catch(done)

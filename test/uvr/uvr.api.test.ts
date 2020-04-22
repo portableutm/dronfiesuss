@@ -13,12 +13,12 @@ import { UASVolumeReservationCause, UASVolumeReservationType } from "../../src/e
 import { deepCopy } from "../../src/utils/entitiesUtils";
 import { Operations } from "../../src/data/operations_data";
 import { OperationState, Operation } from "../../src/entities/Operation";
-// uasvolume
+import { TEST_TIMEOUT } from "../conf"; 
 
 describe('>>> Uas volume reservation entity <<< ', function () {
 
     before(function (done) {
-        this.timeout(4000);
+        this.timeout(TEST_TIMEOUT);
         initAsync()
             .then(done)
             .catch(done)

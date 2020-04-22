@@ -12,11 +12,12 @@ import { app, init, initAsync } from "../../src/index";
 import { getToken } from "../../src/services/tokenService";
 import { Role } from "../../src/entities/User";
 import { Notams } from "../../src/entities/Notams";
+import { TEST_TIMEOUT } from "../conf"; 
 
 describe(' >>> Notams test <<< ', function () {
 
     before(function (done) {
-        this.timeout(5000);
+        this.timeout(TEST_TIMEOUT);
         initAsync()
             .then(done)
             .catch(done)

@@ -13,12 +13,13 @@ import { deepCopy } from "../../src/utils/entitiesUtils";
 import { app, initAsync } from "../../src/index";
 import { Role } from "../../src/entities/User";
 import { OperationState, Operation } from "../../src/entities/Operation";
+import { TEST_TIMEOUT } from "../conf"; 
 
 describe(' >>> Operation test <<< ', function () {
 
     // this.timeout(3000);
     before(function (done) {
-        this.timeout(3000);
+        this.timeout(TEST_TIMEOUT);
 
         initAsync()
             .then(done)

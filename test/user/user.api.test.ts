@@ -6,20 +6,21 @@ chai.use(chaiHttp);
 chai.should();
 
 import { UserDao } from "../../src/daos/UserDaos";
-import { app, init, initAsync } from "../../src/index";
+import { app, initAsync } from "../../src/index";
 
 import { User, Role } from "../../src/entities/User";
-import { hashPassword } from "../../src/services/encrypter";
+
 
 import * as request from 'supertest';
 import { getToken } from "../../src/services/tokenService";
 import { Status } from "../../src/entities/UserStatus";
-import { stat } from "fs";
+
+import { TEST_TIMEOUT } from "../conf"; 
 
 describe('>>> User rest controller test <<<', function () {
 
     before(function (done) {
-        this.timeout(3000);
+        this.timeout(TEST_TIMEOUT);
         initAsync()
             .then(done)
             .catch(done)

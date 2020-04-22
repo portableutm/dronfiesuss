@@ -4,14 +4,13 @@ let chaiHttp = require('chai-http');
 // Configure chai
 chai.use(chaiHttp);
 chai.should();
-import { VehicleDao } from "../../src/daos/VehicleDao";
-
+import { TEST_TIMEOUT } from "../conf"; 
 import { app, init, initAsync } from "../../src/index";
 
 describe(' >>> Auth test <<< ', function () {
 
     before(function (done) {
-        this.timeout(3000);
+        this.timeout(TEST_TIMEOUT);
         initAsync()
             .then(done)
             .catch(done)

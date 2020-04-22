@@ -4,16 +4,11 @@ let chaiHttp = require('chai-http');
 // Configure chai
 chai.use(chaiHttp);
 chai.should();
-// import { main } from "../../src/services/mailService";
+
 import { sendMail, verifyServer, sendTestMail } from "../../src/services/mailService";
 
-// import { app, init, initAsync } from "../../src/index";
 
 describe('>>> Cron test <<<', function () {
-
-    // before(async () => {
-    //     await initAsync()
-    // })
 
     it("should have no error", function (done) {
 
