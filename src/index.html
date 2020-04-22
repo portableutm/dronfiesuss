@@ -117,7 +117,7 @@
           attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(mymap);
       }
-      
+
       // L.tileLayer.wms('http://localhost:8080/geoserver/Dronfies/wms?', {
       //   service:"WMS",
       //   version:"1.1.0",
@@ -145,6 +145,21 @@
         newPosition(position)
 
       });
+      socket.on('position-status', function (inPosition) {
+        console.log(`Position Status ${inPosition}`)
+        // newPosition(position)
+        capaPoly.eachLayer(function (layer) {
+          if(inPosition){
+            layer.setStyle({ fillColor: 'green' })
+          }else{
+            layer.setStyle({ fillColor: 'red' })
+          }
+        });
+      });
+
+
+      let poly = { "type": "Polygon", "coordinates": [[[-56.16361141204833, -34.90682134107926], [-56.163225173950195, -34.911255687582056], [-56.15453481674194, -34.91389506584019], [-56.15406274795532, -34.909020947652444], [-56.16361141204833, -34.90682134107926]]] }
+      capaPoly = L.geoJSON(poly).addTo(mymap);
     });
   </script>
 </body>
