@@ -13,7 +13,7 @@ import { getToken } from "../../src/services/tokenService";
 import { Role } from "../../src/entities/User";
 import { Notams } from "../../src/entities/Notams";
 
-describe.only(' >>> Notams test <<< ', function () {
+describe(' >>> Notams test <<< ', function () {
 
     before(function (done) {
         this.timeout(5000);
