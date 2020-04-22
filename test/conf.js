@@ -1,0 +1,1 @@
+export const TEST_TIMEOUT = process.env.TEST_TIMEOUT || 5000
