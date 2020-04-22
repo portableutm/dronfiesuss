@@ -6,6 +6,6 @@ export function hashPassword(password: string) {
 }
 
 export function checkIfUnencryptedPasswordIsValid(unencryptedPassword: string, encriptedPassword: string) {
-    console.log(`checkIfUnencryptedPasswordIsValid(unencryptedPassword: ${unencryptedPassword}, encriptedPassword: ${encriptedPassword}) {`)
+    // console.log(`checkIfUnencryptedPasswordIsValid(unencryptedPassword: ${unencryptedPassword}, encriptedPassword: ${encriptedPassword}) {`)
     return bcrypt.compareSync(unencryptedPassword, encriptedPassword);
 }

@@ -11,7 +11,7 @@ export async function processOperations() {
     operationDao = new OperationDao()
     uvrDao = new UASVolumeReservationDao()
     // let op : Operation
-    // let operations = await operationDao.all({state:OperationState.PROPOSED})
+    
     let operations = await operationDao.getOperationsForCron()
     for (let index = 0; index < operations.length; index++) {
         const operation: Operation = operations[index];

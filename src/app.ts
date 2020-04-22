@@ -95,7 +95,7 @@ class App {
 
                     result.
                         then(result => {
-                            console.log(`name ${result.constructor.name}`)
+                            // console.log(`name ${result.constructor.name}`)
                             if (result.constructor.name === 'Object') {
                                 // return result
                                 result !== null && result !== undefined ? res.send(result) : undefined

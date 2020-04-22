@@ -19,16 +19,16 @@ export class PostSubscriber implements EntitySubscriberInterface<UTMMessage> {
      * Called before post insertion.
      */
     beforeInsert(event: InsertEvent<UTMMessage>) {
-        console.log(`BEFORE POST INSERTED: `, event.entity);
+        // console.log(`BEFORE POST INSERTED: `, event.entity);
     }
 
     /**
      * Called before post insertion.
      */
     afterInsert(event: InsertEvent<UTMMessage>) {
-        console.log(`** AFTER POST INSERTED: `, event.entity);
+        // console.log(`** AFTER POST INSERTED: `, event.entity);
         // app.io.sockets.emit()
-        app.io.sockets.emit('chat message', `Nuevo UtmMessage: ${JSON.stringify(event.entity    )}`)
+        // app.io.sockets.emit('chat message', `Nuevo UtmMessage: ${JSON.stringify(event.entity    )}`)
     }
 
 }
