@@ -11,6 +11,22 @@ export class AuthController {
 
     private dao = new UserDao()
 
+
+    
+    /**
+     * Request must have in body the next object
+     * {    
+     *  username:String,
+     *  password:String,
+     *  format?:"json"
+     * }
+     * If user and password are valid, return token.
+     * If format= json return json { token : String} else return token as a plain text
+     * 
+     * @param  {Request} request
+     * @param  {Response} response
+     * @param  {NextFunction} next
+     */
     async login(request: Request, response: Response, next: NextFunction) {
         let username :string = request.body.username
         let password :string = request.body.password
