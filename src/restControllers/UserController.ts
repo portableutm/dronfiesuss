@@ -16,7 +16,13 @@ export class UserController {
     private dao = new UserDao()
     private userStatusDao = new UserStatusDao()
 
-    //solo admin   
+    
+    /**
+     * Get all usesrs, only admin can use it.
+     * @param request 
+     * @param response 
+     * @param next 
+     */
     async all(request: Request, response: Response, next: NextFunction) {
         let { role } = getPayloadFromResponse(response)
         if (role == Role.ADMIN) {
@@ -27,7 +33,12 @@ export class UserController {
         }
     }
 
-    //solo admin   
+    /**
+     * Get a user. Admin can get all data, other user only get the owndata
+     * @param request 
+     * @param response 
+     * @param next 
+     */
     async one(request: Request, response: Response, next: NextFunction) {
         let { role, username } = getPayloadFromResponse(response)
         if ((role == Role.ADMIN) || (username == request.params.id)) {
@@ -42,7 +53,20 @@ export class UserController {
         }
     }
 
-    //solo admin   
+    /**
+     * Create a new user pass by a POST request
+     * @example {
+     *          username: "AnOtherUserToInsert",
+     *          email: `anotherusertoinsert@dronfies.com`,
+     *          firstName: `Any`,
+     *          lastName: `Name`,
+     *          password: `password`,
+     *          role: Role.PILOT
+     *      }
+     * @param request 
+     * @param response 
+     * @param next 
+     */
     async save(request: Request, response: Response, next: NextFunction) {
         let { role } = getPayloadFromResponse(response)
         try {
@@ -68,6 +92,21 @@ export class UserController {
         }
     }
 
+    /**
+     * Create a new user PILOT with status UNCONFIRMED pass by a POST request 
+     * and send a confirmation mail
+     * @example {
+     *          username: "AnOtherUserToInsert",
+     *          email: `anotherusertoinsert@dronfies.com`,
+     *          firstName: `Any`,
+     *          lastName: `Name`,
+     *          password: `password`,
+     *          role: Role.PILOT
+     *      }
+     * @param request 
+     * @param response 
+     * @param next 
+     */
     async userRegister(request: Request, response: Response, next: NextFunction) {
         try {
             let user: User = request.body
@@ -100,6 +139,16 @@ export class UserController {
         }
     }
 
+    /**
+     * Change the status of user with username passed and status.token 
+     * @example {
+     *  username: "unconfirmedTestUser",
+     *  token: status.token
+     * }
+     * @param request 
+     * @param response 
+     * @param next 
+     */
     async confirmUser(request: Request, response: Response, next: NextFunction) {
         try {
 
@@ -110,7 +159,7 @@ export class UserController {
 
             let status = await user.status;
             // console.log(`Estado que obtengo de bbdd ${JSON.stringify(status, null, 2)}`)
-            if(token == status.token){
+            if(token == status.token){ //FIXME add status unconfirmed check
                 try {
                     status.status = Status.CONFIRMED
                     // console.log(`Estado antes de pasar al save ${JSON.stringify(status, null, 2)}`)

@@ -21,6 +21,19 @@ export class PositionController {
         return response.json(await this.dao.one(request.params.id));
     }
 
+    /**
+     * Save a position. If the position dont intersect with associated operation change the state to ROUGE
+     * @example {
+     *     "altitude_gps": 30,
+     *     "location": {"type": "Point","coordinates": [-56.1636114120483,-34.9068213410793]},
+     *     "time_sent": "2019-12-11T19:59:10.000Z",
+     *     "gufi" : "f7891e78-9bb4-431d-94d3-1a506910c254",
+     *     "heading" : 160
+     * }
+     * @param request 
+     * @param response 
+     * @param next 
+     */
     async save(request: Request, response: Response, next: NextFunction) {
         try {
             let gufi = request.body.gufi
@@ -31,26 +44,18 @@ export class PositionController {
                 let position = await this.dao.save(request.body)
 
                 //check if position is inside de operation volume of associated operation 
-                // console.log(`Entrando al checker con  ${JSON.stringify(position, null, 2)}`)
                 let res = await this.dao.checkPositionWithOperation(position)
                 let { inOperation } = res
                 if (!inOperation) {
-                    console.log("------------ Vuela fuera actualizo")
+                    // console.log("------------ Vuela fuera actualizo")
                     if (this.operationDao == undefined) {
                         this.operationDao = new OperationDao();
                     }
                     //if position is not inside the associated operation then change operation status as ROUGE
-
-                    // console.log(await this.operationDao.updateState(gufi, OperationState.ROGUE))
                     this.operationDao.updateState(gufi, OperationState.ROGUE)
-
                     
-                    // let op = await this.operationDao.one(gufi); 
-                    // op.state = OperationState.ROGUE
-                    // let savedOp = await this.operationDao.save(op);
-                    // console.log(`Saved op ${JSON.stringify(savedOp)} `)
                 } else {
-                    console.log("------------ Vuela ok")
+                    // console.log("------------ Vuela ok")
                 }
 
                 //send information to web browser

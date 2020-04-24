@@ -10,12 +10,12 @@ export class VehicleController {
 
     private dao = new VehicleDao()
 
-    // let x = {a: 1, b: 2, c: 3, z:26};
-    // let {b, ...y} = x;
-    // b ==2
-    // y == {a: 1, c: 3, z:26};
-
-    //solo admin
+    /**
+     * Get all the vehicles, only admin can use
+     * @param request 
+     * @param response 
+     * @param next 
+     */
     async all(request: Request, response: Response, next: NextFunction) {
         let { role } = getPayloadFromResponse(response)
         if (role == Role.ADMIN) {
@@ -27,6 +27,13 @@ export class VehicleController {
     }
 
     //solo los propios si role piloto
+    /**
+     * Get one vehicle . Admin can see all vehicles, pilot only owned vehicles
+     * @example /vehicle/bd9c2ea6-7ab7-442e-b99c-78890181c198
+     * @param request 
+     * @param response 
+     * @param next 
+     */
     async one(request: Request, response: Response, next: NextFunction) {
         try {
             let { role, username } = getPayloadFromResponse(response)
@@ -46,8 +53,24 @@ export class VehicleController {
 
     }
 
-    //controlar datos invalidos
-    //obtener usuario del token, omitir si mandan uno por parametro
+    /**
+     * Save the vehicle passed in post
+     * @example {
+     *     "nNumber": "",
+     *     "faaNumber": "faaNumber_81128",
+     *     "vehicleName": "vehicle_name828",
+     *     "manufacturer": "PIXHAWK",
+     *     "model": "model_828",
+     *     "class": "Fixed wing",
+     *     "accessType": "",
+     *     "vehicleTypeId": "",
+     *     "org-uuid": "",
+     *     "registeredBy": "userX"
+     * }
+     * @param request 
+     * @param response 
+     * @param next 
+     */
     async save(request: Request, response: Response, next: NextFunction) {
         let v: VehicleReg = await this.dao.save(request.body);
         v.date = undefined

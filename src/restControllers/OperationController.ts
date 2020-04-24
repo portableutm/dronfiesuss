@@ -25,6 +25,7 @@ export class OperationController {
   /**
    * Return all operations, if state passed return all operations with this state
    * query params: state=OperationState 
+   * @example /operations/?state=PROPOSED
    * @param request 
    * @param response 
    * @param next 
@@ -44,7 +45,15 @@ export class OperationController {
   }
 
 
-  //si es admin cualquiera, si no es dueño o no existe por id 404   
+
+  /**
+   * Return an operation associated with passed gufi and that login user is owner.
+   *  If user is not the owner or is not admin return 404. 
+   * @example /operation/b92c7431-13c4-4c6c-9b4a-1c3c8eec8c63
+   * @param request 
+   * @param response 
+   * @param next 
+   */
   async one(request: Request, response: Response, next: NextFunction) {
     // console.log(` ---> request.params.gufi:${request.params.id}`)
     try {
@@ -61,8 +70,67 @@ export class OperationController {
   }
 
   /**
-   * invalid data: especificar cual esta mal > no guardo en BD
-   * 
+   * Save the passed operation. If a vehicle is passed that vehicle must be created by the login user
+   * @example
+   * {
+   *   "flight_comments": "Test operation for rescue",
+   *   "volumes_description": "Simple polygon",
+   *   "flight_number": "12345678",
+   *   "faa_rule": "PART_107",
+   *   "priority_elements": {
+   *     "priority_level": "ALERT",
+   *     "priority_status": "NONE"
+   *   },
+   *   "contact": "Renate Penvarden",
+   *   "contingency_plans": [
+   *     {
+   *       "contingency_cause": [
+   *         "ENVIRONMENTAL",
+   *         "MECHANICAL_PROBLEM"
+   *       ],
+   *       "contingency_location_description": "OPERATOR_UPDATED",
+   *       "contingency_polygon": {"type": "Polygon","coordinates": [[[-56.16361141204833,-34.90682134107926],[-56.163225173950195,-34.911255687582056],[-56.15453481674194,-34.91389506584019],[-56.15406274795532,-34.909020947652444],[-56.16361141204833,-34.90682134107926]]]},
+   *       "contingency_response": "LANDING",
+   *       "free_text": "Texto libre DE prueba",
+   *       "loiter_altitude": 30,
+   *       "relative_preference": 30,
+   *       "relevant_operation_volumes": [
+   *         1,
+   *         0
+   *       ],
+   *       "valid_time_begin": "2019-12-11T19:59:10Z",
+   *       "valid_time_end": "2019-12-11T20:59:10Z"
+   *     }
+   *   ],
+   *   "operation_volumes": [
+   *     {
+   *       "effective_time_begin": "2019-12-11T19:59:10Z",
+   *       "effective_time_end": "2019-12-11T20:59:10Z",
+   *       "min_altitude": 0,
+   *       "max_altitude": 70,
+   *       "operation_geography": {"type": "Polygon","coordinates": [[[-56.16361141204833,-34.90682134107926],[-56.163225173950195,-34.911255687582056],[-56.15453481674194,-34.91389506584019],[-56.15406274795532,-34.909020947652444],[-56.16361141204833,-34.90682134107926]]]},
+   *       "beyond_visual_line_of_sight": true
+   *     }
+   *   ],
+   *   "negotiation_agreements": [
+   *     {
+   *       "free_text": "Esto es solo una prueba",
+   *       "discovery_reference": "discovery reference",
+   *       "type": "INTERSECTION",
+   *       "uss_name": "dronfies",
+   *       "uss_name_of_originator": "dronfies",
+   *       "uss_name_of_receiver": "dronfies"
+   *     },
+   *     {
+   *       "free_text": "(2) Esto es solo una prueba",
+   *       "discovery_reference": "(2)discovery reference",
+   *       "type": "REPLAN",
+   *       "uss_name": "dronfies",
+   *       "uss_name_of_originator": "dronfies",
+   *       "uss_name_of_receiver": "dronfies"
+   *     }
+   *   ]
+   * }
    * @param request 
    * @param response 
    * @param next 
@@ -124,18 +192,17 @@ export class OperationController {
     return response.json(await this.dao.getOperationByVolume(request.body))
   }
 
-  // AGREGAR GET OPERATIONS BY USER, a partir del token
+  
+  /**
+   * Return an operation associated with passed gufi and that login user is owner.
+   * @param request 
+   * @param response 
+   * @param next 
+   */
   async operationsByCreator(request: Request, response: Response, next: NextFunction) {
-    // let state = request.query.state;
     let { username, role } = response.locals.jwtPayload
-    // console.log(` ------------------ operationsByCreator ${username} ------------`)
     let ops;
-
-    // if(role == Role.PILOT){
     ops = await this.dao.operationsByCreator(username)
-    // }else{
-    //   ops = await this.dao.all()
-    // }
     return response.json({ count: ops.length, ops });
   }
 
@@ -149,6 +216,13 @@ export class OperationController {
   //   }
   // }
 
+  /**
+   * Remove an operation by gufi. If user is PILOT and is not the owner return 404
+   * DELETE /operation/b92c7431-13c4-4c6c-9b4a-1c3c8eec8c63
+   * @param request 
+   * @param response 
+   * @param next 
+   */
   async remove(request: Request, response: Response, next: NextFunction) {
     let opToRemove //= await this.dao.one(request.params.id);
     // let { username, role } = response.locals.jwtPayload
@@ -169,11 +243,6 @@ export class OperationController {
     }
 
   }
-  // async remove(request: Request, response: Response, next: NextFunction) {
-  //     // let userToRemove = await this.dao.one(request.params.id);
-  //     await this.dao.remove(request.params.username);
-  // }
-
 }
 
 

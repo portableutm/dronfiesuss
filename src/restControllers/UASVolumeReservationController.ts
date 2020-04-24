@@ -12,6 +12,12 @@ export class UASVolumeReservationController {
     private dao = new UASVolumeReservationDao()
     private operationDao = new OperationDao()
 
+    /**
+     * Get all uvrs from database
+     * @param request 
+     * @param response 
+     * @param next 
+     */
     async all(request: Request, response: Response, next: NextFunction) {
         try {
             let list = await this.dao.all()
@@ -23,6 +29,13 @@ export class UASVolumeReservationController {
         }
     }
 
+    /**
+     * Get the uvr with the id passed
+     * @example /uasvolume/0a8c53a7-4300-472d-844b-c0cfed9f1b17 
+     * @param request 
+     * @param response 
+     * @param next 
+     */
     async one(request: Request, response: Response, next: NextFunction) {
         try {
             let uas = await this.dao.one(request.params.id)
@@ -33,6 +46,29 @@ export class UASVolumeReservationController {
         return response.json(await this.dao.one(request.params.id));
     }
 
+    /**
+     * Save the passed operation by post
+     * @example {
+     *    "uss_name": null,
+     *    "type": "DYNAMIC_RESTRICTION",
+     *    "permitted_uas": [
+     *        "PART_107"
+     *    ],
+     *    "required_support": [
+     *        "ENHANCED_SAFE_LANDING"
+     *    ],
+     *    "cause": "MUNICIPALITY",
+     *    "geography": { "type": "Polygon", "coordinates": [[[-56.159834861755364, -34.91795954238727], [-56.16240978240967, -34.92221734956747], [-56.15567207336426, -34.922569224576016], [-56.15395545959473, -34.920141256305946], [-56.159834861755364, -34.91795954238727]]] },
+     *    "effective_time_begin": "2020-03-11T19:59:10.000Z",
+     *    "effective_time_end": "2020-03-11T20:59:10.000Z",
+     *    "actual_time_end": null,
+     *    "min_altitude": "20",
+     *    "max_altitude": "50",
+     *    "reas
+     * @param request 
+     * @param response 
+     * @param next 
+     */
     async save(request: Request, response: Response, next: NextFunction) {
         try {
             // console.log(`\n**********************************`)
