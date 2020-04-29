@@ -73,9 +73,9 @@ export class UASVolumeReservationController {
         try {
             // console.log(`\n**********************************`)
             let errors = validateOperation(request.body)
-            let entitie = await this.dao.save(request.body)
             if (errors.length == 0) {
-                entitie = await this.dao.save(request.body)
+                let entitie = await this.dao.save(request.body)
+                // entitie = await this.dao.save(request.body)
                 // console.log(`New uvr ${entitie.message_id}`)
                 //get operations that need to chage the state
                 let volume = createVolumeFromUvr(entitie)
