@@ -61,8 +61,9 @@ async function processProposed(operation: Operation) {
             return changeState(operation, OperationState.NOT_ACCEPTED)
         }
     }
-    await changeState(operation, OperationState.ACCEPTED)
+    
 
+    let changeToActived = false;
     let date = getNow()
     for (let index = 0; index < operation.operation_volumes.length; index++) {
         const operationVolume = operation.operation_volumes[index];
@@ -70,11 +71,13 @@ async function processProposed(operation: Operation) {
         let dateEnd = new Date(operationVolume.effective_time_end)
         // console.log(`(${date.toISOString()} >= ${dateBegin.toISOString()}) && (${date.toISOString()} < ${dateEnd.toISOString()})`)
         if ((date.getTime() >= dateBegin.getTime()) && (date.getTime() < dateEnd.getTime())) {
-            changeState(operation, OperationState.ACTIVATED)
+            changeToActived = true // changeState(operation, OperationState.ACTIVATED)
         }
-        // if ((date.getTime() > dateEnd.getTime())) {
-        //     changeState(operation, OperationState.CLOSED)
-        // }
+    }
+    if(changeToActived){
+        changeState(operation, OperationState.ACTIVATED)
+    }else{
+        changeState(operation, OperationState.ACCEPTED)
     }
 }
 
