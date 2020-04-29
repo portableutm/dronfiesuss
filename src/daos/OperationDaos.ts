@@ -101,7 +101,7 @@ export class OperationDao {
     //     .getMany();
     // }
 
-    async all(filterParam?  :any) {
+    async all(filterParam?  :any) : Promise<Operation []> {
         // console.log(`OperationDao.all -> ${JSON.stringify(filterParam)}`)
         let filter : any = {}
         if((filterParam!==undefined) && (filterParam.state !== undefined)){
