@@ -20,12 +20,16 @@ import { UtmMessages } from "./data/utmMessage_data";
 import { Operations as ops } from "./data/operations_data";
 import { Positions } from "./data/position_data";
 import { NotamsList } from "./data/notams_data";
+import { RestrictedFlightVolumeList  } from "./data/rfv_data";
 import { uasVolumeReservationList } from "./data/uasVolumeReservation_data";
 import { deepCopy } from './utils/entitiesUtils';
 import { Notams } from './entities/Notams';
+import { RestrictedFlightVolume } from './entities/RestrictedFlightVolume';
 
 
 let Operations = deepCopy(ops)
+
+let debug = false
 
 
 let randomFromList = (list: any[]): any => {
@@ -34,19 +38,18 @@ let randomFromList = (list: any[]): any => {
 
 export async function initData(connection: Connection, callback?: () => any) {
     try {
+
+        console.log("***************** CONF *****************")
+        console.log(connection.options)
+        console.log(`::CONN:: name:${connection.options.name} database:${JSON.stringify(connection.options.database)} extra:${JSON.stringify(connection.options.extra)} `)
+        console.log("***************** CONF *****************")
         let vehicleDao = new VehicleDao();
         let operationDao = new OperationDao();
 
         let users = await connection.manager.find(User);
         if (users.length == 0) {
-            console.log("Loading Users")
-            // let savedUsers = Users.map(async user => {
-            //     try {
-            //         return await connection.manager.save(connection.manager.create("User", user))
-            //     } catch (error) {
-            //         console.error(error)
-            //     }
-            // })
+            if(debug) console.log("Loading Users")
+
             for (let index = 0; index < Users.length; index++) {
                 const user = Users[index];
                 try {
@@ -57,6 +60,7 @@ export async function initData(connection: Connection, callback?: () => any) {
             }
             const vehicles: VehicleReg[] = await vehicleDao.all();
             if (vehicles.length == 0) {
+                if(debug) console.log("Loading vehicles")
                 users = await connection.manager.find(User);
                 users.sort(function (a, b) {
                     return a.username.localeCompare(b.username);
@@ -75,19 +79,19 @@ export async function initData(connection: Connection, callback?: () => any) {
                     }
 
                 })
+                if(debug) console.log("Finish vehicles")
             }
         }
 
         let operations
         try {
-            // operations  = await connection.manager.find(Operation)
             operations = await operationDao.all();
         } catch (error) {
             console.log(error)
         }
-        // console.log(`operations ${operations.length}`)
+        
         if (operations.length == 0) {
-            // console.log(`Loading operations ${operations.length}`)
+            if(debug) console.log("Loading operations")
             let vehicles: VehicleReg[] 
             let users
             try {
@@ -122,50 +126,68 @@ export async function initData(connection: Connection, callback?: () => any) {
                     console.error(error)
                 }
             }
-
+            if(debug) console.log("Finish operations")
+            
         }
 
-        console.log("Loading msgs ")
-
+        
         try {
+            if(debug) console.log("Loading notams ")
             let ntms = await connection.manager.find(Notams)
             if (ntms.length == 0) {
                 NotamsList.forEach(async (ntm) => {
                     await connection.manager.save(Notams, ntm)
                 })
             }
+            if(debug) console.log("Finish notams")
         } catch (error) {
             console.log(`Error when load notams ${JSON.stringify(error)}`)
         }
 
         let messages = await connection.manager.find(UTMMessage)
         if (messages.length == 0) {
+            if(debug) console.log("Loading utmMessages")
             UtmMessages.forEach(async (utmMessage) => {
                 await connection.manager.save(UTMMessage, utmMessage)
             })
+            if(debug) console.log("Finish utmMessages")
         }
 
         let uasVolumeReservations = await connection.manager.find(UASVolumeReservation)
         if (uasVolumeReservations.length == 0) {
+            if(debug) console.log("loading UVRs")
             uasVolumeReservationList.forEach(async (uasVolumeReservation) => {
                 await connection.manager.save(UASVolumeReservation, uasVolumeReservation)
             })
+            if(debug) console.log("Finish Uvrs")
+        }
+
+        let restrictedFlightVolumes = await connection.manager.find(RestrictedFlightVolume)
+        if (restrictedFlightVolumes.length == 0) {
+            if(debug) console.log("loading UVRs")
+            RestrictedFlightVolumeList.forEach(async (rfv) => {
+                // console.log(rfv)
+                let salida = await connection.manager.save(RestrictedFlightVolume, rfv)
+                // console.log(salida)
+            })
+            if(debug) console.log("Finish Uvrs")
         }
 
         let positions = await connection.manager.find(Position)
         if (positions.length == 0) {
+            if(debug) console.log("Loading position")
+
             let operations = await connection.manager.find(Operation);
 
             Positions.forEach(async (position) => {
                 position.gufi = operations[0]
                 await connection.manager.save(Position, position)
             })
+            if(debug) console.log("Finish positions")
+
         }
 
-        
-        
-
-
+        console.log("Finish load data")
         if (callback !== undefined) {
             callback()
         }
