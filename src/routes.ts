@@ -6,6 +6,7 @@ import { AuthController } from "./restControllers/AuthController";
 import { PositionController } from "./restControllers/PositionController";
 import { UASVolumeReservationController } from "./restControllers/UASVolumeReservationController";
 import { NotamController } from "./restControllers/NotamRestController";
+import { RestrictedFlightVolumeController } from "./restControllers/RestrictedFlightVolumeController";
 
 import { checkJwt } from "./middleware/checkJwt";
 
@@ -103,6 +104,8 @@ let r : CustomRoute[] = [
     ...doRoutes("vehicle", VehicleController), 
     ...doRoutes("position", PositionController), 
     ...doRoutes("uasvolume", UASVolumeReservationController), 
+    ...doRoutes("restrictedflightvolume", RestrictedFlightVolumeController), 
+    
     ...operations, 
     ...auth
 ];
