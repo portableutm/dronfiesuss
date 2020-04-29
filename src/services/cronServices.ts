@@ -20,12 +20,3 @@ export class CronService {
     }
 
 }
-
-
-// let tasks = {}
-
-// let operationCron = schedule("* * * * *", function() {
-//     console.log("running a task every minute");
-// });
-
-// tasks['operationCron'] = operationCron;
