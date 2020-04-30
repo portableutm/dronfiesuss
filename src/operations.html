@@ -171,9 +171,7 @@
         var type = e.layerType,
           layer = e.layer;
 
-        if (type === 'marker') {
-          layer.bindPopup('A popup!');
-        }
+        
         var shape = layer.toGeoJSON()
         var shape_for_db = JSON.stringify(shape);
         console.log(shape_for_db)
@@ -185,7 +183,9 @@
         console.log("-------------------------")
         console.log(decodeURIComponent(polygon))
         console.log("-------------------------")
-         
+        if (type === 'polygon') {
+          layer.bindPopup(polygon);
+        }
         editableLayers.addLayer(layer);
       });
 
@@ -283,6 +283,22 @@
           })
         })
 
+        getRfvs().then(function (json) {
+          console.log("Agregando RFVs al mapa")
+          let notams = json
+          notams.forEach(rfv => {
+            geojsonFeature = rfv.geography
+            let str = `
+          <b>text</b>:${rfv.comments}<br />
+          <b>id</b>:${rfv.id}<br />
+          <br />${rfv.min_altitude} y ${rfv.max_altitude}  `
+            let layerJson = L.geoJSON(geojsonFeature)
+            layerJson.setStyle({ fillColor: 'yellow' })
+            layerJson.bindPopup(`${str}`)
+            layerJson.addTo(mymap)
+          })
+        })
+
 
 
       });
@@ -356,6 +372,32 @@
         var httpSchema = "http"
         var url = window.location.origin //|| `${httpSchema}://${host}:${port}`
         var uasvolumeUrl = `${url}/notam`
+
+        return fetch(uasvolumeUrl, miInit)
+          .then(function (response) {
+            return response.json();
+          })
+          .then(function (json) {
+            console.log(json)
+            return json
+          })
+      }
+
+      function getRfvs() {
+        var headers = new Headers();
+        headers.append("Content-Type", "application/json");
+        headers.append("bypass", "a");
+        var miInit = {
+          method: 'GET',
+          headers: headers,
+          mode: 'cors',
+          cache: 'default'
+        };
+        var host = "localhost"
+        var port = "3000"
+        var httpSchema = "http"
+        var url = window.location.origin //|| `${httpSchema}://${host}:${port}`
+        var uasvolumeUrl = `${url}/restrictedflightvolume`
 
         return fetch(uasvolumeUrl, miInit)
           .then(function (response) {
