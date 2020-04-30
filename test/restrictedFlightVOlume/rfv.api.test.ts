@@ -16,7 +16,7 @@ import { Operations } from "../../src/data/operations_data";
 import { OperationState, Operation } from "../../src/entities/Operation";
 import { TEST_TIMEOUT } from "../conf"; 
 
-describe.only('>>> Restricted Flight VOlume volume reservation entity <<< ', function () {
+describe('>>> Restricted Flight VOlume volume reservation entity <<< ', function () {
 
     before(function (done) {
         this.timeout(TEST_TIMEOUT);

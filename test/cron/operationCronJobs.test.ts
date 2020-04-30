@@ -32,11 +32,11 @@ describe('>>> Cron test <<<', function () {
         //         console.log(`${op.gufi}) ${op.flight_comments} :: ${op.state} -> ${op.operation_volumes[0].effective_time_begin}`)
 
         //     });
-        console.log(` ------- Date is:: ${getNow()}`)
+        // console.log(` ------- Date is:: ${getNow()}`)
         fakeTime("2019-12-11T20:20:10.000Z")
         processOperations().then(function () {
             setTimeout(async function () {
-                console.log(` ------- Date is:: ${getNow()}`)
+                // console.log(` ------- Date is:: ${getNow()}`)
                 dao.all().then(function (processOps) {
                     processOps.forEach(op => {
                         // console.log(`${op.gufi}) ${op.flight_comments} :: ${op.state} -> ${op.operation_volumes[0].effective_time_begin}`)
@@ -75,7 +75,7 @@ describe('>>> Cron test <<<', function () {
         fakeTime("2019-12-11T21:20:10.000Z")
         processOperations().then(function () {
             setTimeout(async function () {
-                console.log(` ------- Date is:: ${getNow()}`)
+                // console.log(` ------- Date is:: ${getNow()}`)
                 dao.all().then(function (processOps) {
                     processOps.forEach(op => {
                         // console.log(`${op.gufi}) ${op.flight_comments} :: ${op.state} -> ${op.operation_volumes[0].effective_time_begin}`)
@@ -116,7 +116,7 @@ describe('>>> Cron test <<<', function () {
             fakeTime("2019-12-11T21:20:10.000Z")
             processOperations().then(function () {
                 setTimeout(async function () {
-                    console.log(` ------- Date is:: ${getNow()}`)
+                    // console.log(` ------- Date is:: ${getNow()}`)
                     // console.log(op)
                     let newOp = await dao.one(op.gufi)
                     newOp.state.should.equal(OperationState.CLOSED)
@@ -129,6 +129,37 @@ describe('>>> Cron test <<<', function () {
 
     })
 
+
+    it("Should pass the new op from PROPOSED to NOT_ACEPTED because intersect with a restricted flight volume", function (done) {
+        this.timeout(8000);
+
+        let op: Operation = deepCopy(Operations[0])
+        op.operation_volumes[0].min_altitude = -20
+        op.operation_volumes[0].max_altitude = 40
+        op.flight_comments = "For test restricted flight volume "
+        op.operation_volumes[0].operation_geography = {"type":"Polygon","coordinates":[[[-56.074905,-34.846212],[-56.08057,-34.867905],[-56.033192,-34.852411],[-56.061516,-34.8379],[-56.074905,-34.846212]]]}
+        op.state = OperationState.PROPOSED
+        let dao = new OperationDao();
+
+        dao.save(op).then(function (op:Operation) {
+            console.log(`Esto anda? guardo en bbdd`)
+            
+            processOperations().then(function () {
+            console.log(`**** Processss the op ${op.gufi}`)
+            setTimeout(async function () {
+                console.log(`**** Ya paso tiempo ${op.gufi}`)
+                    let newOp = await dao.one(op.gufi)
+                    newOp.state.should.equal(OperationState.NOT_ACCEPTED)
+                    done()
+                }, 1000)
+
+            })
+                .catch(done)
+        }).catch(done)
+
+    })
+
+    
 
 
     //     it("Should pass a operation from proposed to closed because there are an other operation", async function(){
