@@ -3,13 +3,16 @@ import { Operation, OperationState } from "../entities/Operation";
 import { getNow } from "./dateTimeService";
 import { OperationVolume } from "../entities/OperationVolume";
 import { UASVolumeReservationDao } from "../daos/UASVolumeReservationDao";
+import { RestrictedFlightVolumeDao } from "../daos/RestrictedFlightVolumeDao";
 
 let operationDao: OperationDao;
 let uvrDao: UASVolumeReservationDao;
+let rfvDao: RestrictedFlightVolumeDao;
 
 export async function processOperations() {
     operationDao = new OperationDao()
     uvrDao = new UASVolumeReservationDao()
+    rfvDao = new RestrictedFlightVolumeDao()
     // let op : Operation
 
     let operations = await operationDao.getOperationsForCron()
@@ -89,8 +92,11 @@ async function checkIntersection(operation: Operation, operationVolume: Operatio
         let uvrCount = await uvrDao.countUvrIntersections(operationVolume)
         console.log(`Count uvr ${uvrCount}`)
 
+        let rfvCount = await  rfvDao.countRfvIntersections(operationVolume)
+        console.log(`Count rfvCount ${rfvCount}`)
+
         // return operationsCount > 0 ;
-        return (operationsCount > 0) || (uvrCount > 0);
+        return (operationsCount > 0) || (uvrCount > 0) || (rfvCount>0);
     } catch (e) {
         console.log(e)
         return true //TODO throw exception
