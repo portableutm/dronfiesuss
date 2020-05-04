@@ -1,6 +1,7 @@
 import { User, Role } from "../entities/User";
 import { hashPassword } from "../services/encrypter";
 import { UserStatus, Status } from "../entities/UserStatus";
+import { Language } from "../entities/UserSettings";
 
 
 // let nums = [1,2,3,4,5,6,7,8,9] 
@@ -115,16 +116,19 @@ export let Users = [
         "password": hashPassword("operator"),
         "username": "operator",
         "role": Role.ADMIN,
-        "VolumesOfInterest" :  {"type":"Polygon","coordinates":[[[-56.160736,-34.899941],[-56.159706,-34.922816],[-56.170607,-34.917748],[-56.172495,-34.901419],[-56.160736,-34.899941]]]}
+        "VolumesOfInterest" :  {"type":"Polygon","coordinates":[[[-56.160736,-34.899941],[-56.159706,-34.922816],[-56.170607,-34.917748],[-56.172495,-34.901419],[-56.160736,-34.899941]]]},
     }
-].map(user => {
+].map((user, idx) => {
     let u : any = user
     let status = new UserStatus()
     status.status = Status.CONFIRMED
     u.status = status
+    u.settings = {}
+    u.settings.language = Language.EN 
     return u
 
 })
+// 
 
 export function getUserListAsMap(Users){
     let UsersObj = {}

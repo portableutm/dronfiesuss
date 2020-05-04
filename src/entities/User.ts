@@ -9,6 +9,11 @@ export enum Role {
     ,PILOT = "pilot"
 }
 
+export enum Language {
+    ES = "ES",
+    EN = "EN",
+}
+
 @Entity()
 @Unique(["email"])
 export class User {
@@ -38,4 +43,20 @@ export class User {
     @Column("geometry", {nullable: true})
     VolumesOfInterest?: Polygon;
 
+    // @OneToOne("UserSettings", {eager: true , cascade : true })
+    // @JoinColumn()
+    // settings? : UserSettings;
+
+    
+    @Column(type => Settings)
+    settings? : Settings;
+
+}
+
+
+
+
+class Settings {
+    @Column( {default: Language.EN})
+    langauge?: Language.ES
 }
