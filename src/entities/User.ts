@@ -1,5 +1,6 @@
 import {Entity, PrimaryGeneratedColumn, Column, Unique, PrimaryColumn, OneToOne, JoinColumn} from "typeorm";
 import { UserStatus } from "./UserStatus";
+import { Polygon } from "geojson";
 
 // export type Role = "admin" | "pilot"
 
@@ -33,5 +34,8 @@ export class User {
     @OneToOne("UserStatus", {lazy:true, cascade : ["insert"]   })
     @JoinColumn()
     status? : UserStatus
+
+    @Column("geometry", {nullable: true})
+    VolumesOfInterest?: Polygon;
 
 }
