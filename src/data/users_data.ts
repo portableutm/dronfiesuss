@@ -108,6 +108,14 @@ export let Users = [
         "password": hashPassword("wgHcqd"),
         "username": "GayOxtarby",
         "role": Role.PILOT
+    }, {
+        email: `operator@dronfies.com`,
+        "firstName": "Operator",
+        "lastName": "-",
+        "password": hashPassword("operator"),
+        "username": "operator",
+        "role": Role.ADMIN,
+        "VolumesOfInterest" :  {"type":"Polygon","coordinates":[[[-56.160736,-34.899941],[-56.159706,-34.922816],[-56.170607,-34.917748],[-56.172495,-34.901419],[-56.160736,-34.899941]]]}
     }
 ].map(user => {
     let u : any = user

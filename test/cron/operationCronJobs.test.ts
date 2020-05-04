@@ -16,6 +16,8 @@ import { Operations } from "../../src/data/operations_data";
 
 describe('>>> Cron test <<<', function () {
 
+    let operationToRemove = []
+
     before(function (done) {
         this.timeout(TEST_TIMEOUT);
 
@@ -23,6 +25,24 @@ describe('>>> Cron test <<<', function () {
             .then(done)
             .catch(done)
     })
+
+    after(function (done) {
+        this.timeout(TEST_TIMEOUT);
+        // console.log(" ---- Removing new ops ---- ")
+        let dao = new OperationDao();
+        let operationPromises = operationToRemove.map(function(op){
+            return dao.removeOperation(op)
+        })
+        Promise.all(operationPromises)
+        .then(values => { 
+            // console.log(values); // [3, 1337, "foo"] 
+            // console.log(" ---- Removing new ops ---- ")
+            done()
+          })
+          .catch(done)
+
+    })
+
 
     it("Should pass a operation from proposed to closed because there are an other operation", function (done) {
         this.timeout(20000);
@@ -104,14 +124,16 @@ describe('>>> Cron test <<<', function () {
     it("Should pass the new op from rouge to closed", function (done) {
         this.timeout(20000);
 
-        let op: Operation = deepCopy(Operations[0])
+        let op = deepCopy(Operations[0])
+        delete op.gufi 
         op.operation_volumes[0].min_altitude = -500
         op.flight_comments = "For automate Testing operation "
-        op.operation_volumes[0].operation_geography = { "type": "Polygon", "coordinates": [[[-56.16193771362305, -34.90275631306831], [-56.161251068115234, -34.90662777287992], [-56.154985427856445, -34.906486995721075], [-56.155757904052734, -34.90233396095623], [-56.16193771362305, -34.90275631306831]]] }
+        op.operation_volumes[0].operation_geography = {"type":"Polygon","coordinates":[[[-56.138935,-34.913103],[-56.142712,-34.920141],[-56.130352,-34.91986],[-56.13018,-34.915919],[-56.138935,-34.913103]]]}
         op.state = OperationState.ROGUE
         let dao = new OperationDao();
 
         dao.save(op).then(function (op:Operation) {
+            operationToRemove.push(op)
             console.log(` ------- Date is:: ${getNow()}`)
             fakeTime("2019-12-11T21:20:10.000Z")
             processOperations().then(function () {
@@ -131,9 +153,11 @@ describe('>>> Cron test <<<', function () {
 
 
     it("Should pass the new op from PROPOSED to NOT_ACEPTED because intersect with a restricted flight volume", function (done) {
-        this.timeout(8000);
+        this.timeout(20000);
 
-        let op: Operation = deepCopy(Operations[0])
+        let op = deepCopy(Operations[0])
+        // op.gufi = "" 
+        delete op.gufi 
         op.operation_volumes[0].min_altitude = -20
         op.operation_volumes[0].max_altitude = 40
         op.flight_comments = "For test restricted flight volume "
@@ -142,6 +166,7 @@ describe('>>> Cron test <<<', function () {
         let dao = new OperationDao();
 
         dao.save(op).then(function (op:Operation) {
+            operationToRemove.push(op)
             console.log(`Esto anda? guardo en bbdd`)
             
             processOperations().then(function () {

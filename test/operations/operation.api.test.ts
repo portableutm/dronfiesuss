@@ -42,6 +42,34 @@ describe(' >>> Operation test <<< ', function () {
 
     });
 
+    it("Should not get all operations for admin user ADMIN", function (done) {
+        let token = getToken('admin@dronfies.com', 'admin', Role.ADMIN)
+        chai.request(app.app)
+            .get('/operation')
+            .set('auth', token)
+            .set('Accept', 'application/json')
+            .then(function (res) {
+                res.should.have.status(200);
+                res.body.ops.length.should.be.eq(4)
+                done();
+            })
+            .catch(done)
+    });
+
+    it("Should not get 2 operations for operator user with rolle ADMIN", function (done) {
+        let token = getToken('operator@dronfies.com', 'operator', Role.ADMIN)
+        chai.request(app.app)
+            .get('/operation')
+            .set('auth', token)
+            .set('Accept', 'application/json')
+            .then(function (res) {
+                res.should.have.status(200);
+                res.body.ops.length.should.be.eq(2)
+                done();
+            })
+            .catch(done)
+    });
+
 
     it("Should not get all operations if user role is not ADMIN", function (done) {
         // let user = Users[2]
@@ -387,9 +415,6 @@ describe(' >>> Operation test <<< ', function () {
                 })
                 .catch(done)
         });
-
-
-
 
 
     })

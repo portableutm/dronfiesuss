@@ -33,7 +33,7 @@ describe('>>> User rest controller test <<<', function () {
             .set('Accept', 'application/json')
             .expect('Content-Type', /json/)
             .expect(function (res) {
-                res.body.length.should.be.eq(11)
+                res.body.length.should.be.eq(12)
             })
             .expect(200, done)
     });
@@ -62,7 +62,7 @@ describe('>>> User rest controller test <<<', function () {
                 res.should.have.status(200);
                 res.body.should.be.a('array')
                 res.body.length.should.be.gt(5)
-                res.body.length.should.be.eq(11)
+                res.body.length.should.be.eq(12)
                 done();
             });
     });

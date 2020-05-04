@@ -30,7 +30,7 @@ describe('>>> Restricted Flight VOlume volume reservation entity <<< ', function
             .get('/restrictedflightvolume')
             .set('bypass', 'a')
             .then(function (res) {
-                console.log(res.body)
+                // console.log(res.body)
                 res.should.have.status(200);
                 res.body.should.be.a('array')
                 res.body.length.should.be.equal(2)
