@@ -5,6 +5,7 @@ import { getPayloadFromResponse } from "../utils/authUtils";
 import { VehicleDao } from "../daos/VehicleDao";
 import { Operation, OperationState } from "../entities/Operation";
 import { validateStringDateIso, dateTimeStringFormat } from "../utils/validationUtils"
+import { UserDao } from "../daos/UserDaos";
 
 
 const MIN_MIN_ALTITUDE = -300
@@ -33,10 +34,22 @@ export class OperationController {
   //solo admin   
   async all(request: Request, response: Response, next: NextFunction) {
     let { role, username } = getPayloadFromResponse(response)
+    let ops;
     if (role == Role.ADMIN) {
-      let state = request.query.state
-      let ops = await this.dao.all({ state: state })
-      return response.json({ count: ops.length, ops })
+      let userDao = new UserDao()
+      try {
+        let user = await userDao.one(username);
+        let state = request.query.state
+        if (user.VolumesOfInterest) {
+          ops = await this.dao.getOperationByPolygon(user.VolumesOfInterest, { state: state })
+        } else {
+          ops = await this.dao.all({ state: state })
+        }
+        return response.json({ count: ops.length, ops })
+
+      } catch (error) {
+        return response.sendStatus(400)
+      }
     }
     else {
       return response.sendStatus(401)
@@ -192,7 +205,7 @@ export class OperationController {
     return response.json(await this.dao.getOperationByVolume(request.body))
   }
 
-  
+
   /**
    * Return an operation associated with passed gufi and that login user is owner.
    * @param request 
