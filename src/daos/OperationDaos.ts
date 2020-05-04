@@ -1,6 +1,6 @@
 import {getRepository} from "typeorm";
 
-import { Point } from "geojson";
+import { Point, Polygon } from "geojson";
 import { Operation, OperationState } from "../entities/Operation";
 import { OperationVolume } from "../entities/OperationVolume";
 
@@ -42,6 +42,32 @@ export class OperationDao {
             min_altitude : volume.min_altitude,
             max_altitude : volume.max_altitude,
             geom: JSON.stringify(volume.operation_geography)
+        })
+        .getMany()
+    }
+
+    async getOperationByPolygon(polygon : Polygon, filterParam?  :any){
+        let whereFilter = ["(ST_Intersects(operation_volume.\"operation_geography\" ,ST_GeomFromGeoJSON(:geom)))"]
+        let filter : any = {}
+        let state 
+        if((filterParam!==undefined) && (filterParam.state !== undefined)){
+            // filter.where = { state: filterParam.state}
+            // state = (`"state" = ${filterParam.state}`)
+            whereFilter.push(`"state" = ${filterParam.state}`)
+        }
+        
+        return this.repository
+        .createQueryBuilder("operation")
+        .innerJoin("operation.operation_volumes", "operation_volume")
+        .where(
+            whereFilter.join(" AND ")
+        )
+        .setParameters({
+            // date_begin : volume.effective_time_begin,
+            // date_end : volume.effective_time_end,
+            // min_altitude : volume.min_altitude,
+            // max_altitude : volume.max_altitude,
+            geom: JSON.stringify(polygon)
         })
         .getMany()
     }
