@@ -31,7 +31,6 @@ describe(' >>> Auth test <<< ', function () {
 
 
     it("should get token when give correct credentials", function (done) {
-        // it("should get token when give correct credentials", (done) => {
         chai.request(app.app)
             .post('/auth/login')
             .send({
@@ -47,7 +46,6 @@ describe(' >>> Auth test <<< ', function () {
     })
 
     it("should get token as a json when give correct credentials", function (done) {
-        // it("should get token when give correct credentials", (done) => {
         chai.request(app.app)
             .post('/auth/login')
             .send({
@@ -65,7 +63,6 @@ describe(' >>> Auth test <<< ', function () {
     })
 
     it("should get error 401 when give incorrect password", function (done) {
-        // it("should get error 401 when give incorrect credentials", (done) => {
         chai.request(app.app)
             .post('/auth/login')
             .send({
@@ -80,7 +77,6 @@ describe(' >>> Auth test <<< ', function () {
     })
 
     it("should get error 401 when give incorrect username", function (done) {
-        // it("should get error 401 when give incorrect credentials", (done) => {
         chai.request(app.app)
             .post('/auth/login')
             .send({
@@ -95,7 +91,6 @@ describe(' >>> Auth test <<< ', function () {
     })
 
     it("should get data from api when use token", function (done) {
-        // it("should get data from api when use token", (done) => {
         chai.request(app.app)
             .post('/auth/login')
             .send({
