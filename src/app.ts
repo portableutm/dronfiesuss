@@ -30,19 +30,21 @@ class App {
 
     private cronService: CronService;
 
-    constructor(controllers: any[], port: number, connName: string, callback?: (param?: any) => void) {
+    constructor(controllers: any[] /*, port: number, connName: string*/ ,callback?: (param?: any) => void) {
         process.env.TZ = "Etc/GMT"
         this.app = express();
-        this.port = Number.parseInt(process.env.PORT) || port;
-        this.connectionName = process.env.DATABASE_CONNECTION_NAME || connName;
+
+        if( (process.env.PORT == undefined) || (process.env.DATABASE_CONNECTION_NAME == undefined)){
+            throw `You must define PORT and DATABASE_CONNECTION_NAME on .env file`
+        }
+
+        this.port = Number.parseInt(process.env.PORT) //|| port;
+        this.connectionName = process.env.DATABASE_CONNECTION_NAME //|| connName;
 
         console.log(`Constructor-> port:${this.port} connName:${this.connectionName}`)
 
         this.initializeMiddlewares();
         this.initializeModels(callback ? callback : () => { });
-
-
-        // this.initializeControllers(controllers);
 
     }
 
@@ -53,7 +55,9 @@ class App {
         if (connection === undefined) {
             throw new Error('Error connecting to database');
         } // In case the connection failed, the app stops.
-        connection.synchronize(); // this updates the database schema to match the models' definitions
+        console.log(`Start synchronize`)
+        await connection.synchronize(); // this updates the database schema to match the models' definitions
+        console.log(`Finish synchronize`)
 
         this.connection = connection; // Store the connection object in the class instance.
 
@@ -119,15 +123,14 @@ class App {
         });
     }
 
-    private initializeControllers(controllers: any[]) {
-        controllers.forEach((controller) => {
-            this.app.use('/', controller.router);
-        });
-    }
+    // private initializeControllers(controllers: any[]) {
+    //     controllers.forEach((controller) => {
+    //         this.app.use('/', controller.router);
+    //     });
+    // }
 
     // Boots the application
     public listen(callback?: (param?: any) => void) {
-        // var server = require('http').Server(app);
         let server = new Server(this.app)
         // var io = require('socket.io')(server);
         this.io = Io(server)
@@ -141,11 +144,7 @@ class App {
             res.sendFile(__dirname + '/operations.html');
         });
 
-
-        // this.app.listen(this.port, () => {
-        //     console.log(`Server running on port ${this.port}`);
-        // });
-        const port = process.env.PORT || this.port;
+        const port = this.port;
 
         server.listen(port, () => {
             console.log(`Server running on port ${this.port}`);
@@ -158,8 +157,6 @@ class App {
         });
 
         this.io.on('connection', function (socket) {
-            // console.log("Cliente nuevo", socket.json)
-            // socket.emit('news', { hello: 'world' });
             socket.on('chat message', function (data) {
                 console.log(data);
                 socket.emit('chat message', data)
@@ -169,12 +166,12 @@ class App {
 
 
     }
-    /**
-     * PrintStatus
-     */
-    public printStatus() {
-        console.log(`initedDB:${this.initedDB} initedRest:${this.initedRest} connection.isConnected:${this.connection ? this.connection.isConnected : ""}`)
-    }
+    // /**
+    //  * PrintStatus
+    //  */
+    // public printStatus() {
+    //     console.log(`initedDB:${this.initedDB} initedRest:${this.initedRest} connection.isConnected:${this.connection ? this.connection.isConnected : ""}`)
+    // }
 }
 
 export default App;
