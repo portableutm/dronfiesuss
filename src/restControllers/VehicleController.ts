@@ -17,13 +17,15 @@ export class VehicleController {
      * @param next 
      */
     async all(request: Request, response: Response, next: NextFunction) {
-        let { role } = getPayloadFromResponse(response)
+        let { role, username } = getPayloadFromResponse(response)
+        let vehicles
         if (role == Role.ADMIN) {
-            let vehicles = await this.dao.all();
-            return response.json(vehicles)
+             vehicles = await this.dao.all();
         } else {
-            return response.sendStatus(401)
+             vehicles = await this.dao.allByUser(username);
+            // return response.sendStatus(401)
         }
+        return response.json(vehicles)
     }
 
     //solo los propios si role piloto
@@ -43,7 +45,6 @@ export class VehicleController {
             } else {
                 let v = await this.dao.oneByUser(request.params.id, username);
                 return response.json(v)
-                // return response.sendStatus(401)
             }
 
         } catch (error) {
