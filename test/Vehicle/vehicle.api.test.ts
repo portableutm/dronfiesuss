@@ -84,14 +84,14 @@ describe('>>> Vehicle entity <<< ', function () {
     
 
     it("should get a vehicle", function (done) {
-        let uvin = "bd9b2eb6-7ab7-442e-b99c-78890581f198";
+        let uvin = "1e8a387d-07ad-41b0-a908-01d2d59ac8d5";
         chai.request(app.app)
             .get(`/vehicle/${uvin}`)
             .set('bypass', 'a')
             .then(function (res) {
                 res.should.have.status(200);
                 res.body.should.have.property('uvin');
-                res.body.should.have.property('vehicleName').equal("vehicle_name9");
+                res.body.should.have.property('vehicleName').equal("vehicle_name2");
                 done();
             })
             .catch(done)
@@ -125,6 +125,39 @@ describe('>>> Vehicle entity <<< ', function () {
             .catch(done)
 
     });
+
+    it("GET /vehicle/188d89d8-fb4f-40be-a5ee-059feca02cca should get a MaurineFowlie's vehicle with MaurineFowlie user", function (done) {
+        let token = getToken('maurine@dronfies.com', 'MaurineFowlie', Role.PILOT)
+        let uvin = "188d89d8-fb4f-40be-a5ee-059feca02cca";
+        
+        chai.request(app.app)
+            .get(`/vehicle/${uvin}`)
+            .set('auth', token)
+            .then(function (res) {
+                res.should.have.status(200);
+                res.body.should.be.a('object')
+                res.body.registeredBy.username.should.eq("MaurineFowlie")
+                done();
+            })
+            .catch(done);
+    });
+
+    it("GET /vehicle/1e8a387d-07ad-41b0-a908-01d2d59ac8d5 should not get an other user vehicle with MaurineFowlie user", function (done) {
+        let token = getToken('maurine@dronfies.com', 'MaurineFowlie', Role.PILOT)
+        let uvin = "1e8a387d-07ad-41b0-a908-01d2d59ac8d5";
+        
+        chai.request(app.app)
+            .get(`/vehicle/${uvin}`)
+            .set('auth', token)
+            .then(function (res) {
+                res.should.have.status(404);
+                // res.body.should.be.a('object')
+                // res.body.registeredBy.username.should.eq("MaurineFowlie")
+                done();
+            })
+            .catch(done);
+    });
+
 
 
 });
