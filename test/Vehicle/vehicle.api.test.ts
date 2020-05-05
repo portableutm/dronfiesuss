@@ -8,8 +8,10 @@ import { VehicleDao } from "../../src/daos/VehicleDao";
 
 import { app, initAsync } from "../../src/index";
 import { TEST_TIMEOUT } from "../conf"; 
+import { getToken } from "../../src/services/tokenService";
+import { Role } from "../../src/entities/User";
 
-describe('>>> Vehicle entity <<< ', function () {
+describe.only('>>> Vehicle entity <<< ', function () {
 
     before(function (done) {
         this.timeout(TEST_TIMEOUT);
@@ -26,6 +28,23 @@ describe('>>> Vehicle entity <<< ', function () {
                 res.should.have.status(200);
                 res.body.should.be.a('array')
                 res.body.length.should.be.gt(5)
+                done();
+            })
+            .catch(done);
+    });
+
+    it("should get all the MaurineFowlie vehicles", function (done) {
+        let token = getToken('maurine@dronfies.com', 'MaurineFowlie', Role.PILOT)
+        chai.request(app.app)
+            .get('/vehicle')
+            .set('auth', token)
+            .then(function (res) {
+                res.should.have.status(200);
+                res.body.should.be.a('array')
+                res.body.length.should.be.eq(5)
+                res.body.forEach(v => {
+                    v.registeredBy.username.should.eq("MaurineFowlie")
+                });
                 done();
             })
             .catch(done);

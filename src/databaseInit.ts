@@ -61,19 +61,28 @@ export async function initData(connection: Connection, callback?: () => any) {
             const vehicles: VehicleReg[] = await vehicleDao.all();
             if (vehicles.length == 0) {
                 if(debug) console.log("Loading vehicles")
+
                 users = await connection.manager.find(User);
-                users.sort(function (a, b) {
-                    return a.username.localeCompare(b.username);
-                }); 
-                // console.log(`Loading vehicles: largo de usuarios ${users.length}`)
+                // // console.log(`Loading vehicles: largo de usuarios ${users.length}`)
+                // users.sort(function (a, b) {
+                //     return a.username.localeCompare(b.username);
+                // }); 
+                let userMap = getUserListAsMap(users)
+                // console.log("userMap")
+                // console.log(userMap)
+
                 Vehicles.forEach(async (vehicle, idx) => { 
                     let number = parseInt((vehicle.vehicleName.match(/\d+/g))[0])
-                    let user: User = users[number%2?0:1] // randomFromList(users)
-                    // console.log(`Vehicle ${vehicle.vehicleName}, user:${user.username}`)
-                    // console.log(`Vehicle ${JSON.stringify(vehicle)}, user:${JSON.stringify(user)}`)
+                    // let user: User = users[number%2?0:1] 
+                    let user: User = number%2 ? userMap['MaurineFowlie'] : userMap['MonroBhatia']
+                    // console.log("ooooooooo")
+                    
                     vehicle.registeredBy = user
+                    // console.log(vehicle)
                     try {
-                        await connection.manager.save(connection.manager.create("VehicleReg", vehicle))
+                        let v = await connection.manager.save(connection.manager.create("VehicleReg", vehicle))
+                        // console.log(">>>>>>>")
+                        // console.log(v)
                     } catch (error) {
                         console.error(error)
                     }
