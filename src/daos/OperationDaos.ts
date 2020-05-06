@@ -46,6 +46,22 @@ export class OperationDao {
         .getMany()
     }
 
+    async getOperationByPolygonAndAltitude(volume : OperationVolume){
+        return this.repository
+        .createQueryBuilder("operation")
+        .innerJoin("operation.operation_volumes", "operation_volume")
+        .where("(numrange(operation_volume.\"min_altitude\", operation_volume.\"max_altitude\") && numrange(:min_altitude, :max_altitude)) " 
+        + " AND (ST_Intersects(operation_volume.\"operation_geography\" ,ST_GeomFromGeoJSON(:geom)))")
+        .setParameters({
+            min_altitude : volume.min_altitude,
+            max_altitude : volume.max_altitude,
+            geom: JSON.stringify(volume.operation_geography)
+        })
+        .getMany()
+    }
+
+    
+
     async getOperationByPolygon(polygon : Polygon, filterParam?  :any){
         let whereFilter = ["(ST_Intersects(operation_volume.\"operation_geography\" ,ST_GeomFromGeoJSON(:geom)))"]
         let filter : any = {}

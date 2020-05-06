@@ -13,7 +13,7 @@ export class RestrictedFlightVolumeController {
     private operationDao = new OperationDao()
 
     /**
-     * Get all uvrs from database
+     * Get all rfv from database
      * @param request 
      * @param response 
      * @param next 
@@ -30,8 +30,8 @@ export class RestrictedFlightVolumeController {
     }
 
     /**
-     * Get the uvr with the id passed
-     * @example /uasvolume/0a8c53a7-4300-472d-844b-c0cfed9f1b17 
+     * Get the rfv with the id passed
+     * @example /restrictedflightvolume/0a8c53a7-4300-472d-844b-c0cfed9f1b17 
      * @param request 
      * @param response 
      * @param next 
@@ -48,19 +48,22 @@ export class RestrictedFlightVolumeController {
 
     /**
      * Save the passed RestrictedFlightVolume by post
-     * @example 
+     * @example {
+            geography: {"type":"Polygon","coordinates":[[[-56.309738,-34.874384],[-56.309395,-34.903671],[-56.245537,-34.9017],[-56.24588,-34.864806],[-56.310081,-34.872975],[-56.309738,-34.874384]]]},
+            max_altitude: 100,
+            min_altitude: 0,
+            comments: "Montevideo Hill"
+        }
      * @param request 
      * @param response 
      * @param next 
      */
     async save(request: Request, response: Response, next: NextFunction) {
         try {
-            // let errors = validateOperation(request.body)
             let entitie = await this.dao.save(request.body)
-            // if (errors.length == 0) {
             entitie = await this.dao.save(request.body)
             let volume = createVolumeFromRestrictedFlightVolume(entitie)
-            let operations = await this.operationDao.getOperationByVolume(volume)
+            let operations = await this.operationDao.getOperationByPolygonAndAltitude(volume)
             for (let index = 0; index < operations.length; index++) {
                 const op: Operation = operations[index];
                 let newState: OperationState = getNextOperationState(op)
@@ -70,10 +73,7 @@ export class RestrictedFlightVolumeController {
                 }
             }
             return response.json(entitie);
-            // } else {
-            //     response.status(400)
-            //     return response.json(errors)
-            // }
+            
         } catch (error) {
             return response.sendStatus(400);
         }
