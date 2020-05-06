@@ -44,11 +44,22 @@ describe('>>> Uas volume reservation entity <<< ', function () {
             .then(function (res) {
                 res.should.have.status(200);
                 res.body.should.be.a('object')
-                // console.log(res.body)
                 res.body.should.have.property('cause').equal(UASVolumeReservationCause.MUNICIPALITY)
                 res.body.should.have.property('type').equal(UASVolumeReservationType.DYNAMIC_RESTRICTION)
                 res.body.should.have.property('effective_time_begin').equal("2019-12-11T19:59:10.000Z")
                 res.body.should.have.property('effective_time_end').equal("2019-12-11T20:59:10.000Z")
+                done();
+            })
+            .catch(done);
+    });
+
+    it("GET /uasvolume/0a8c98c2-7823-472d-844b-c0cfed9f1b17 should NOT get a single UVR ", function (done) {
+        let token = getToken('admin@dronfies.com', 'admin', Role.ADMIN)
+        chai.request(app.app)
+            .get('/uasvolume/0a8c98c2-7823-472d-844b-c0cfed9f1b17')
+            .set('auth', token)
+            .then(function (res) {
+                res.should.have.status(404);
                 done();
             })
             .catch(done);
@@ -78,18 +89,12 @@ describe('>>> Uas volume reservation entity <<< ', function () {
         }
         chai.request(app.app)
             .post('/uasvolume')
-            .set('bypass', 'a')
+            .set('auth', token)
             .send(uvr)
             .then(function (res) {
                 res.should.have.status(200);
                 res.body.should.be.a('object')
                 res.body.should.have.property('message_id');
-
-                // dao.all().then(function(vehicles){
-                //     // vehicles.length.should.be.eq(vehicleCountPreInsert+1)
-                //     done();
-                // })
-                // .catch(done)
                 done();
             })
             .catch(done);
@@ -126,10 +131,7 @@ describe('>>> Uas volume reservation entity <<< ', function () {
         op2.operation_volumes[0] = Object.assign({}, op2.operation_volumes[0], deepCopy(opVol)) //.operation_geography = op1Poly // = "For automate Testing operation "
 
         const opDao = new OperationDao();
-        // console.log(`op1:::${JSON.stringify(op, null , 2)}`);
-
         let opProm1 = opDao.save(op)
-        // console.log(`op2:::${JSON.stringify(op2, null , 2)}`);
 
         let opProm2 = opDao.save(op2)
 
@@ -178,12 +180,6 @@ describe('>>> Uas volume reservation entity <<< ', function () {
                             }).catch(done)
                         }).catch(done)
 
-                        // dao.all().then(function(vehicles){
-                        //     // vehicles.length.should.be.eq(vehicleCountPreInsert+1)
-                        //     done();
-                        // })
-                        // .catch(done)
-                        // done();
                     })
                     .catch(done);
             })

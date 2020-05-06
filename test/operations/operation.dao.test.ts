@@ -10,7 +10,7 @@ import { OperationVolume } from "../../src/entities/OperationVolume";
 
 let opDao : OperationDao;
 
-import { app, init, initAsync } from "../../src/index";
+import { app, initAsync } from "../../src/index";
 
 
 

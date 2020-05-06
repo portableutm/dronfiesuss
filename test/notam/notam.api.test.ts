@@ -8,7 +8,7 @@ chai.use(chaiHttp);
 chai.should();
 import { NotamDao } from "../../src/daos/NotamDao";
 
-import { app, init, initAsync } from "../../src/index";
+import { app, initAsync } from "../../src/index";
 import { getToken } from "../../src/services/tokenService";
 import { Role } from "../../src/entities/User";
 import { Notams } from "../../src/entities/Notams";
@@ -75,6 +75,22 @@ describe(' >>> Notams test <<< ', function () {
                 })
                 .catch(done);
         });
+
+
+        it("/GET /notam with a bad polygon should get status 400", function (done) {
+            let token = getToken('maurine@dronfies.com', 'MaurineFowlie', Role.PILOT)
+            let polygon = "%7B%22type%22%32C%5B-56.173267%2C-34.927319%5D%2C%5B-56.145029%2C-34.923519%5D%2C%5B-56.143913%2C-34.919578%5D%2C%5B-56.175671%2C-34.922182%5D%5D%5D%7D"
+            chai.request(app.app)
+                .get('/notam/')
+                .set('Accept', 'application/json')
+                .query({polygon: polygon}) 
+                .set('auth', token)
+                .then(res => {
+                    res.should.have.status(400);
+                    done()
+                })
+                .catch(done);
+        });
     
         it("/GET /notam with polygon should not get any notam", function (done) {
             let token = getToken('maurine@dronfies.com', 'MaurineFowlie', Role.PILOT)
@@ -122,7 +138,6 @@ describe(' >>> Notams test <<< ', function () {
                 .query({polygon: polygon, date:date}) 
                 .set('auth', token)
                 .then(res => {
-                    // console.log(`Response::${JSON.stringify(res.body)}`)
                     res.should.have.status(200);
                     res.body.length.should.be.eq(1)
                     res.body[0].should.have.property("message_id").equal("1b5f39e6-11e8-4f6b-b32c-3c94bee4a892")
@@ -141,10 +156,8 @@ describe(' >>> Notams test <<< ', function () {
                 .query({polygon: polygon, date:date}) 
                 .set('auth', token)
                 .then(res => {
-                    // console.log(`Response::${JSON.stringify(res.body)}`)
                     res.should.have.status(200);
                     res.body.length.should.be.eq(0)
-                    // res.body[0].should.have.property("message_id").equal("1b5f39e6-11e8-4f6b-b32c-3c94bee4a892")
                     done()
                 })
                 .catch(done);
@@ -174,6 +187,20 @@ describe(' >>> Notams test <<< ', function () {
             .catch(done);
     });
 
+    it("/GET /notam/d7608be2-81a5-4097-456a-b541a1634300 that not exist should get 404 ", function (done) {
+        let message_id ="d7608be2-81a5-4097-456a-b541a1634300"
+        let token = getToken('maurine@dronfies.com', 'MaurineFowlie', Role.PILOT)
+        chai.request(app.app)
+            .get(`/notam/${message_id}`)
+            .set('Accept', 'application/json')
+            .set('auth', token)
+            .then(res => {
+                res.should.have.status(404);
+                done()
+            })
+            .catch(done);
+    });
+
     it("/POST /notam/ should insert a notam ", function (done) {
         // let message_id ="f2308be3-80a5-4247-964a-b541a1634331"
         let poly : Polygon = { "type": "Polygon", "coordinates": [ [ [ -56.17652893066406, -34.895857623250066 ], [ -56.18107795715332, -34.90493843104419 ], [ -56.17069244384765, -34.909091334089794 ], [ -56.164255142211914, -34.90092610489535 ], [ -56.17652893066406, -34.895857623250066 ] ] ] }
@@ -194,6 +221,34 @@ describe(' >>> Notams test <<< ', function () {
                 res.should.have.status(200);
                 let notam : Notams = res.body
                 notam.should.have.property('message_id').be.a("string")
+                done()
+            })
+            .catch(function(error){
+                console.log(error)
+                done(error)
+            });
+    });
+
+
+    it("/POST /notam/ should NOT insert a notam with bad parameters", function (done) {
+        // let message_id ="f2308be3-80a5-4247-964a-b541a1634331"
+        let poly  = {  "BadPolygon": [ [ [ -56.17652893066406, -34.895857623250066 ], [ -56.18107795715332, -34.90493843104419 ], [ -56.17069244384765, -34.909091334089794 ], [ -56.164255142211914, -34.90092610489535 ], [ -56.17652893066406, -34.895857623250066 ] ] ] }
+        let notam1  = {
+            text : "For test",
+            geography: poly,
+            effective_time_begin: "202",
+            effective_time_end: "2020-04-21T14:00:00Z",
+        }
+        let token = getToken('maurine@dronfies.com', 'MaurineFowlie', Role.PILOT)
+        chai.request(app.app)
+            .post(`/notam/`)
+            .set('Accept', 'application/json')
+            .set('auth', token)
+            .send(notam1)
+            .then(res => {
+                // console.log(res.body)
+                res.should.have.status(400);
+               
                 done()
             })
             .catch(function(error){

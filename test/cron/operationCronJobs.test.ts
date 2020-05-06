@@ -6,7 +6,7 @@ chai.use(chaiHttp);
 chai.should();
 import { OperationDao } from "../../src/daos/OperationDaos";
 
-import { app, init, initAsync } from "../../src/index";
+import { app, initAsync } from "../../src/index";
 import { getNow, fakeTime } from "../../src/services/dateTimeService";
 import { TEST_TIMEOUT } from "../conf";
 import { processOperations } from "../../src/services/operationCronJobs";

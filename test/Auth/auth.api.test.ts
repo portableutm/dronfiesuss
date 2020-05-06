@@ -5,7 +5,7 @@ let chaiHttp = require('chai-http');
 chai.use(chaiHttp);
 chai.should();
 import { TEST_TIMEOUT } from "../conf"; 
-import { app, init, initAsync } from "../../src/index";
+import { app, initAsync } from "../../src/index";
 
 describe(' >>> Auth test <<< ', function () {
 
