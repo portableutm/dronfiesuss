@@ -1,7 +1,6 @@
-import { User, Role } from "../entities/User";
+import { User, Role, Language } from "../entities/User";
 import { hashPassword } from "../services/encrypter";
 import { UserStatus, Status } from "../entities/UserStatus";
-import { Language } from "../entities/UserSettings";
 
 
 // let nums = [1,2,3,4,5,6,7,8,9] 

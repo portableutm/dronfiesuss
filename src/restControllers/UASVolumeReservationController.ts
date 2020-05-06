@@ -43,7 +43,6 @@ export class UASVolumeReservationController {
         } catch (error) {
             return response.sendStatus(404)  
         }
-        return response.json(await this.dao.one(request.params.id));
     }
 
     /**

@@ -11,7 +11,7 @@ export class RestrictedFlightVolume {
     'id'?: String;
 
     @Column("geometry", {nullable: true})
-    'geography' ? : GeoJSON.Polygon
+    'geography': GeoJSON.Polygon
 
     // @Column({type: "timestamp without time zone", nullable:true})
     // 'effective_time_begin' ? : string
@@ -21,9 +21,9 @@ export class RestrictedFlightVolume {
     // 'actual_time_end' ? : string
 
     @Column({type: 'numeric', nullable:true})
-    'min_altitude' ? : number //Altitude
+    'min_altitude': number //Altitude
     @Column({type: 'numeric', nullable:true})
-    'max_altitude' ? : number //Altitude
+    'max_altitude': number //Altitude
 
     @Column()
     'comments': String;

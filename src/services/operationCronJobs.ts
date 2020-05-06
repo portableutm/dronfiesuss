@@ -18,7 +18,7 @@ export async function processOperations() {
     let operations = await operationDao.getOperationsForCron()
     for (let index = 0; index < operations.length; index++) {
         const operation: Operation = operations[index];
-        console.log(`Operation: ${operation.gufi}, ${operation.state}`)
+        // console.log(`Operation: ${operation.gufi}, ${operation.state}`)
 
         // try {
         switch (operation.state) {
@@ -46,7 +46,7 @@ export async function processOperations() {
         // } catch (error) {
         //     console.error(`Error when processing operation: ${operation.gufi}\n${error}`)
         // }
-        console.log("******* ******* ******* ******* ******* ******* ******* ")
+        // console.log("******* ******* ******* ******* ******* ******* ******* ")
     }
 }
 
@@ -59,7 +59,7 @@ async function processProposed(operation: Operation) {
     for (let index = 0; index < operation.operation_volumes.length; index++) {
         const operationVolume = operation.operation_volumes[index];
         let intersect = await checkIntersection(operation, operationVolume)
-        console.log(`Intersects is ${intersect}`)
+        // console.log(`Intersects is ${intersect}`)
         if (intersect) {
             return changeState(operation, OperationState.NOT_ACCEPTED)
         }
@@ -88,12 +88,12 @@ async function checkIntersection(operation: Operation, operationVolume: Operatio
     try {
 
         let operationsCount = await operationDao.getOperationVolumeByVolumeCountExcludingOneOperation(operation.gufi, operationVolume)
-        console.log(`Count uvr`)
+        // console.log(`Count uvr`)
         let uvrCount = await uvrDao.countUvrIntersections(operationVolume)
-        console.log(`Count uvr ${uvrCount}`)
+        // console.log(`Count uvr ${uvrCount}`)
 
         let rfvCount = await  rfvDao.countRfvIntersections(operationVolume)
-        console.log(`Count rfvCount ${rfvCount}`)
+        // console.log(`Count rfvCount ${rfvCount}`)
 
         // return operationsCount > 0 ;
         return (operationsCount > 0) || (uvrCount > 0) || (rfvCount>0);
@@ -120,7 +120,7 @@ function processAccepted(operation: Operation) {
         const operationVolume = operation.operation_volumes[index];
         let dateBegin = new Date(operationVolume.effective_time_begin)
         let dateEnd = new Date(operationVolume.effective_time_end)
-        console.log(`(${date.toISOString()} >= ${dateBegin.toISOString()}) && (${date.toISOString()} < ${dateEnd.toISOString()})`)
+        // console.log(`(${date.toISOString()} >= ${dateBegin.toISOString()}) && (${date.toISOString()} < ${dateEnd.toISOString()})`)
         if ((date.getTime() >= dateBegin.getTime()) && (date.getTime() < dateEnd.getTime())) {
             changeState(operation, OperationState.ACTIVATED)
         }
@@ -171,7 +171,7 @@ function processRouge(operation: Operation) {
 }
 
 async function changeState(operation: Operation, newState: OperationState) {
-    console.log(`Change the state of ${operation.gufi} from ${operation.state} to ${newState}`)
+    // console.log(`Change the state of ${operation.gufi} from ${operation.state} to ${newState}`)
     operation.state = newState
     return await operationDao.save(operation)
 }

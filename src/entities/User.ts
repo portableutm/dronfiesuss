@@ -2,7 +2,6 @@ import {Entity, PrimaryGeneratedColumn, Column, Unique, PrimaryColumn, OneToOne,
 import { UserStatus } from "./UserStatus";
 import { Polygon } from "geojson";
 
-// export type Role = "admin" | "pilot"
 
 export enum Role {
      ADMIN = "admin"
@@ -42,10 +41,6 @@ export class User {
 
     @Column("geometry", {nullable: true})
     VolumesOfInterest?: Polygon;
-
-    // @OneToOne("UserSettings", {eager: true , cascade : true })
-    // @JoinColumn()
-    // settings? : UserSettings;
 
     
     @Column(type => Settings)

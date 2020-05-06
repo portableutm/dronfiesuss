@@ -20,7 +20,7 @@ export function verifyServer() {
         if (error) {
             console.log(error);
         } else {
-            console.log("Server is ready to take our messages");
+            // console.log("Server is ready to take our messages");
         }
         return error
     });
@@ -35,7 +35,7 @@ export async function sendTestMail() {
         text: "Hello world? 👻", 
         html: "<b>Hello world? 👻</b>" 
     });
-    console.log("Message sent: %s", info.messageId);
+    // console.log("Message sent: %s", info.messageId);
 
     return info;
 }
@@ -49,7 +49,7 @@ let info = await transporter.sendMail({
         text: text, 
         html: html, 
     });
-    console.log("Message sent: %s", info.messageId);
+    // console.log("Message sent: %s", info.messageId);
 
     return info;
 }
