@@ -15,7 +15,7 @@ import { Operations } from "../../src/data/operations_data";
 import { OperationState } from "../../src/entities/Operation";
 import { OperationDao } from "../../src/daos/OperationDaos";
 
-describe('>>> Position entity <<< ', function () {
+describe.only('>>> Position entity <<< ', function () {
 
     before(function (done) {
         this.timeout(TEST_TIMEOUT);
@@ -114,6 +114,120 @@ describe('>>> Position entity <<< ', function () {
                 .catch(done);
         });
     })
+
+    describe("Check state change looking on altitude", function () {
+
+        it("should insert a new position in operation", function (done) {
+            let token = getToken('admin@dronfies.com', 'admin', Role.ADMIN)
+            let gufi = "d12e9172-14d2-9b6b-7b7b-1c3c8ccc1e12"
+            let opDao = new OperationDao()
+            let op = deepCopy(Operations[0])
+            op.gufi = gufi
+            op.uas_registrations = []
+            op.flight_comments = "For automate Testing operation and altitude"
+            op.state = OperationState.ACTIVATED
+            op.operation_volumes[0].operation_geography = { "type": "Polygon", "coordinates": [[[-56.151938, -34.88234], [-56.147819, -34.888818], [-56.137991, -34.886424], [-56.147089, -34.880122], [-56.151938, -34.88234]]] }
+            op.operation_volumes[0].min_altitude = 0
+            op.operation_volumes[0].max_altitude = 90
+
+            opDao.save(op).then(function (op) {
+                let positionToInsert = {
+                    "altitude_gps": 30,
+                    "location": {
+                        "type": "Point",
+                        "coordinates": [
+                            -56.14693880081177,
+                            -34.88281540484552
+                        ]
+                    },
+                    "time_sent": "2019-12-11T19:59:10.000Z",
+                    "gufi": gufi,
+                    "heading": 160
+                }
+                chai.request(app.app)
+                    .post('/position')
+                    .set('auth', token)
+                    .send(positionToInsert)
+                    .then(function (res) {
+                        res.should.have.status(200);
+                        res.body.should.have.property('id');
+                        opDao.one(gufi).then(function (op: any) {
+                            op.state.should.eq(OperationState.ACTIVATED)
+                            done();
+                        }).catch(done)
+                    })
+                    .catch(done);
+            }).catch(done)
+        });
+
+        it("should insert a new position outside operation and change the state to rouge", function (done) {
+            let token = getToken('admin@dronfies.com', 'admin', Role.ADMIN)
+            let gufi = "d12e9172-14d2-9b6b-7b7b-1c3c8ccc1e12"
+            let positionToInsert = {
+                "altitude_gps": 100,
+                "location": {
+                    "type": "Point",
+                    "coordinates": [
+                        -56.14693880081177,
+                        -34.88281540484552
+                    ]
+                },
+                "time_sent": "2019-12-11T19:59:10.000Z",
+                "gufi": gufi,
+                "heading": 160
+            }
+
+            chai.request(app.app)
+                .post('/position')
+                .set('auth', token)
+                .send(positionToInsert)
+                .then(function (res) {
+                    res.should.have.status(200);
+                    res.body.should.have.property('id');
+                    let opDao = new OperationDao()
+
+                    opDao.one(gufi).then(function (op: any) {
+                        op.state.should.eq(OperationState.ROGUE)
+                        done();
+                    }).catch(done)
+                })
+                .catch(done);
+        });
+    })
+
+    // it("should insert a new position outside operation and change the state to rouge", function (done) {
+    //     let token = getToken('admin@dronfies.com', 'admin', Role.ADMIN)
+    //     let gufi = "c42e9384-14d2-9b6b-1c1c-1c3c8aaa2b99"
+    //     let positionToInsert = {
+    //         "altitude_gps": 30,
+    //         "location": {
+    //             "type": "Point",
+    //             "coordinates": [
+    //                 -56.15522146224975,
+    //                 -34.87933008912137
+    //             ]
+    //         },
+    //         "time_sent": "2019-12-11T19:59:10.000Z",
+    //         "gufi": gufi,
+    //         "heading": 160
+    //     }
+    //     chai.request(app.app)
+    //         .post('/position')
+    //         .set('auth', token)
+    //         .send(positionToInsert)
+    //         .then(function (res) {
+    //             res.should.have.status(200);
+    //             res.body.should.have.property('id');
+    //             let opDao = new OperationDao()
+
+    //             opDao.one(gufi).then(function (op: any) {
+    //                 op.state.should.eq(OperationState.ROGUE)
+    //                 done();
+    //             }).catch(done)
+    //         })
+    //         .catch(done);
+    // });
+    // })
 
 
 
