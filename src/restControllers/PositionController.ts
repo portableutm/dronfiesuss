@@ -52,7 +52,7 @@ export class PositionController {
                         this.operationDao = new OperationDao();
                     }
                     //if position is not inside the associated operation then change operation status as ROUGE
-                    this.operationDao.updateState(gufi, OperationState.ROGUE)
+                    await this.operationDao.updateState(gufi, OperationState.ROGUE)
                     
                 } else {
                     // console.log("------------ Vuela ok")
@@ -60,7 +60,7 @@ export class PositionController {
 
                 //send information to web browser
                 sendOperationFlyStatus(inOperation)
-                console.log(`Send new position ${position}`)
+                // console.log(`Send new position ${position}`)
                 sendPositionToMonitor(position)
                 return response.json(position);
             }else {

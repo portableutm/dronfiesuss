@@ -19,20 +19,19 @@ export class  PositionDao{
     }
 
     async checkPositionWithOperation(position : Position){
-        console.log("")
         const result = 
         await getRepository(Operation)
         .createQueryBuilder("operation")
         .select("st_contains(operation_volume.\"operation_geography\" ,ST_GeomFromGeoJSON(:origin))", "inOperation")
         .innerJoin("operation.operation_volumes", "operation_volume")
         .where("operation.\"gufi\" = :gufi")
+        .andWhere("( CAST(:altitude as numeric) <@ numrange(operation_volume.\"min_altitude\", operation_volume.\"max_altitude\"))")
         .setParameters({
             gufi: position.gufi,
+            altitude : position.altitude_gps,
             origin: JSON.stringify(position.location)
         })
         .getRawOne();
-
-        console.log(result)
         return result
     }
 
