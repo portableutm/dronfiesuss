@@ -15,7 +15,7 @@ import { Operations } from "../../src/data/operations_data";
 import { OperationState } from "../../src/entities/Operation";
 import { OperationDao } from "../../src/daos/OperationDaos";
 
-describe.only('>>> Position entity <<< ', function () {
+describe('>>> Position entity <<< ', function () {
 
     before(function (done) {
         this.timeout(TEST_TIMEOUT);

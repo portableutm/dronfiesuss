@@ -22,15 +22,15 @@ export class  PositionDao{
         const result = 
         await getRepository(Operation)
         .createQueryBuilder("operation")
-        .select("st_contains(operation_volume.\"operation_geography\" ,ST_GeomFromGeoJSON(:origin))", "inOperation")
+        .select("st_contains(operation_volume.\"operation_geography\" ,ST_GeomFromGeoJSON(:origin)) AND ( CAST(:altitude as numeric) <@ numrange(operation_volume.\"min_altitude\", operation_volume.\"max_altitude\"))", "inOperation")
         .innerJoin("operation.operation_volumes", "operation_volume")
         .where("operation.\"gufi\" = :gufi")
-        .andWhere("( CAST(:altitude as numeric) <@ numrange(operation_volume.\"min_altitude\", operation_volume.\"max_altitude\"))")
         .setParameters({
             gufi: position.gufi,
             altitude : position.altitude_gps,
             origin: JSON.stringify(position.location)
         })
+        
         .getRawOne();
         return result
     }
