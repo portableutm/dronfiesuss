@@ -62,6 +62,8 @@ async function processProposed(operation: Operation) {
         // console.log(`Intersects is ${intersect}`)
         if (intersect) {
             return changeState(operation, OperationState.NOT_ACCEPTED)
+        } else if (await intersectsWithRestrictedFlightVolume(operation, operationVolume)) {
+            return changeState(operation, OperationState.PENDING)
         }
     }
     
@@ -92,15 +94,23 @@ async function checkIntersection(operation: Operation, operationVolume: Operatio
         let uvrCount = await uvrDao.countUvrIntersections(operationVolume)
         // console.log(`Count uvr ${uvrCount}`)
 
-        let rfvCount = await  rfvDao.countRfvIntersections(operationVolume)
+        // let rfvCount = await  rfvDao.countRfvIntersections(operationVolume)
         // console.log(`Count rfvCount ${rfvCount}`)
 
         // return operationsCount > 0 ;
-        return (operationsCount > 0) || (uvrCount > 0) || (rfvCount>0);
+        return (operationsCount > 0) || (uvrCount > 0) 
+        // || (rfvCount>0)
+        ;
     } catch (e) {
         console.log(e)
         return true //TODO throw exception
     }
+}
+
+async function intersectsWithRestrictedFlightVolume(operation: Operation, operationVolume: OperationVolume){
+    let rfvCount = await rfvDao.countRfvIntersections(operationVolume)
+    // if(rfvCount > 0) console.log(`****>>${rfvCount}::${operation.gufi}->${JSON.stringify(operationVolume.operation_geography)}`)
+    return (rfvCount > 0);
 }
 
 /**
