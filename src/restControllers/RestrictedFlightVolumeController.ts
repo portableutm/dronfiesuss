@@ -103,7 +103,7 @@ function getNextOperationState(operation: Operation) {
     let newState: OperationState = operation.state
     switch (operation.state) {
         case OperationState.PROPOSED:
-            newState = OperationState.CLOSED
+            newState = OperationState.PENDING
             break;
         // case OperationState.NOT_ACCEPTED:
         //     break;
