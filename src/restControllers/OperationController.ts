@@ -1,11 +1,12 @@
 import { NextFunction, Request, Response } from "express";
 import { OperationDao } from "../daos/OperationDaos";
-import { Role } from "../entities/User";
+import { Role, User } from "../entities/User";
 import { getPayloadFromResponse } from "../utils/authUtils";
 import { VehicleDao } from "../daos/VehicleDao";
 import { Operation, OperationState } from "../entities/Operation";
 import { validateStringDateIso, dateTimeStringFormat } from "../utils/validationUtils"
 import { UserDao } from "../daos/UserDaos";
+import { ApprovalDao } from "../daos/ApprovalDao";
 
 
 const MIN_MIN_ALTITUDE = -300
@@ -159,40 +160,59 @@ export class OperationController {
       }
 
     } catch (error) {
-      // response.status(400)
-      // return response.json(`Error with vehicle.`)
       errors.push(`The selected vehicle doesn't exists or you no are the owner.`)
     }
     request.body.creator = username
     request.body.state = OperationState.PROPOSED
 
-    /**
-     * interesccion con otras operaciones
-     * interseccion con UVR
-     */
-    // let op_vols = request.body.operation_volumes
-    // let error = false
-    // if (op_vols !== undefined) {
-    //   for (let index = 0; index < op_vols.length; index++) {
-    //     const element = op_vols[index];
-    //     let intersect = await this.checkIntersection(element)
-    //     if (intersect) {
-    //       error = true
-    //     }
-    //   }
-    // }
-    // console.log(errors)
     if (errors.length == 0) {
       return response.json(await this.dao.save(request.body));
     } else {
       response.status(400)
       return response.json(errors)
     }
-    // if (error) {
-    //   return response.json({ "Error": `The operation registrated intersect with an other operation` })
-    // } else {
-    //   return response.json(await this.dao.save(request.body)); 
-    // }
+  }
+
+  async acpetPendingOperation(request: Request, response: Response, next: NextFunction) {
+    let gufi = request.params.id
+    let comments = request.body.comments
+    let approved = request.body.approved
+
+    console.log(`Gufi::${gufi}, ->${JSON.stringify(request.body)}`)
+    try {
+      let { role, username } = getPayloadFromResponse(response)
+
+      if (role == Role.ADMIN) {
+        let newState = approved? OperationState.ACCEPTED : OperationState.CLOSED
+        // let result = await this.dao.updateStateWhereState(gufi, OperationState.PENDING, OperationState.ACCEPTED);
+        let result = await this.dao.updateStateWhereState(gufi, OperationState.PENDING, newState);
+        // console.log(`** Result of update:: ${JSON.stringify(result)}:: (result.affected)=${result.affected} && (result.affected == 1)=${result.affected == 1}`)
+        if ((result.affected) && (result.affected == 1)) {
+          let approval = await this.addNewAproval(username, gufi, comments, approved)
+          return response.json(approval);
+        }
+        else {
+          return response.sendStatus(404)
+        }
+
+      } else {
+        return response.sendStatus(401)
+      }
+    } catch (error) {
+      return response.sendStatus(404)
+    }
+  }
+
+  private async addNewAproval(username, operationGufi, comments, approved) {
+    let appr = {
+      user: {username},
+      operation: {gufi:operationGufi},
+      approved: approved,
+      comments: comments,
+    }
+    let approvalDao = new ApprovalDao()
+    let result = await approvalDao.save(appr)
+    return Object.assign(appr, result.raw[0])
   }
 
 
@@ -219,15 +239,6 @@ export class OperationController {
     return response.json({ count: ops.length, ops });
   }
 
-  // async checkIntersection(operationVolume) {
-  //   try {
-  //     let operationsCount = await this.dao.getOperationVolumeByVolumeCount(operationVolume)
-  //     return operationsCount > 0;
-  //   } catch (e) {
-  //     // console.log(e)
-  //     return true //TODO throw exception
-  //   }
-  // }
 
   /**
    * Remove an operation by gufi. If user is PILOT and is not the owner return 404

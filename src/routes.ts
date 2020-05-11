@@ -69,6 +69,13 @@ let operations = [
     action: "operationsByCreator",
     middlewares: [checkJwt]  
 },
+{
+    method: "post",
+    route: `/operation/:id/pendingtoaccept`,
+    controller: OperationController,
+    action: "acpetPendingOperation",
+    middlewares: [checkJwt]
+},
 ...doRoutes("operation", OperationController)]
 
 let user = [
