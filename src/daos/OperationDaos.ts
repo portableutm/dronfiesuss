@@ -179,6 +179,11 @@ export class OperationDao {
         return await this.repository.update(gufi, { state: state });
     }
 
+
+    async updateStateWhereState(gufi, oldState : OperationState,  state : OperationState) {
+        return await this.repository.update({gufi:gufi, state:oldState}, { state: state });
+    }
+
     
 
     async remove(id : number) {
