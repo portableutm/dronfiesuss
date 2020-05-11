@@ -15,6 +15,8 @@ import { Role } from "../../src/entities/User";
 import { OperationState, Operation } from "../../src/entities/Operation";
 import { TEST_TIMEOUT } from "../conf";
 import { OperationDao } from "../../src/daos/OperationDaos";
+import { ApprovalDao } from "../../src/daos/ApprovalDao";
+
 
 describe(' >>> Operation test <<< ', function () {
 
@@ -178,23 +180,65 @@ describe(' >>> Operation test <<< ', function () {
             op.operation_volumes[0].operation_geography = { "type": "Polygon", "coordinates": [[[-56.215668, -34.906628], [-56.212749, -34.912751], [-56.207514, -34.910429], [-56.210947, -34.904516], [-56.215668, -34.906628]]] }
 
             const opDao = new OperationDao();
+            const approvalDao = new ApprovalDao()
+
             opDao.save(op).then(function (op: any) {
                 chai.request(app.app)
-                    .get(`/operation/${newGufi}/pendingtoaccept`)
+                    .post(`/operation/${newGufi}/pendingtoaccept`)
                     .set('auth', token)
+                    .send({ comments:"", approved:true})
                     .set('Accept', 'application/json')
                     .then(function (res) {
                         res.should.have.status(200);
+                        console.log(res.body)
                         opDao.one(newGufi).then(function (op) {
                             op.state.should.eq(OperationState.ACCEPTED)
-                            done();
+                            approvalDao.one(res.body.id).then(function(app){
+                                app.operation.gufi.should.eq(newGufi)  
+                                // app.operation.gufi.should.eq()  
+                                // app.operation.gufi.should.eq(newGufi)  
+                                done();
+                            }).catch(done)
                         }).catch(done)
-                    })
-                    .catch(done)
+                    }).catch(done)
             }).catch(done)
         })
 
-        it("Should pass an operation in pending to accepted", function (done) {
+        it("Should pass an operation in pending to CLOSED", function (done) {
+            let token = getToken('admin@dronfies.com', 'admin', Role.ADMIN)
+            let op = deepCopy(Operations[0])
+            let newGufi = 'd835b903-a62d-4ccd-a711-d1ee49dd09a5'
+
+            op.gufi = newGufi
+            op.uas_registrations = []
+            op.flight_comments = "For automate Testing operation "
+            op.state = OperationState.PENDING
+            op.operation_volumes[0].operation_geography = {"type":"Polygon","coordinates":[[[-56.194038,-34.904657],[-56.193523,-34.908669],[-56.188545,-34.90698],[-56.188889,-34.902052],[-56.194038,-34.904657]]]}
+
+            const opDao = new OperationDao();
+            const approvalDao = new ApprovalDao()
+
+            opDao.save(op).then(function (op: any) {
+                chai.request(app.app)
+                    .post(`/operation/${newGufi}/pendingtoaccept`)
+                    .set('auth', token)
+                    .send({ comments:"", approved:false})
+                    .set('Accept', 'application/json')
+                    .then(function (res) {
+                        res.should.have.status(200);
+                        console.log(res.body)
+                        opDao.one(newGufi).then(function (op) {
+                            op.state.should.eq(OperationState.CLOSED)
+                            approvalDao.one(res.body.id).then(function(app){
+                                app.operation.gufi.should.eq(newGufi)  
+                                done();
+                            }).catch(done)
+                        }).catch(done)
+                    }).catch(done)
+            }).catch(done)
+        })
+
+        it("Should not accept operation beacause the sate was NOT_ACCPETED", function (done) {
             let token = getToken('admin@dronfies.com', 'admin', Role.ADMIN)
             let op = deepCopy(Operations[0])
             let newGufi = '9383cf4f-cf7f-4175-aaf4-aee42d23e6b4'
@@ -212,19 +256,16 @@ describe(' >>> Operation test <<< ', function () {
                     .set('auth', token)
                     .set('Accept', 'application/json')
                     .then(function (res) {
-                        res.should.have.status(200);
+                        console.log(res.body)
+                        res.should.have.status(404);
                         opDao.one(newGufi).then(function (op) {
-                            // op.state.should.eq(OperationState.ACCEPTED)
                             op.state.should.eq(OperationState.NOT_ACCEPTED)
                             done();
                         }).catch(done)
-                    })
-                    .catch(done)
+                    }).catch(done)
             }).catch(done)
-
-
-
         });
+
     })
 
     it("POST /operation should create a new operation", function (done) {
