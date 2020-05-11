@@ -174,7 +174,7 @@ describe('>>> Cron test <<<', function () {
             setTimeout(async function () {
                 console.log(`**** Ya paso tiempo ${op.gufi}`)
                     let newOp = await dao.one(op.gufi)
-                    newOp.state.should.equal(OperationState.NOT_ACCEPTED)
+                    newOp.state.should.equal(OperationState.PENDING)
                     done()
                 }, 1000)
 

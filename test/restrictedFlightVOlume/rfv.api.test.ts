@@ -25,7 +25,7 @@ describe('>>> Restricted Flight VOlume volume reservation entity <<< ', function
             .catch(done)
     })
 
-    it("GET /restrictedflightvolume should get all uvr records", function (done) {
+    it("GET /restrictedflightvolume should get all rfv records", function (done) {
         chai.request(app.app)
             .get('/restrictedflightvolume')
             .set('bypass', 'a')
@@ -133,7 +133,7 @@ describe('>>> Restricted Flight VOlume volume reservation entity <<< ', function
                     res.body.should.be.a('object')
                     res.body.should.have.property("id")
                     opDao.one(gufi1).then(function (op) {
-                        op.should.have.property('state').equal(OperationState.CLOSED);
+                        op.should.have.property('state').equal(OperationState.PENDING);
                             done();
                     }).catch(done)
                 })

@@ -13,7 +13,8 @@ import { deepCopy } from "../../src/utils/entitiesUtils";
 import { app, initAsync } from "../../src/index";
 import { Role } from "../../src/entities/User";
 import { OperationState, Operation } from "../../src/entities/Operation";
-import { TEST_TIMEOUT } from "../conf"; 
+import { TEST_TIMEOUT } from "../conf";
+import { OperationDao } from "../../src/daos/OperationDaos";
 
 describe(' >>> Operation test <<< ', function () {
 
@@ -164,14 +165,75 @@ describe(' >>> Operation test <<< ', function () {
             .catch(done)
     });
 
+    describe.only("Pending operations", function () {
+        it("Should pass an operation in pending to accepted", function (done) {
+            let token = getToken('admin@dronfies.com', 'admin', Role.ADMIN)
+            let op = deepCopy(Operations[0])
+            let newGufi = '6703cf4f-cf7f-4175-aaf4-aee02d59f3a3'
+
+            op.gufi = newGufi
+            op.uas_registrations = []
+            op.flight_comments = "For automate Testing operation "
+            op.state = OperationState.PENDING
+            op.operation_volumes[0].operation_geography = { "type": "Polygon", "coordinates": [[[-56.215668, -34.906628], [-56.212749, -34.912751], [-56.207514, -34.910429], [-56.210947, -34.904516], [-56.215668, -34.906628]]] }
+
+            const opDao = new OperationDao();
+            opDao.save(op).then(function (op: any) {
+                chai.request(app.app)
+                    .get(`/operation/${newGufi}/pendingtoaccept`)
+                    .set('auth', token)
+                    .set('Accept', 'application/json')
+                    .then(function (res) {
+                        res.should.have.status(200);
+                        opDao.one(newGufi).then(function (op) {
+                            op.state.should.eq(OperationState.ACCEPTED)
+                            done();
+                        }).catch(done)
+                    })
+                    .catch(done)
+            }).catch(done)
+        })
+
+        it("Should pass an operation in pending to accepted", function (done) {
+            let token = getToken('admin@dronfies.com', 'admin', Role.ADMIN)
+            let op = deepCopy(Operations[0])
+            let newGufi = '9383cf4f-cf7f-4175-aaf4-aee42d23e6b4'
+
+            op.gufi = newGufi
+            op.uas_registrations = []
+            op.flight_comments = "For automate Testing operation "
+            op.state = OperationState.NOT_ACCEPTED
+            op.operation_volumes[0].operation_geography = { "type": "Polygon", "coordinates": [[[-56.215668, -34.906628], [-56.212749, -34.912751], [-56.207514, -34.910429], [-56.210947, -34.904516], [-56.215668, -34.906628]]] }
+
+            const opDao = new OperationDao();
+            opDao.save(op).then(function (op: any) {
+                chai.request(app.app)
+                    .get(`/operation/${newGufi}/pendingtoaccept`)
+                    .set('auth', token)
+                    .set('Accept', 'application/json')
+                    .then(function (res) {
+                        res.should.have.status(200);
+                        opDao.one(newGufi).then(function (op) {
+                            // op.state.should.eq(OperationState.ACCEPTED)
+                            op.state.should.eq(OperationState.NOT_ACCEPTED)
+                            done();
+                        }).catch(done)
+                    })
+                    .catch(done)
+            }).catch(done)
+
+
+
+        });
+    })
+
     it("POST /operation should create a new operation", function (done) {
         let token = getToken('trula@dronfies.com', 'TrulaRemon', Role.PILOT)
         let op = deepCopy(Operations[0])
-        // let opt : Operation = {}
+        delete op.gufi
         op.uas_registrations = []
         op.flight_comments = "For automate Testing operation "
         op.state = OperationState.PROPOSED
-
         op.operation_volumes[0].operation_geography = { "type": "Polygon", "coordinates": [[[-56.16193771362305, -34.90275631306831], [-56.161251068115234, -34.90662777287992], [-56.154985427856445, -34.906486995721075], [-56.155757904052734, -34.90233396095623], [-56.16193771362305, -34.90275631306831]]] }
 
         // let gufi = 'b92c7431-13c4-4c6c-9b4a-1c3c8eec8c63'
@@ -192,6 +254,7 @@ describe(' >>> Operation test <<< ', function () {
     it("POST /operation should not create a new operation when passing invalid vehicle", function (done) {
         let token = getToken('trula@dronfies.com', 'TrulaRemon', Role.PILOT)
         let op = deepCopy(Operations[0])
+        delete op.gufi
         // let opt : Operation = {}
         // opt.state
         // op.uas_registrations = []
@@ -218,6 +281,7 @@ describe(' >>> Operation test <<< ', function () {
         it("POST /operation should not create a new operation when passing invalid operation volume", function (done) {
             let token = getToken('trula@dronfies.com', 'TrulaRemon', Role.PILOT)
             let op = deepCopy(Operations[0])
+            delete op.gufi
             op.operation_volumes = []
             op.flight_comments = "For automate Testing operation "
             op.state = OperationState.PROPOSED
@@ -236,6 +300,7 @@ describe(' >>> Operation test <<< ', function () {
         it("POST /operation should not create a new operation when passing invalid min (min) altitude", function (done) {
             let token = getToken('trula@dronfies.com', 'TrulaRemon', Role.PILOT)
             let op: Operation = deepCopy(Operations[0])
+            delete op.gufi
             op.operation_volumes[0].min_altitude = -500
             op.flight_comments = "For automate Testing operation "
             op.operation_volumes[0].operation_geography = { "type": "Polygon", "coordinates": [[[-56.16193771362305, -34.90275631306831], [-56.161251068115234, -34.90662777287992], [-56.154985427856445, -34.906486995721075], [-56.155757904052734, -34.90233396095623], [-56.16193771362305, -34.90275631306831]]] }
@@ -256,6 +321,7 @@ describe(' >>> Operation test <<< ', function () {
         it("POST /operation should not create a new operation when passing invalid min (max) altitude", function (done) {
             let token = getToken('trula@dronfies.com', 'TrulaRemon', Role.PILOT)
             let op: Operation = deepCopy(Operations[0])
+            delete op.gufi
             op.operation_volumes[0].min_altitude = 20
             op.flight_comments = "For automate Testing operation "
             op.operation_volumes[0].operation_geography = { "type": "Polygon", "coordinates": [[[-56.16193771362305, -34.90275631306831], [-56.161251068115234, -34.90662777287992], [-56.154985427856445, -34.906486995721075], [-56.155757904052734, -34.90233396095623], [-56.16193771362305, -34.90275631306831]]] }
@@ -295,6 +361,7 @@ describe(' >>> Operation test <<< ', function () {
         it("POST /operation should not create a new operation when passing invalid max (max) altitude", function (done) {
             let token = getToken('trula@dronfies.com', 'TrulaRemon', Role.PILOT)
             let op: Operation = deepCopy(Operations[0])
+            delete op.gufi
             op.operation_volumes[0].max_altitude = 401
             op.flight_comments = "For automate Testing operation "
             op.operation_volumes[0].operation_geography = { "type": "Polygon", "coordinates": [[[-56.16193771362305, -34.90275631306831], [-56.161251068115234, -34.90662777287992], [-56.154985427856445, -34.906486995721075], [-56.155757904052734, -34.90233396095623], [-56.16193771362305, -34.90275631306831]]] }
@@ -314,6 +381,7 @@ describe(' >>> Operation test <<< ', function () {
         it("POST /operation should not create a new operation when passing invalid effective_time_begin format", function (done) {
             let token = getToken('trula@dronfies.com', 'TrulaRemon', Role.PILOT)
             let op: Operation = deepCopy(Operations[0])
+            delete op.gufi
             // op.operation_volumes[0].effective_time_begin = "2020-01-02T20:20:20.000Z" //valid example
             op.operation_volumes[0].effective_time_begin = "2020-01-02T20:20:20.000"
             op.operation_volumes[0].effective_time_end = "2020-01-02T21:20:20.000Z"
@@ -335,6 +403,7 @@ describe(' >>> Operation test <<< ', function () {
         it("POST /operation should not create a new operation when passing invalid effective_time_end format", function (done) {
             let token = getToken('trula@dronfies.com', 'TrulaRemon', Role.PILOT)
             let op: Operation = deepCopy(Operations[0])
+            delete op.gufi
             // op.operation_volumes[0].effective_time_begin = "2020-01-02T20:20:20.000Z" //valid example
             op.operation_volumes[0].effective_time_begin = "2020-01-02T20:20:20.000Z"
             op.operation_volumes[0].effective_time_end = "2020-01-02T21:20:20.000"
@@ -356,6 +425,7 @@ describe(' >>> Operation test <<< ', function () {
         it("POST /operation should not create a new operation when passing invalid date range effective_time_end lower than effective_time_begin", function (done) {
             let token = getToken('trula@dronfies.com', 'TrulaRemon', Role.PILOT)
             let op: Operation = deepCopy(Operations[0])
+            delete op.gufi
             // op.operation_volumes[0].effective_time_begin = "2020-01-02T20:20:20.000Z" //valid example
             op.operation_volumes[0].effective_time_begin = "2020-01-02T21:20:20.000Z"
             op.operation_volumes[0].effective_time_end = "2020-01-02T20:20:20.000Z"
@@ -377,6 +447,7 @@ describe(' >>> Operation test <<< ', function () {
         it("POST /operation should not create a new operation when passing invalid short date range", function (done) {
             let token = getToken('trula@dronfies.com', 'TrulaRemon', Role.PILOT)
             let op: Operation = deepCopy(Operations[0])
+            delete op.gufi
             // op.operation_volumes[0].effective_time_begin = "2020-01-02T20:20:20.000Z" //valid example
             op.operation_volumes[0].effective_time_begin = "2020-01-02T20:20:20.000Z"
             op.operation_volumes[0].effective_time_end = "2020-01-02T20:30:20.000Z"
@@ -398,6 +469,7 @@ describe(' >>> Operation test <<< ', function () {
         it("POST /operation should not create a new operation when passing invalid large date range", function (done) {
             let token = getToken('trula@dronfies.com', 'TrulaRemon', Role.PILOT)
             let op: Operation = deepCopy(Operations[0])
+            delete op.gufi
             // op.operation_volumes[0].effective_time_begin = "2020-01-02T20:20:20.000Z" //valid example
             op.operation_volumes[0].effective_time_begin = "2020-01-02T15:00:20.000Z"
             op.operation_volumes[0].effective_time_end = "2020-01-02T20:30:20.000Z"
