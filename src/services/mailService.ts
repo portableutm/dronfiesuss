@@ -29,8 +29,8 @@ export function verifyServer() {
 export async function sendTestMail() {
     
     let info = await transporter.sendMail({
-        from: `"Lenemy" <${username}>`, 
-        to: "jjcetraro@gmail.com, ealonzo@dronfies.com", 
+        from: `"Portable Utm" <${username}>`, 
+        to: "ealonzo@dronfies.com", 
         subject: "Hello ✔",
         text: "Hello world? 👻", 
         html: "<b>Hello world? 👻</b>" 
@@ -43,7 +43,7 @@ export async function sendTestMail() {
 
 export async function sendMail(to:String[], subject:String, text:String, html:String) {
 let info = await transporter.sendMail({
-        from: `"Lenemy" <${username}>`, 
+        from: `"Portable UTM" <${username}>`, 
         to: to, 
         subject: subject, 
         text: text, 
