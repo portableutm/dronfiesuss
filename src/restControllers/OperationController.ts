@@ -307,10 +307,11 @@ function validateOperation(operation: any) {
       } else
         if (difference < MIN_TIME_INTERVAL) {
           errors.push(`The time interval must be greater than ${MIN_TIME_INTERVAL / 60 / 1000} min and is ${difference / 60 / 1000} min`)
-        } else
-          if (difference > MAX_TIME_INTERVAL) {
-            errors.push(`The time interval must be lower than ${MAX_TIME_INTERVAL / 60 / 1000 / 60} hours and is ${roundWithDecimals(difference / 60 / 1000 / 60)} hours`)
-          }
+        } 
+    //     else
+    //       if (difference > MAX_TIME_INTERVAL) {
+    //         errors.push(`The time interval must be lower than ${MAX_TIME_INTERVAL / 60 / 1000 / 60} hours and is ${roundWithDecimals(difference / 60 / 1000 / 60)} hours`)
+    //       }
     }
   }
   return errors
