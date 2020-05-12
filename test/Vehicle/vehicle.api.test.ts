@@ -51,6 +51,9 @@ describe('>>> Vehicle entity <<< ', function () {
     });
 
     it("should insert a new vehicle", function (done) {
+        let username = 'MaurineFowlie'
+        let token = getToken('maurine@dronfies.com',  username, Role.PILOT)
+
         let vehicleCountPreInsert = 9 // from data // vehicles.length
         let dao = new VehicleDao()
         // let vehicles = await dao.all()
@@ -64,22 +67,26 @@ describe('>>> Vehicle entity <<< ', function () {
             "accessType": "",
             "vehicleTypeId": "",
             "org-uuid": "",
-            "registeredBy": "admin"
+            "registeredBy": ""
         }
         chai.request(app.app)
             .post('/vehicle')
-            .set('bypass', 'a')
+            .set('auth', token)
             .send(vehicleToInsert)
             .then(function (res) {
                 res.should.have.status(200);
                 res.body.should.have.property('uvin');
-                dao.all().then(function(vehicles){
+                let uvin = res.body.uvin
+                dao.all()
+                .then(function(vehicles){
                     vehicles.length.should.be.eq(vehicleCountPreInsert+1)
-                    done();
-                })
-                .catch(done)
-            })
-            .catch(done);
+                    dao.one(uvin)
+                    .then(function(vehicle){
+                        vehicle.registeredBy.username.should.eq(username)
+                        done();
+                    }).catch(done)
+                }).catch(done)
+            }).catch(done);
     });
     
 

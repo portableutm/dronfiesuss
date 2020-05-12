@@ -167,7 +167,7 @@ describe(' >>> Operation test <<< ', function () {
             .catch(done)
     });
 
-    describe.only("Pending operations", function () {
+    describe("Pending operations", function () {
         it("Should pass an operation in pending to accepted", function (done) {
             let token = getToken('admin@dronfies.com', 'admin', Role.ADMIN)
             let op = deepCopy(Operations[0])
