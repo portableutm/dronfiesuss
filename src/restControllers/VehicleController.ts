@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { VehicleDao } from "../daos/VehicleDao";
-import {  } from "../daos/UserDaos";
+import { UserDao } from "../daos/UserDaos";
 import { VehicleReg } from "../entities/VehicleReg";
 import { Role } from "../entities/User";
 import { getPayloadFromResponse } from "../utils/authUtils";
@@ -20,9 +20,9 @@ export class VehicleController {
         let { role, username } = getPayloadFromResponse(response)
         let vehicles
         if (role == Role.ADMIN) {
-             vehicles = await this.dao.all();
+            vehicles = await this.dao.all();
         } else {
-             vehicles = await this.dao.allByUser(username);
+            vehicles = await this.dao.allByUser(username);
             // return response.sendStatus(401)
         }
         return response.json(vehicles)
@@ -73,10 +73,15 @@ export class VehicleController {
      * @param next 
      */
     async save(request: Request, response: Response, next: NextFunction) {
-        let v: VehicleReg = await this.dao.save(request.body);
+        let { role, username } = getPayloadFromResponse(response)
+        // let v: VehicleReg = await this.dao.save(request.body);
+        let v  = request.body //: VehicleReg = await this.dao.save(request.body);
+
         v.date = undefined
+        v.registeredBy = {username:username}
         let errors = validateVehicle(v)
         if (errors.length == 0) {
+            //insert vehicle
             let insertedVehicle = await this.dao.save(v)
             return response.json(insertedVehicle);
         } else {
