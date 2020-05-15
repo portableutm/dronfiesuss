@@ -12,6 +12,7 @@ function send(topic, object){
 
 }
 
+
 export function sendPositionToMonitor(position ){
     // app.io.emit('new-position', position)
     return send('new-position', position)
@@ -20,6 +21,11 @@ export function sendPositionToMonitor(position ){
 export function sendOperationFlyStatus(inOperation ){
     // app.io.emit('position-status', inOperation)
     return send('position-status', inOperation)
+}
+
+export function sendOpertationStateChange(operationInfo){
+    // app.io.emit('position-status', inOperation)
+    return send('operation-state-change', operationInfo)
 }
 
 
