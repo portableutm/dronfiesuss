@@ -8,6 +8,8 @@ import { validateStringDateIso, dateTimeStringFormat } from "../utils/validation
 import { UserDao } from "../daos/UserDaos";
 import { ApprovalDao } from "../daos/ApprovalDao";
 
+import { sendOpertationStateChange } from "../services/asyncBrowserComunication";
+
 
 const MIN_MIN_ALTITUDE = -300
 const MAX_MIN_ALTITUDE = 0
@@ -186,6 +188,10 @@ export class OperationController {
         let newState = approved? OperationState.ACCEPTED : OperationState.CLOSED
         // let result = await this.dao.updateStateWhereState(gufi, OperationState.PENDING, OperationState.ACCEPTED);
         let result = await this.dao.updateStateWhereState(gufi, OperationState.PENDING, newState);
+        changeState({
+          gufi: gufi,
+          state: newState
+        })
         // console.log(`** Result of update:: ${JSON.stringify(result)}:: (result.affected)=${result.affected} && (result.affected == 1)=${result.affected == 1}`)
         if ((result.affected) && (result.affected == 1)) {
           let approval = await this.addNewAproval(username, gufi, comments, approved)
@@ -319,4 +325,8 @@ function validateOperation(operation: any) {
 
 function roundWithDecimals(num) {
   return Math.round(num * 100) / 100
+}
+
+function changeState(operationInfo){
+  sendOpertationStateChange(operationInfo)
 }

@@ -4,6 +4,7 @@ import { getNow } from "./dateTimeService";
 import { OperationVolume } from "../entities/OperationVolume";
 import { UASVolumeReservationDao } from "../daos/UASVolumeReservationDao";
 import { RestrictedFlightVolumeDao } from "../daos/RestrictedFlightVolumeDao";
+import { sendOpertationStateChange } from "./asyncBrowserComunication";
 
 let operationDao: OperationDao;
 let uvrDao: UASVolumeReservationDao;
@@ -183,5 +184,15 @@ function processRouge(operation: Operation) {
 async function changeState(operation: Operation, newState: OperationState) {
     // console.log(`Change the state of ${operation.gufi} from ${operation.state} to ${newState}`)
     operation.state = newState
-    return await operationDao.save(operation)
+
+    let result = await operationDao.save(operation)
+    let operationInfo = {
+        gufi : operation.gufi,
+        state : newState
+    }
+    sendOpertationStateChange(operationInfo)
+    return result
 }
+
+
+  
