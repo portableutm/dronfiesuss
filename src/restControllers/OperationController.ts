@@ -9,6 +9,7 @@ import { UserDao } from "../daos/UserDaos";
 import { ApprovalDao } from "../daos/ApprovalDao";
 
 import { sendOpertationStateChange } from "../services/asyncBrowserComunication";
+import { OperationVolume } from "../entities/OperationVolume";
 
 
 const MIN_MIN_ALTITUDE = -300
@@ -285,6 +286,12 @@ function validateOperation(operation: any) {
   } else {
     for (let index = 0; index < op.operation_volumes.length; index++) {
       const element = op.operation_volumes[index];
+      
+      var firstItem = element.operation_geography.coordinates[0];
+      var lastItem = element.operation_geography.coordinates[element.operation_geography.coordinates.length-1];
+      if(firstItem != lastItem){
+        errors.push(`Invalid polygon`)
+      }
       if (!(element.min_altitude >= MIN_MIN_ALTITUDE)) {
         errors.push(`Min altitude must be greater than ${MIN_MIN_ALTITUDE} and is ${element.min_altitude}`)
       }
