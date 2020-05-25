@@ -1,5 +1,9 @@
+[![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-v2.0%20adopted-ff69b4.svg)](code_of_conduct.md) 
+ 
+
 # Dronfies USS api
 This is a node project to manage drones operations correctly.
+
 
 
 ## Steps to run this project:
@@ -43,4 +47,5 @@ subscriber -> Subscribers files for TypeOrm
 
 Key Links:
  * [License](LICENSE)
+ * [Code of conduct](code_of_conduct.md) 
  
