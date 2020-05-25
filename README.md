@@ -39,3 +39,7 @@ routes.ts
 services 
 subscriber -> Subscribers files for TypeOrm
 ```
+
+
+Key Links:
+ * [License](/LICENCE)

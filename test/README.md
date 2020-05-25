@@ -1,7 +1,7 @@
 # Tools
-To test we use mocha as a test runner
-Chai for assertions.
-nyc and coverall as a coverage tool
+To test we use mocha [Mocha](https://mochajs.org/) as a test runner
+[Chai](https://www.chaijs.com/) for assertions.
+[Istanbul](https://istanbul.js.org/) as a coverage tool
 
 
 # About
