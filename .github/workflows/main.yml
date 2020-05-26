@@ -29,6 +29,8 @@ jobs:
 
     - name: Build the stack
       run: docker-compose up -d
+    
+    - run: sleep 10
 
     - name: run app
       run: npm run test
