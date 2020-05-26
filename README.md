@@ -70,7 +70,9 @@ utils -> Various utility files
 ```
 
 ## How to contribute 
-To contribute we are accpeting pull request, you can follow de [next guide](https://help.github.com/en/github/collaborating-with-issues-and-pull-requests/creating-a-pull-request)
+To contribute we are accepting pull request, you can follow de [next guide](https://help.github.com/en/github/collaborating-with-issues-and-pull-requests/creating-a-pull-request).
+
+To know more about the roadmap and needs please contact info@dronfies.com
 
 ### How to add a new entity and a dao?
 To add a new entity and a dao, follow the guidelines of typeorm:
