@@ -15,36 +15,53 @@ The API is the main interfaz to interact with UTM data. It supports both the mon
 ## Dependencies
  * [Node](https://nodejs.org/es/) 
  * [Postgres](https://www.postgresql.org/) 
+ * [Postigs](https://postgis.net/)
  * [Docker](https://www.docker.com/) (optional for dev)
 
 
-## Steps to run this project:
-To run the project you need install dependencies with `npm install` and you need to have a **postgis** database. The parameters of connection are located on **ormconfig.json**. To simplify the process you can use **docker-compose**. With `docker-compose up` will start the containers. Only the first time you will need cerate the test and install the postgis extension database running the script `docker-compose run postgres bash /scripts/test_database.bash` (it's important that the docker containers are running to run this command). Finally to start the app type `npm start`
+## Initial setup 
+
+### .env file
+In the repository there is a sample.env file that you should copy and rename to `.env` and modify some parameters:
+The `DATABASE_CONNECTION_NAME` indicates which connection to use from those exposed in` ormconfig.json`.
+The `JWTSECRET` is used to encrypt the jwt token
+The `JWT_EXPIRATION_TIME` is used to determine how long the generated jwt token will last.
+The `SMTP_URL`,` SMTP_USERNAME` and `SMTP_PASSWORD` are used to configure the sending of emails with SMTP protocol.
+
+### TL;DR
 
 ``` shell
 npm install #only first time
 docker-compose up
 docker-compose run postgres bash /scripts/test_database.bash #only first time
-npm start
+npm run dev
 ```
+
+### Database configuration
+The database used is Postgres with the Postgis extension. This requires having an instance running either locally or externally and configuring it correctly in the `ormconfig.json` file. On the other hand, it is possible to configure the database with Docker. To leave the docker instance running you need to run `docker-compose up`. Also if you want to have an extra exclusive database for tests run the script `docker-compose run postgres bash / scripts / test_database.bash`
+
+
+### ormconfig.json file
+The `ormconfig.json` file details the database configuration parameters. Details of the connections parameters can be obtained on [Connection Options](https://typeorm.io/#/connection-options/what-is-connectionoptions)
+
 
 ## Importants files of root directory
 ```
 docker-compose.yml -> Configuration file for docker-compose
-entitiesGenerator.ts -> Entities generator from swagger files
 ormconfig.json -> Configuration file for TypeOrm
 package.json -> Project configuration file
 tsconfig.json -> Configuration file for typeScript
 app.ts -> main app file
 index.ts -> entry point for app
 routes.ts -> Route file to assign controllers to urls
+sample.env -> Sample file copy and rename as .env to configure environments files
 ```
 
 ## Importants folders of src
 ```
 config -> Config files
 daos -> Daos folder
-data -> Entities data used on databaseInit to populate DB
+data -> Entities data used on databaseInit to populate DB for testing 
 entities -> Entities folder
 middleware -> Middlewares for express (https://expressjs.com/en/guide/writing-middleware.html)
 restControllers -> Rest controllers folder
@@ -52,8 +69,30 @@ services -> external services
 utils -> Various utility files
 ```
 
+## How to contribute 
+To contribute we are accpeting pull request, you can follow de [next guide](https://help.github.com/en/github/collaborating-with-issues-and-pull-requests/creating-a-pull-request)
 
-## Key Links:
+### How to add a new entity and a dao?
+To add a new entity and a dao, follow the guidelines of typeorm:
+   * https://typeorm.io/#/entities
+   * https://typeorm.io/#/working-with-repository
+
+### How to add a new rest controller
+ To add a new rest controller you have to add a class that has asynchronous methods that have the parameters `Request`,` Response` and `NextFunction`. In addition, each method in the class must be assigned a route in the `routes.ts` file.
+   * add a method `async methodName(request: Request, response: Response, next: NextFunction)`
+   * assign a route to the method
+
+```javascript
+{
+    method: "get", //name of http method
+    route: `/operation/creator`, //url
+    controller: OperationController, //name of class 
+    action: "operationsByCreator", //name of method 
+    middlewares: [checkJwt]   // name of needed middleware
+}
+```
+
+## Key Links
  * [License](LICENSE)
  * [Code of conduct](code_of_conduct.md) 
- 
+ * [Testing] (test)
