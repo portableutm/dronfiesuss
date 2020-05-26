@@ -1,7 +1,7 @@
 # Tools
-To test we use mocha [Mocha](https://mochajs.org/) as a test runner
-[Chai](https://www.chaijs.com/) for assertions.
-[Istanbul](https://istanbul.js.org/) as a coverage tool
+- To test we use mocha [Mocha](https://mochajs.org/) as a test runner
+- [Chai](https://www.chaijs.com/) for assertions.
+- [Istanbul](https://istanbul.js.org/) as a coverage tool
 
 ## How to run test
 To run test you must have installed all dependencies (`npm install`). 
