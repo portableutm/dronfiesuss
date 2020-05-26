@@ -95,4 +95,4 @@ To add a new entity and a dao, follow the guidelines of typeorm:
 ## Key Links
  * [License](LICENSE)
  * [Code of conduct](code_of_conduct.md) 
- * [Testing] (test)
+ * [Testing](test)
