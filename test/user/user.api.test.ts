@@ -7,11 +7,8 @@ chai.should();
 
 import { UserDao } from "../../src/daos/UserDaos";
 import { app, initAsync } from "../../src/index";
-
 import { User, Role } from "../../src/entities/User";
 
-
-import * as request from 'supertest';
 import { getToken } from "../../src/services/tokenService";
 import { Status } from "../../src/entities/UserStatus";
 
@@ -27,31 +24,37 @@ describe('>>> User rest controller test <<<', function () {
     })
 
     it("GET /user Should get all users", function (done) {
-        request(app.app)
+        chai.request(app.app)
             .get('/user')
             .set('bypass', 'a')
             .set('Accept', 'application/json')
-            .expect('Content-Type', /json/)
-            .expect(function (res) {
+            .end((err, res) => {
+                res.should.have.status(200);
                 res.body.length.should.be.eq(12)
-            })
-            .expect(200, done)
+                done();
+            });
     });
 
     it("GET /user Should not get all users for anonymus user", function (done) {
-        request(app.app)
+        chai.request(app.app)
             .get('/user')
             .set('Accept', 'application/json')
-            .expect(401, done)
+            .end((err, res) => {
+                res.should.have.status(401);
+                done();
+            });
     });
 
     it("GET /user Should not get all users for non ADMIN user", function (done) {
         let token = getToken('maurine@dronfies.com', 'MaurineFowlie', Role.PILOT)
-        request(app.app)
+        chai.request(app.app)
             .get('/user')
             .set('Accept', 'application/json')
             .set('auth', token)
-            .expect(401, done)
+            .end((err, res) => {
+                res.should.have.status(401);
+                done();
+            });
     });
 
     it("GET /user Should get all users", function (done) {
@@ -80,21 +83,17 @@ describe('>>> User rest controller test <<<', function () {
                 role: Role.ADMIN
             }
 
-            request(app.app)
+            chai.request(app.app)
                 .post('/user')
                 .set('bypass', 'a')
                 .set('Accept', 'application/json')
-                .expect('Content-Type', /json/)
                 .send(user)
-                .expect(function (res) {
+                .then(res => {
                     res.body.should.have.property('username').equal(user.username);
                     res.body.should.have.property('email').equal(user.email);
                     res.body.should.have.property('firstName').equal(user.firstName);
                     res.body.should.have.property('lastName').equal(user.lastName);
                     res.body.should.have.property('role').equal(user.role);
-
-                })
-                .then(res => {
                     dao.all().then(function (newUsers) {
                         assert.equal(newUsers.length, CountPreInsert + 1)
                         done();
@@ -126,19 +125,11 @@ describe('>>> User rest controller test <<<', function () {
             }
             let token = getToken('maurine@dronfies.com', 'MaurineFowlie', Role.PILOT)
 
-            request(app.app)
+            chai.request(app.app)
                 .post('/user')
                 .set('auth', token)
                 .set('Accept', 'application/json')
-                // .expect('Content-Type', /json/)
                 .send(user)
-                // .expect(function (res) {
-                // res.body.should.have.property('username').equal(user.username);
-                // res.body.should.have.property('email').equal(user.email);
-                // res.body.should.have.property('firstName').equal(user.firstName);
-                // res.body.should.have.property('lastName').equal(user.lastName);
-                // res.body.should.have.property('role').equal(user.role);
-                // })
                 .then(res => {
                     res.should.have.status(401);
                     dao.all().then(function (newUsers) {
@@ -171,11 +162,10 @@ describe('>>> User rest controller test <<<', function () {
                 role: Role.PILOT
             }
 
-            request(app.app)
+            chai.request(app.app)
                 .post('/user')
                 .set('bypass', 'a')
                 .set('Accept', 'application/json')
-                .expect('Content-Type', /json/)
                 .send(user)
                 .then(res => {
                     res.should.have.status(400);
@@ -208,11 +198,10 @@ describe('>>> User rest controller test <<<', function () {
                 role: Role.PILOT
             }
 
-            request(app.app)
+            chai.request(app.app)
                 .post('/user')
                 .set('bypass', 'a')
                 .set('Accept', 'application/json')
-                .expect('Content-Type', /json/)
                 .send(user)
                 .then(res => {
                     res.should.have.status(400);
@@ -319,20 +308,11 @@ describe('>>> User rest controller test <<<', function () {
             let dao = new UserDao()
             dao.all().then(function (users) {
                 let CountPreInsert = users.length
-                // let user: User = {
-                //     username: "wakawaka",
-                //     email: `admin@dronfies.com`,
-                //     firstName: `NewName`,
-                //     lastName: `NewLastName`,
-                //     password: `password`,
-                //     role: Role.PILOT
-                // }
 
-                request(app.app)
+                chai.request(app.app)
                     .post('/user')
                     .set('bypass', 'a')
                     .set('Accept', 'application/json')
-                    .expect('Content-Type', /json/)
                     .send(user)
                     .then(res => {
                         res.should.have.status(400);
@@ -393,11 +373,6 @@ describe('>>> User rest controller test <<<', function () {
                     .set('auth', token)
                     .then(res => {
                         res.should.have.status(401);
-                        // res.body.should.have.property('username').equal(user.username);
-                        // res.body.should.have.property('email').equal(user.email);
-                        // res.body.should.have.property('firstName').equal(user.firstName);
-                        // res.body.should.have.property('lastName').equal(user.lastName);
-                        // res.body.should.have.property('role').equal(user.role);
                         done()
 
                     })
@@ -491,10 +466,6 @@ describe('>>> User rest controller test <<<', function () {
                         .then(status => {
                             console.log(`Get the status ${JSON.stringify(status)}`)
                             status.should.have.property("status").equal(Status.UNCONFIRMED)
-                            // let confirmJson = {
-                            //     id: user.username,
-                            //     token: status.token
-                            // }
 
                             let confirmJson = {
                                 username: "unconfirmedTestUser",
@@ -521,53 +492,6 @@ describe('>>> User rest controller test <<<', function () {
                         }).catch(done)
                 }).catch(done)
             });
-
-
-
-        // it("POST /user Should create a new user with status UNCONFIRMED", function (done) {
-        //     let dao = new UserDao()
-        //     dao.all().then(function (users) {
-        //         let CountPreInsert = users.length
-        //         let user: User = {
-        //             username: "unconfirmedTestUser",
-        //             email: `unconfirmedTestUser@dronfies.com`,
-        //             firstName: `unconfirmedTestUser`,
-        //             lastName: `unconfirmedTestUser`,
-        //             password: `unconfirmedTestUser`,
-        //             role: Role.PILOT
-        //         }
-
-        //         chai.request(app.app)
-        //             .post('/user/register')
-        //             .set('bypass', 'a')
-        //             .set('Accept', 'application/json')
-        //             .send(user)
-        //             .then(res => {
-        //                 res.body.should.have.property('username').equal(user.username);
-        //                 res.body.should.have.property('email').equal(user.email);
-        //                 res.body.should.have.property('firstName').equal(user.firstName);
-        //                 res.body.should.have.property('lastName').equal(user.lastName);
-        //                 res.body.should.have.property('role').equal(Role.PILOT);
-
-        //                 dao.all().then(function (newUsers) {
-        //                     assert.equal(newUsers.length, CountPreInsert+1)
-        //                     dao.one(user.username).then(function(newUser){
-        //                         newUser.should.have.property("status").equal(Status.UNCONFIRMED)
-        //                     })
-        //                     done();
-        //                 }).catch(err => {
-        //                     console.error(err);
-        //                     done(err);
-        //                 });
-
-        //             })
-        //             .catch(err => {
-        //                 console.error(err);
-        //                 done(err);
-        //             });
-
-        //     })
-        // });
 
     })
 
