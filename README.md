@@ -19,7 +19,7 @@ The API is the main interfaz to interact with UTM data. It supports both the mon
  * [Docker](https://www.docker.com/) (optional for dev)
 
 
-## Initial setup 
+## Setup
 
 ### .env file
 In the repository there is a sample.env file that you should copy and rename to `.env` and modify some parameters:
@@ -27,6 +27,18 @@ The `DATABASE_CONNECTION_NAME` indicates which connection to use from those expo
 The `JWTSECRET` is used to encrypt the jwt token
 The `JWT_EXPIRATION_TIME` is used to determine how long the generated jwt token will last.
 The `SMTP_URL`,` SMTP_USERNAME` and `SMTP_PASSWORD` are used to configure the sending of emails with SMTP protocol.
+
+### Deploy
+* Download the two repositories: dronfiesuss and webapp.
+* If you don’t have npm installed, install npm.
+* Run the command “npm install” in both projects.
+* Create the database:
+* Install PostgreSQL (v11) and PostGIS (v3) on your computer.
+* Open pgAdmin.
+* Go to your local server, and create a new database called “dev”.
+* Restore the script “dronfiesuss/db_scripts/create_empty_db.sql”.
+* Open the file “dronfiesuss/ormconfig.json” and set the credentials of your local database.
+* Run both projects, using the command “npm start” on the root folder of both projects.
 
 ### TL;DR
 
