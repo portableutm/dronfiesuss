@@ -8,7 +8,7 @@ import { validateStringDateIso, dateTimeStringFormat } from "../utils/validation
 import { UserDao } from "../daos/UserDaos";
 import { ApprovalDao } from "../daos/ApprovalDao";
 
-import { sendOpertationStateChange } from "../services/asyncBrowserComunication";
+import { sendOpertationStateChange, sendNewOperation } from "../services/asyncBrowserComunication";
 import { OperationVolume } from "../entities/OperationVolume";
 
 
@@ -169,7 +169,9 @@ export class OperationController {
     request.body.state = OperationState.PROPOSED
 
     if (errors.length == 0) {
-      return response.json(await this.dao.save(request.body));
+      let operation = await this.dao.save(request.body)
+      sendNewOperation({gufi:operation.gufi})
+      return response.json(operation);
     } else {
       response.status(400)
       return response.json(errors)
