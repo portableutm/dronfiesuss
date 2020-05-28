@@ -3,7 +3,7 @@ import { PositionDao } from "../daos/PositionDao";
 import { OperationDao } from "../daos/OperationDaos";
 
 // import { app } from "../index";
-import { sendPositionToMonitor, sendOperationFlyStatus } from "../services/asyncBrowserComunication";
+import { sendPositionToMonitor, sendOperationFlyStatus, sendOpertationStateChange } from "../services/asyncBrowserComunication";
 import { Position } from "../entities/Position";
 import { OperationState } from "../entities/Operation";
 
@@ -51,9 +51,19 @@ export class PositionController {
                     if (this.operationDao == undefined) {
                         this.operationDao = new OperationDao();
                     }
-                    //if position is not inside the associated operation then change operation status as ROUGE
-                    await this.operationDao.updateState(gufi, OperationState.ROGUE)
-                    
+                    let operation = await this.operationDao.one(gufi);
+                    let lastState = operation.state;
+
+                    if (lastState !== OperationState.ROGUE) {
+                        //if position is not inside the associated operation then change operation status as ROUGE
+                        await this.operationDao.updateState(gufi, OperationState.ROGUE)
+                        let operationInfo = {
+                            gufi: gufi,
+                            state: OperationState.ROGUE
+                        }
+                        sendOpertationStateChange(operationInfo)
+                    }
+
                 } else {
                     // console.log("------------ Vuela ok")
                 }
@@ -63,7 +73,7 @@ export class PositionController {
                 // console.log(`Send new position ${position}`)
                 sendPositionToMonitor(position)
                 return response.json(position);
-            }else {
+            } else {
                 response.status(400)
                 return response.json(errors)
             }
@@ -81,8 +91,8 @@ export class PositionController {
 
 function validatePosition(position: any) {
     let errors = []
-    if(position.heading != undefined){
-        if (!( (typeof position.heading == 'number') && (position.heading >= -180) && (position.heading <= 180) ) ) {
+    if (position.heading != undefined) {
+        if (!((typeof position.heading == 'number') && (position.heading >= -180) && (position.heading <= 180))) {
             errors.push('Invalid heading')
         }
     }
