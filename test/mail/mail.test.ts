@@ -8,7 +8,7 @@ chai.should();
 import { sendMail, verifyServer, sendTestMail } from "../../src/services/mailService";
 
 
-describe('>>> Cron test <<<', function () {
+describe.skip('>>> Cron test <<<', function () {
 
     it("should have no error", function (done) {
 
