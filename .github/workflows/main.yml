@@ -20,26 +20,41 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
 
-    - name: Build the stack
-      run: docker-compose up -d
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
 
     - uses: actions/checkout@v2
+      
+    - name: Build the stack
+      run: docker-compose up -d
+              
+    - uses: DamianReeves/write-file-action@v1.0
+      with:
+        path: .coveralls.yml
+        contents: |
+          service_name: travis-ci
+          repo_token: aaOgzZXrfQU6Lm1SES8Zc0WS5TqjyfWX3
+        write-mode:   overwrite
+
+    - uses: DamianReeves/write-file-action@v1.0
+      with:
+        path: .env
+        contents: |
+          PORT=3000
+          DATABASE_CONNECTION_NAME=dev
+          JWTSECRET=asdfasdasdfasdff  
+          JWT_EXPIRATION_TIME=1h
+          SMTP_URL=smtp.dronfies.com
+          SMTP_USERNAME=prueba@dronfies.com
+          SMTP_PASSWORD=xxxxxxxxxxxx
+          TEST_TIMEOUT=5000
+        write-mode:   overwrite
+
+
     - uses: actions/setup-node@v2-beta
       with:
         node-version: '10.19.0'
 
-
-      
     - run: npm install
     
-    - run: sleep 10
-
     - name: run app
-      run: npm run test
-
-    # Runs a single command using the runners shell
-    - name: Run a one-line script
-      run: echo Hello, world!
-
-
+      run: npm run coveralls
