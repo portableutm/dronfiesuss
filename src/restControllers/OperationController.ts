@@ -169,7 +169,7 @@ export class OperationController {
     request.body.state = OperationState.PROPOSED
 
     if (errors.length == 0) {
-      let operation = await this.dao.save(request.body)
+      let operation = <Operation> await this.dao.save(request.body)
       sendNewOperation({gufi:operation.gufi})
       return response.json(operation);
     } else {
