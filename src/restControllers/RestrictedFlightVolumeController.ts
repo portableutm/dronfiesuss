@@ -48,7 +48,7 @@ export class RestrictedFlightVolumeController {
 
     /**
      * Save the passed RestrictedFlightVolume by post
-     * @example {
+     * @example POST @example /restrictedflightvolume/{
             geography: {"type":"Polygon","coordinates":[[[-56.309738,-34.874384],[-56.309395,-34.903671],[-56.245537,-34.9017],[-56.24588,-34.864806],[-56.310081,-34.872975],[-56.309738,-34.874384]]]},
             max_altitude: 100,
             min_altitude: 0,

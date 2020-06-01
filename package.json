@@ -14,7 +14,6 @@
       "mocha": "^7.1.2",
       "nodemon": "^2.0.2",
       "nyc": "^15.0.0",
-      "supertest": "^4.0.2",
       "tsconfig-paths": "^3.9.0",
       "xo": "^0.25.3"
    },
@@ -52,11 +51,13 @@
    "scripts": {
       "start": "cross-env NODE_ENV=dev ts-node src/index.ts",
       "dev": "cross-env NODE_ENV=dev  nodemon --exec 'ts-node' src/index.ts",
+      "production": "cross-env NODE_ENV=production  nodemon --exec 'ts-node' src/index.ts",
       "heroku": "cross-env NODE_ENV=cloud ts-node src/index.ts",
       "generate": "ts-node swaggerFiles/generator.ts",
-      "test": "cross-env NODE_ENV=test     mocha -R spec list -r ts-node/register 'test/**/*.test.*'",
+      "test": "cross-env NODE_ENV=test mocha -R spec -r ts-node/register 'test/**/*.test.*'",
       "cover": "cross-env NODE_ENV=test nyc --reporter=html --reporter=text  mocha -r ts-node/register 'test/**/*.test.*'",
-      "coverage": "cross-env NODE_ENV=test nyc report --reporter=text-lcov  mocha -r ts-node/register 'test/**/*.test.*' | coveralls",
+      "coverage": "cross-env NODE_ENV=test nyc --reporter=lcovonly  mocha -r ts-node/register 'test/**/*.test.*' ",
+      "coveralls": "cross-env NODE_ENV=test nyc --reporter=lcovonly  mocha -r ts-node/register 'test/**/*.test.*' && cat coverage/lcov.info | coveralls ",
       "lint": "xo",
       "format": "xo --fix",
       "typeorm": "ts-node  ./node_modules/typeorm/cli.js",

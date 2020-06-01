@@ -28,6 +28,10 @@ export function sendOpertationStateChange(operationInfo){
     return send('operation-state-change', operationInfo)
 }
 
+export function sendNewOperation(operationInfo){
+    return send('new-operation', operationInfo)
+}
+
 
 export function sendAlgo(position : Position){
     // app.io.emit('new-position', position)

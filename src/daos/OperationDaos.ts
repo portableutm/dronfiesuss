@@ -209,6 +209,7 @@ export class OperationDao {
         return this.repository.
         createQueryBuilder("operation")
         .innerJoinAndSelect("operation.creator", "creator")
+        .innerJoinAndSelect("operation.operation_volumes", "operation_volume")
         .where(" creator.\"username\" =  :username"
         )
         .setParameters({
