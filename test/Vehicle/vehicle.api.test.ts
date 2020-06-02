@@ -50,7 +50,7 @@ describe('>>> Vehicle entity <<< ', function () {
             .catch(done);
     });
 
-    it("should insert a new vehicle", function (done) {
+    it("POST /vehicle should insert a new vehicle", function (done) {
         let username = 'MaurineFowlie'
         let token = getToken('maurine@dronfies.com',  username, Role.PILOT)
 
@@ -67,7 +67,8 @@ describe('>>> Vehicle entity <<< ', function () {
             "accessType": "",
             "vehicleTypeId": "",
             "org-uuid": "",
-            "registeredBy": ""
+            "registeredBy": "",
+            "owner_id" : username
         }
         chai.request(app.app)
             .post('/vehicle')
@@ -86,7 +87,38 @@ describe('>>> Vehicle entity <<< ', function () {
                         done();
                     }).catch(done)
                 }).catch(done)
-            }).catch(done);
+            })
+            .catch(done);
+    });
+
+    it("POST /vehicle should not insert a new vehicle because the owner does not exist", function (done) {
+        let username = 'MaurineFowlie'
+        let token = getToken('maurine@dronfies.com',  username, Role.PILOT)
+
+        let vehicleToInsert = {
+            "nNumber": "",
+            "faaNumber": "faaNumber_81128",
+            "vehicleName": "vehicle_name828",
+            "manufacturer": "PIXHAWK",
+            "model": "model_828",
+            "class": "Fixed wing",
+            "accessType": "",
+            "vehicleTypeId": "",
+            "org-uuid": "",
+            "registeredBy": "",
+            "owner_id" : "croc!" //username
+        }
+        chai.request(app.app)
+            .post('/vehicle')
+            .set('auth', token)
+            .send(vehicleToInsert)
+            .then(function (res) {
+                console.log(res);
+                
+                res.should.have.status(400);
+                done(); 
+            })
+            .catch(done);
     });
     
 

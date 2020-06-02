@@ -75,28 +75,47 @@ export class VehicleController {
     async save(request: Request, response: Response, next: NextFunction) {
         let { role, username } = getPayloadFromResponse(response)
         // let v: VehicleReg = await this.dao.save(request.body);
-        let v  = request.body //: VehicleReg = await this.dao.save(request.body);
 
-        v.date = undefined
-        v.registeredBy = {username:username}
-        let errors = validateVehicle(v)
-        if (errors.length == 0) {
-            //insert vehicle
-            let insertedVehicle = await this.dao.save(v)
-            return response.json(insertedVehicle);
-        } else {
-            response.status(400)
-            return response.json(errors)
+        try {
+            let v = request.body //: VehicleReg = await this.dao.save(request.body);
+
+            v.date = undefined
+            v.registeredBy = { username: username }
+
+            if (v.owner_id) {
+                v.owner = { username: v.owner_id }
+                delete v.owner_id
+            }
+
+            let errors = await validateVehicle(v)
+            if (errors.length == 0) {
+                //insert vehicle
+                let insertedVehicle = await this.dao.save(v)
+                return response.json(insertedVehicle);
+            } else {
+                response.status(400)
+                return response.json(errors)
+            }
+        } catch (error) {
+            response.sendStatus(400)
         }
+
     }
 
 }
 
 
-function validateVehicle(v: VehicleReg) {
+async function validateVehicle(v: VehicleReg) {
     let errors = []
     if (!genericTextLenghtValidation(v.vehicleName)) {
         errors.push("Invalid vehicle name")
     }
+    try {
+        let userDao = new UserDao()
+        let u = await userDao.one(v.owner.username)    
+    } catch (error) {
+        errors.push(`The owner ${v.owner.username} does not exists`)
+    }
+    
     return errors
 }
