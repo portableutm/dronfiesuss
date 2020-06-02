@@ -78,6 +78,7 @@ export async function initData(connection: Connection, callback?: () => any) {
                     // console.log("ooooooooo")
                     
                     vehicle.registeredBy = user
+                    vehicle.owner = user
                     // console.log(vehicle)
                     try {
                         let v = await connection.manager.save(connection.manager.create("VehicleReg", vehicle))

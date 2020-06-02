@@ -12,7 +12,7 @@ export class VehicleDao {
     async allByUser(username) {
         return this.repository.find({
             where : {
-                registeredBy : username
+                owner : username
             }
         });
     }
