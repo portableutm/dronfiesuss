@@ -24,6 +24,11 @@ export class VehicleReg {
     })
     registeredBy?: User;
 
+    @ManyToOne(type => User, {
+        eager: true
+    })
+    owner?: User;
+
     @Column({ nullable: true })
     'nNumber': string;
 
