@@ -1,24 +1,20 @@
 name: Update Dev Server
-
 on:
-    push:
-        # Sequence of patterns matched against refs/heads
-        branches:    
-            # Push events on master branch
-            - master
-
+  push:
+    branches: [ master ]
 jobs:
-    build:
-        runs-on: ubuntu-latest
-        steps:
-        - name: ls -a via OPEN SSH Private Key
-            uses: fifsky/ssh-action@master
-            with:
-            command: |
-                cd /dronfiesuss
-                git pull origin master
-                pm2 reload backend
-            host: ${{ secrets.SSH_DEV_HOST }}
-            user: root
-            pass: ${{ secrets.SSH_DEV_KEY}}
-            args: "-tt -vvv"
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: auto update via ssh
+        uses: fifsky/ssh-action@master
+        with:
+          command: |
+            ls
+            cd /root/dronfiesuss
+            git pull origin master
+            pm2 reload backend
+          host: ${{ secrets.SSH_DEV_HOST }}
+          user: root
+          pass: ${{ secrets.SSH_DEV_KEY}}
+          args: "-tt -vvv"
