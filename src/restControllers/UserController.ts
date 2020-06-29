@@ -111,7 +111,7 @@ export class UserController {
         try {
             let user: User = request.body
 
-            user.role = Role.PILOT;
+            user.role = user.role || Role.PILOT;
 
 
             let status = new UserStatus()
