@@ -116,6 +116,46 @@ export class UserController {
                 let errors = validateUser(user)
                 if (errors.length == 0) {
                     user.username = request.params.id
+                    //user.password = hashPassword(user.password)
+                    let insertedDetails = await this.dao.update(user)
+                    return response.json(user);
+                } else {
+                    response.status(400)
+                    return response.json(errors)
+                }
+            }
+            else {
+                return response.sendStatus(401)
+            }
+        } catch (error) {
+            response.status(400)
+            return response.json({ "Error": "Insert fail" })
+        }
+    }
+
+    /**
+     * Updates an User's password
+     * @example {
+     *          username: "AnOtherUserToInsert",
+     *          email: `anotherusertoinsert@dronfies.com`,
+     *          firstName: `Any`,
+     *          lastName: `Name`,
+     *          password: `password`,
+     *          role: Role.PILOT
+     *      }
+     * @param request 
+     * @param response 
+     * @param next 
+     */
+    async updateUserPassword(request: Request, response: Response, next: NextFunction) {
+        let { role, username } = getPayloadFromResponse(response)
+        try {
+            if (role == Role.ADMIN || (username == request.params.id)) {
+                let user: User = request.body
+                // trimFields(user)
+                let errors = validateUser(user)
+                if (errors.length == 0) {
+                    user.username = request.params.id
                     user.password = hashPassword(user.password)
                     let insertedDetails = await this.dao.update(user)
                     return response.json(user);
