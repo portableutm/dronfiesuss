@@ -115,6 +115,7 @@ export class UserController {
                 // trimFields(user)
                 let errors = validateUser(user)
                 if (errors.length == 0) {
+                    user.username = request.params.id
                     user.password = hashPassword(user.password)
                     let insertedDetails = await this.dao.update(user)
                     return response.json(user);
