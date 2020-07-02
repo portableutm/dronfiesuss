@@ -87,6 +87,13 @@ let user = [
         // middlewares: [checkJwt]  
     },
     {
+        method: "put",
+        route: `/user/:id`,
+        controller: UserController,
+        action: "updateUser",
+        middlewares: [checkJwt]
+    },
+    {
         method: "post",
         route: `/user/confirm`,
         controller: UserController,

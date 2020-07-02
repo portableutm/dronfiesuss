@@ -93,6 +93,46 @@ export class UserController {
     }
 
     /**
+     * Updates an User, in a PUT method, or creates it, given the username is valid
+     * Only admins can update an user, unless it's an user updating their own information.
+     * @example {
+     *          username: "AnOtherUserToInsert",
+     *          email: `anotherusertoinsert@dronfies.com`,
+     *          firstName: `Any`,
+     *          lastName: `Name`,
+     *          password: `password`,
+     *          role: Role.PILOT
+     *      }
+     * @param request 
+     * @param response 
+     * @param next 
+     */
+    async updateUser(request: Request, response: Response, next: NextFunction) {
+        let { role, username } = getPayloadFromResponse(response)
+        try {
+            if (role == Role.ADMIN || (username == request.params.id)) {
+                let user: User = request.body
+                // trimFields(user)
+                let errors = validateUser(user)
+                if (errors.length == 0) {
+                    user.password = hashPassword(user.password)
+                    let insertedDetails = await this.dao.update(user)
+                    return response.json(user);
+                } else {
+                    response.status(400)
+                    return response.json(errors)
+                }
+            }
+            else {
+                return response.sendStatus(401)
+            }
+        } catch (error) {
+            response.status(400)
+            return response.json({ "Error": "Insert fail" })
+        }
+    }
+
+    /**
      * Create a new user PILOT with status UNCONFIRMED pass by a POST request 
      * and send a confirmation mail
      * @example {
