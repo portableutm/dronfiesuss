@@ -16,6 +16,8 @@ import { Routes } from "./routes";
 import { initData } from "./databaseInit";
 import { createTypeormConn } from "./databaseConfig";
 
+import { authMiddleware } from "./middleware/socketioAuthMiddleware";
+
 import { CronService } from "./services/cronServices";
 
 class App {
@@ -30,11 +32,11 @@ class App {
 
     private cronService: CronService;
 
-    constructor(controllers: any[] /*, port: number, connName: string*/ ,callback?: (param?: any) => void) {
+    constructor(controllers: any[] /*, port: number, connName: string*/, callback?: (param?: any) => void) {
         process.env.TZ = "Etc/GMT"
         this.app = express();
 
-        if( (process.env.PORT == undefined) || (process.env.DATABASE_CONNECTION_NAME == undefined)){
+        if ((process.env.PORT == undefined) || (process.env.DATABASE_CONNECTION_NAME == undefined)) {
             throw `You must define PORT and DATABASE_CONNECTION_NAME on .env file`
         }
 
@@ -136,6 +138,8 @@ class App {
         this.io = Io(server)
         let io = this.io;
 
+        io.use(authMiddleware)
+
         this.app.get('/', function (req, res) {
             res.sendFile(__dirname + '/index.html');
         });
@@ -157,7 +161,15 @@ class App {
         });
 
         this.io.on('connection', function (socket) {
+            let token = socket.handshake.query.token;
+            // console.log(`On conection ${token}`)
+            let s = <any>socket
+            // console.log(`On conection ${JSON.stringify(s.jwtPayload)}`)
+            // console.log(`On conection   `)
+
             socket.on('chat message', function (data) {
+                // let tokenT = socket.handshake.query.token;
+                // console.log(`chat message ${tokenT}`)
                 console.log(data);
                 socket.emit('chat message', data)
                 socket.broadcast.emit('chat message', data);
