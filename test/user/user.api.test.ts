@@ -10,7 +10,7 @@ import { app, initAsync } from "../../src/index";
 import { User, Role } from "../../src/entities/User";
 
 import { getToken } from "../../src/services/tokenService";
-import { Status } from "../../src/entities/UserStatus";
+import { Status, UserStatus } from "../../src/entities/UserStatus";
 
 import { TEST_TIMEOUT } from "../conf"; 
 
@@ -19,7 +19,6 @@ describe('>>> User rest controller test <<<', function () {
     before(function (done) {
         this.timeout(TEST_TIMEOUT);
         initAsync()
-            // .then(done)
             .then((function(application){
                 done()
             }))
@@ -111,6 +110,65 @@ describe('>>> User rest controller test <<<', function () {
                     done(err);
                 });
 
+        })
+    });
+
+
+    it("POST /user Should create a new user (test bug)", function (done) {
+        let dao = new UserDao()
+        dao.all().then(function (users) {
+            let CountPreInsert = users.length
+            // let userStatus : UserStatus = 
+            let status = new UserStatus()
+            status.status = Status.CONFIRMED
+            status.token = ""
+            
+            let user : User = {
+                username: "testBug",
+                email: `testBug@dronfies.com`,
+                firstName: `Algun`,
+                lastName: `Nombre`,
+                password: `password`,
+                role: Role.ADMIN,
+                status: status
+            }
+
+            chai.request(app.app)
+                .post('/user')
+                .set('bypass', 'a')
+                .set('Accept', 'application/json')
+                .send(user)
+                .then(res => {
+                    console.log(res.body)
+                    res.body.should.have.property('username').equal(user.username);
+                    res.body.should.have.property('email').equal(user.email);
+                    res.body.should.have.property('firstName').equal(user.firstName);
+                    res.body.should.have.property('lastName').equal(user.lastName);
+                    res.body.should.have.property('role').equal(user.role);
+                    chai.request(app.app)
+                        .post('/auth/login')
+                        .send({
+                            "username": user.username,
+                            "password": user.password
+                        })
+                        .then(function (res) {
+                            res.should.have.status(200);
+                            res.text.should.be.a('string')
+                            done();
+                        })
+                        .catch(done)
+                    // dao.all().then(function (newUsers) {
+                    //     assert.equal(newUsers.length, CountPreInsert + 1)
+                    //     done();
+                    // }).catch(err => {
+                    //     console.error(err);
+                    //     done(err);
+                    // });
+                })
+                .catch(err => {
+                    console.error(err);
+                    done(err);
+                });
         })
     });
 
