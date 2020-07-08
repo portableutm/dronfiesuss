@@ -1,6 +1,7 @@
-import {Entity, PrimaryGeneratedColumn, Column, Unique, PrimaryColumn, OneToOne, JoinColumn} from "typeorm";
+import {Entity, PrimaryGeneratedColumn, Column, Unique, PrimaryColumn, OneToOne, JoinColumn, OneToMany, JoinTable} from "typeorm";
 import { UserStatus } from "./UserStatus";
 import { Polygon } from "geojson";
+import { QuickFly } from "./QuickFly";
 
 
 export enum Role {
@@ -45,6 +46,12 @@ export class User {
     
     @Column(type => Settings)
     settings? : Settings;
+
+    @OneToMany(type => QuickFly, quickFly => quickFly.user)
+    quickFlys?:  Promise<QuickFly[]>;
+    // quickFlys? : QuickFly;
+
+
 
 }
 
