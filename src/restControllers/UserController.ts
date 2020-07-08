@@ -72,9 +72,17 @@ export class UserController {
         try {
             if (role == Role.ADMIN) {
                 let user: User = request.body
+                let status : UserStatus = request.body.status
+                if(status == undefined){
+                    status  = new UserStatus()
+                    status.status = Status.UNCONFIRMED
+                    status.token = generateToken();
+                    user.status = status
+                }
                 // trimFields(user)
                 let errors = validateUser(user)
                 if (errors.length == 0) {
+                    let s = await this.userStatusDao.save(status)   
                     user.password = hashPassword(user.password)
                     let insertedDetails = await this.dao.save(user)
                     return response.json(user);
