@@ -26,6 +26,7 @@ class App {
     public connection: Connection; // TypeORM connection to the database
     public connectionName: string;
     public io: SocketIO.Server;
+    private server: Server;
 
     public initedDB: boolean = false;
     public initedRest: boolean = false;
@@ -35,6 +36,7 @@ class App {
     constructor(controllers: any[] /*, port: number, connName: string*/, callback?: (param?: any) => void) {
         process.env.TZ = "Etc/GMT"
         this.app = express();
+        
 
         if ((process.env.PORT == undefined) || (process.env.DATABASE_CONNECTION_NAME == undefined)) {
             throw `You must define PORT and DATABASE_CONNECTION_NAME on .env file`
@@ -131,12 +133,34 @@ class App {
     //     });
     // }
 
+    public stop(callback) {
+        // console.log("Close io:")
+        // this.io.close(function () {
+            console.log("Close server:")
+
+            // this.server.close(function (error) {
+            //     console.log("server closed" + error)
+            //     callback()
+            // })
+
+            this.io.close();
+            this.server.close();
+            delete this.io
+            delete this.server
+            // delete this.app
+            callback()
+
+        // })
+    }
+
     // Boots the application
     public listen(callback?: (param?: any) => void) {
-        let server = new Server(this.app)
+        this.server = new Server(this.app)
         // var io = require('socket.io')(server);
-        this.io = Io(server)
+        this.io = Io(this.server)
         let io = this.io;
+
+        console.log("  ----------------- >>> init socket io")
 
         io.use(authMiddleware)
 
@@ -150,15 +174,14 @@ class App {
 
         const port = this.port;
 
-        server.listen(port, () => {
+        this.server.listen(port, () => {
             console.log(`Server running on port ${this.port}`);
             if (callback !== undefined) {
                 this.initedRest = true;
                 callback();
-
             }
-
         });
+
 
         this.io.on('connection', function (socket) {
             let token = socket.handshake.query.token;
@@ -170,9 +193,10 @@ class App {
             socket.on('chat message', function (data) {
                 // let tokenT = socket.handshake.query.token;
                 // console.log(`chat message ${tokenT}`)
-                console.log(data);
+                console.log(`Chat message **> ${JSON.stringify(data)}`);
+                // socket.emit('', data)
                 socket.emit('chat message', data)
-                socket.broadcast.emit('chat message', data);
+                // socket.broadcast.emit('chat message', data);
             });
         });
 

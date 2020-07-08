@@ -20,7 +20,10 @@ describe('>>> Uas volume reservation entity <<< ', function () {
     before(function (done) {
         this.timeout(TEST_TIMEOUT);
         initAsync()
-            .then(done)
+            // .then(done)
+            .then((function(application){
+                done()
+            }))
             .catch(done)
     })
 

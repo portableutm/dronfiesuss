@@ -12,7 +12,9 @@ describe(' >>> Auth test <<< ', function () {
     before(function (done) {
         this.timeout(TEST_TIMEOUT);
         initAsync()
-            .then(done)
+            .then((function(application){
+                done()
+            }))
             .catch(done)
     })
 

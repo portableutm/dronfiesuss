@@ -22,7 +22,10 @@ describe('>>> Cron test <<<', function () {
         this.timeout(TEST_TIMEOUT);
 
         initAsync()
-            .then(done)
+            // .then(done)
+            .then((function(application){
+                done()
+            }))
             .catch(done)
     })
 
@@ -152,7 +155,7 @@ describe('>>> Cron test <<<', function () {
     })
 
 
-    it("Should pass the new op from PROPOSED to NOT_ACEPTED because intersect with a restricted flight volume", function (done) {
+    it("Should pass the new op from PROPOSED to PENDING because intersect with a restricted flight volume", function (done) {
         this.timeout(20000);
 
         let op = deepCopy(Operations[0])
@@ -168,7 +171,6 @@ describe('>>> Cron test <<<', function () {
         dao.save(op).then(function (op:Operation) {
             operationToRemove.push(op)
             console.log(`Esto anda? guardo en bbdd`)
-            
             processOperations().then(function () {
             console.log(`**** Processss the op ${op.gufi}`)
             setTimeout(async function () {
@@ -177,11 +179,8 @@ describe('>>> Cron test <<<', function () {
                     newOp.state.should.equal(OperationState.PENDING)
                     done()
                 }, 1000)
-
-            })
-                .catch(done)
+            }).catch(done)
         }).catch(done)
-
     })
 
     

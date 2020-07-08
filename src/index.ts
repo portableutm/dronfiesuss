@@ -22,16 +22,11 @@ export async function initAsync(){
         if(app == undefined){
             console.log("><>< initAsync ><><")
             app = new App(controllers /*, 3000, "test" */, ()=>{
-            console.log("><>< FINISH initAsync ><><")
-                // app.listen(()=>{
-                //     app.printStatus();
-                //     resolve();
-                // });
-                resolve();
-
+                console.log("app inicializated")
+                resolve(app)
             });
         }else{
-            resolve();
+            resolve(app);
         }
       });
 }

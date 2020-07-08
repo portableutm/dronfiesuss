@@ -25,7 +25,10 @@ describe(' >>> Operation test <<< ', function () {
         this.timeout(TEST_TIMEOUT);
 
         initAsync()
-            .then(done)
+            // .then(done)
+            .then((function(application){
+                done()
+            }))
             .catch(done)
     })
 

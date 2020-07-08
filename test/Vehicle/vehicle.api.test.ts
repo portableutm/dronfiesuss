@@ -16,7 +16,10 @@ describe('>>> Vehicle entity <<< ', function () {
     before(function (done) {
         this.timeout(TEST_TIMEOUT);
         initAsync()
-            .then(done)
+            // .then(done)
+            .then((function(application){
+                done()
+            }))
             .catch(done)
     })
 
@@ -113,8 +116,6 @@ describe('>>> Vehicle entity <<< ', function () {
             .set('auth', token)
             .send(vehicleToInsert)
             .then(function (res) {
-                console.log(res);
-                
                 res.should.have.status(400);
                 done(); 
             })
