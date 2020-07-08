@@ -1,3 +1,4 @@
+[![Coverage Status](https://coveralls.io/repos/github/portableutm/dronfiesuss/badge.svg?branch=master)](https://coveralls.io/github/portableutm/dronfiesuss?branch=master)
 [![GitHub issues](https://img.shields.io/github/issues/portableutm/dronfiesuss)](https://github.com/portableutm/webapp/issues)
 [![GitHub license](https://img.shields.io/github/license/portableutm/dronfiesuss)](https://github.com/portableutm/webapp/license)
 [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-v2.0%20adopted-ff69b4.svg)](code_of_conduct.md) 
