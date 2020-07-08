@@ -9,6 +9,7 @@ import { NotamController } from "./restControllers/NotamRestController";
 import { RestrictedFlightVolumeController } from "./restControllers/RestrictedFlightVolumeController";
 
 import { checkJwt } from "./middleware/checkJwt";
+import { QuickFlyController } from "./restControllers/QuickFly";
 
 interface CustomRoute{
     method: string
@@ -126,6 +127,7 @@ let r : CustomRoute[] = [
     ...doRoutes("position", PositionController), 
     ...doRoutes("uasvolume", UASVolumeReservationController), 
     ...doRoutes("restrictedflightvolume", RestrictedFlightVolumeController), 
+    ...doRoutes("quickfly", QuickFlyController), 
     
     ...operations, 
     ...auth
