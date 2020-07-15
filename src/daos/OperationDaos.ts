@@ -171,13 +171,7 @@ export class OperationDao {
     }
 
     async save(op:Operation) {
-        try {
-            return await this.repository.save(op);
-
-        } catch (error) {
-            return {}
-        }
-        
+        return await this.repository.save(op);
     }
 
     async updateState(gufi, state : OperationState) {

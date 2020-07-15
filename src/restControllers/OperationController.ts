@@ -169,9 +169,14 @@ export class OperationController {
     request.body.state = OperationState.PROPOSED
 
     if (errors.length == 0) {
-      let operation = <Operation> await this.dao.save(request.body)
-      sendNewOperation({gufi:operation.gufi})
-      return response.json(operation);
+      try {
+        let operation = <Operation>await this.dao.save(request.body)
+        sendNewOperation({gufi: operation.gufi})
+        return response.json(operation);
+      } catch (error) {
+        response.status(400)
+        return response.json(errors)
+      }
     } else {
       response.status(400)
       return response.json(errors)
