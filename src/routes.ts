@@ -71,6 +71,13 @@ let operations = [
     middlewares: [checkJwt]  
 },
 {
+    method: "get",
+    route: `/operation/owner`,
+    controller: OperationController,
+    action: "operationsByOwner",
+    middlewares: [checkJwt]
+},
+{
     method: "post",
     route: `/operation/:id/pendingtoaccept`,
     controller: OperationController,

@@ -218,6 +218,25 @@ export class OperationDao {
         .getMany()
     }
 
+    async operationsByOwner(username: string, filterParam?  :any) {
+        let filter : any = {}
+        if((filterParam!==undefined) && (filterParam.state !== undefined)){
+            filter.where = { state: filterParam.state}
+        }
+        // console.log(` ****** ***** Operations ${username}  ****** ***** `)
+
+        return this.repository.
+        createQueryBuilder("operation")
+            .innerJoinAndSelect("operation.owner", "owner")
+            .innerJoinAndSelect("operation.operation_volumes", "operation_volume")
+            .where(" owner.\"username\" =  :username"
+            )
+            .setParameters({
+                username : username,
+            })
+            .getMany()
+    }
+
     //     select * from operation
     // where state in ('ACCEPTED', 'PROPOSED')
     async getOperationsForCron(){

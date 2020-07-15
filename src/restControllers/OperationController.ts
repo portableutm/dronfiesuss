@@ -248,6 +248,19 @@ export class OperationController {
     return response.json({ count: ops.length, ops });
   }
 
+  /**
+   * Returns Operations owned by current user
+   * @param request
+   * @param response
+   * @param next
+   */
+  async operationsByOwner(request: Request, response: Response, next: NextFunction) {
+    let { username, role } = response.locals.jwtPayload
+    let ops;
+    ops = await this.dao.operationsByOwner(username)
+    return response.json({ count: ops.length, ops });
+  }
+
 
   /**
    * Remove an operation by gufi. If user is PILOT and is not the owner return 404

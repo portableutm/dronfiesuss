@@ -61,6 +61,16 @@ export class Operation {
     @PrimaryGeneratedColumn("uuid")
     'gufi': string;
 
+    // Obligatorio - ya no se usa flight_comments como titulo
+    @Column()
+    'name': string;
+
+    // Owner - a quien le pertenece la operación
+    @ManyToOne(type => User, {
+        eager: false
+    })
+    'owner': User;
+
     //agregarlos nulleables
     @Column({ nullable: true })
     'uss_name'?: string;
@@ -82,7 +92,7 @@ export class Operation {
 
     //obligatorio, despues de aplicar trim tiene que tener entre 1 y 255. 
     //se usa como frontend como titulo
-    @Column()
+    @Column({ nullable: true })
     'flight_comments': string;
 
     @Column({ nullable: true })

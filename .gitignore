@@ -8,3 +8,5 @@ geoserver/
 .env
 coverage/
 .nyc_output/
+
+ormconfig.json
