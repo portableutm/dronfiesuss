@@ -67,7 +67,7 @@ export class Operation {
 
     // Owner - a quien le pertenece la operación
     @ManyToOne(type => User, {
-        eager: false
+        eager: true
     })
     'owner': User;
 
