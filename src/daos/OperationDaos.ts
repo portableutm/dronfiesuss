@@ -170,6 +170,14 @@ export class OperationDao {
         });
     }
 
+    async oneByOwner(id : string, username:string) {
+        return this.repository.findOneOrFail(id, {
+            where : {
+                owner : username
+            }
+        });
+    }
+
     async save(op:Operation) {
         return await this.repository.save(op);
     }

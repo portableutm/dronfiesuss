@@ -117,10 +117,14 @@ export async function initData(connection: Connection, callback?: () => any) {
             // console.log(`Vehicles: ${vehicles.length}`)
             // console.log(`Users: ${users.length}`)
             let userMap = getUserListAsMap(users)
-            Operations[0].creator = userMap['MaurineFowlie']
+            Operations[0].owner = userMap['MaurineFowlie']
+            Operations[0].creator = userMap['admin']
+            Operations[1].owner = userMap['admin']
             Operations[1].creator = userMap['admin']
-            Operations[2].creator = userMap['MaurineFowlie']
-            Operations[3].creator = userMap['MonroBhatia']
+            Operations[2].owner = userMap['MaurineFowlie']
+            Operations[2].creator = userMap['admin']
+            Operations[3].owner = userMap['MonroBhatia']
+            Operations[3].creator = userMap['admin']
 
             for (let index = 0; index < Operations.length; index++) {
                 const op : Operation = Operations[index];
@@ -131,7 +135,7 @@ export async function initData(connection: Connection, callback?: () => any) {
                 try {
                     // connection.manager.save(connection.manager.create("Operation", op));
                     let newOp = await operationDao.save(op);
-                    // console.log(`New op ${index}: ${JSON.stringify(newOp)}`)
+                    console.log(`New op ${index}: ${JSON.stringify(newOp)}`)
                 } catch (error) {
                     console.error(error)
                 }

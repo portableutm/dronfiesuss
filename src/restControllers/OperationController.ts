@@ -78,7 +78,7 @@ export class OperationController {
       if (role == Role.ADMIN) {
         return response.json(await this.dao.one(request.params.id));
       } else {
-        let v = await this.dao.oneByCreator(request.params.id, username);
+        let v = await this.dao.oneByOwner(request.params.id, username);
         return response.json(v)
       }
     } catch (error) {
@@ -175,7 +175,7 @@ export class OperationController {
         return response.json(operation);
       } catch (error) {
         response.status(400)
-        return response.json(errors)
+        return response.json(error)
       }
     } else {
       response.status(400)
