@@ -46,12 +46,14 @@ export class PositionController {
                 //check if position is inside de operation volume of associated operation 
                 let res = await this.dao.checkPositionWithOperation(position)
                 let { inOperation } = res
+                if (this.operationDao == undefined) {
+                    this.operationDao = new OperationDao();
+                }
+                let operation = await this.operationDao.one(gufi);
                 if (!inOperation) {
                     // console.log("------------ Vuela fuera actualizo")
-                    if (this.operationDao == undefined) {
-                        this.operationDao = new OperationDao();
-                    }
-                    let operation = await this.operationDao.one(gufi);
+
+
                     let lastState = operation.state;
 
                     if (lastState !== OperationState.ROGUE) {
@@ -71,7 +73,7 @@ export class PositionController {
                 //send information to web browser
                 sendOperationFlyStatus(inOperation)
                 // console.log(`Send new position ${position}`)
-                sendPositionToMonitor(position)
+                sendPositionToMonitor(position, operation.controller_location)
                 return response.json(position);
             } else {
                 response.status(400)

@@ -21,9 +21,9 @@ function send(topic, object){
 }
 
 
-export function sendPositionToMonitor(position ){
+export function sendPositionToMonitor(position, controller_location){
     // app.io.emit('new-position', position)
-    return send('new-position', position)
+    return send('new-position', {...position, controller_location})
 }
 
 export function sendOperationFlyStatus(inOperation ){
