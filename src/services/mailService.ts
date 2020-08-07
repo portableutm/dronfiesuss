@@ -43,7 +43,7 @@ export async function sendTestMail() {
 
 export async function sendMail(to:String[], subject:String, text:String, html:String) {
 let info = await transporter.sendMail({
-        from: `"Portable UTM" <${username}>`, 
+        from: `"PortableUTM" <${username}>`,
         to: to, 
         subject: subject, 
         text: text, 

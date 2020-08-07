@@ -1,25 +1,26 @@
 
 
 export function buildConfirmationLink(username, token, frontEndEndpoint){
-    return `${frontEndEndpoint}verify/${username}/${token}`
+    return `${frontEndEndpoint}/verify/${username}?token=${token}`
     
 }
 
 export function buildConfirmationTextMail(username, link) {
     return `
-    Hello ${username}, thanks for registering and trusting our UTM.
-    To finish the user registration process, you need to follow the following link.
+    Hello ${username}, 
+    Thank you for registering in PortableUTM!
+    To finish the user registration process, please click in the following link.
     
     ${link}
-    
-    In case this email arrived in error ...`
+    `
 }
 
 export function buildConfirmationHtmlMail(username, link)  {
     return `
-    <p>Hello ${username}, thanks for registering and trusting our UTM.</p>
-    <p>To finish the user registration process, you need to follow the following link.</p>
+    <p>Hello ${username},</p>
+    <p>Thank you for registering in PortableUTM!</p>
+    <p>To finish the user registration process, please click in the following link.</p>
     <p><a href="">${link}</a></p>
-    <p>In case this email arrived in error ...</p>`
+    `
 }
 

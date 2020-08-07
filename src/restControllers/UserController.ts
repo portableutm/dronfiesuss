@@ -199,6 +199,7 @@ export class UserController {
     async userRegister(request: Request, response: Response, next: NextFunction) {
         try {
             let user: User = request.body
+            const origin = request.headers.origin
 
             user.role = user.role || Role.PILOT;
 
@@ -208,14 +209,16 @@ export class UserController {
             status.token = generateToken();
             
             user.status = status
-            
+
+            console.log("Register request", request.headers.origin);
+
             let errors = validateUser(user)
             if (errors.length == 0) {
                 //TODO do transaction with this two saves
                 let s = await this.userStatusDao.save(status)   
                 user.password = hashPassword(user.password)
                 let insertedDetails = await this.dao.save(user)
-                sendMailToConfirm(user, status)
+                sendMailToConfirm(user, status, origin)
                 return response.json(user);
             } else {
                 response.status(400)
@@ -223,6 +226,7 @@ export class UserController {
             }
             
         } catch (error) {
+            console.log("Register error", error)
             response.status(400)
             return response.json({ "Error": "Insert fail" })
         }
@@ -323,9 +327,9 @@ function generateToken(): String {
     return hashPassword(d.toUTCString())
 }
 
-function sendMailToConfirm(user: User, status:UserStatus){
-    let confirmSubjcet = "Confirm registered user on dronfies utm"
-    let link = buildConfirmationLink(user.username, status.token, frontEndUrl)
+function sendMailToConfirm(user: User, status:UserStatus, url){
+    let confirmSubjcet = `${user.firstName}, please confirm your new PortableUTM user`
+    let link = buildConfirmationLink(user.username, status.token, url)
     let textContent = buildConfirmationTextMail(user.username, link)
     let htmlContent = buildConfirmationHtmlMail(user.username, link)
     
