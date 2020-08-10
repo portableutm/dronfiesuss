@@ -6,6 +6,7 @@ import { OperationVolume } from "../entities/OperationVolume";
 import { OperationDao } from "../daos/OperationDaos";
 import { Operation, OperationState } from "../entities/Operation";
 import { validateStringDateIso, dateTimeStringFormat } from "../utils/validationUtils"
+import {sendOpertationStateChange} from "../services/asyncBrowserComunication";
 
 export class UASVolumeReservationController {
 
@@ -88,6 +89,11 @@ export class UASVolumeReservationController {
                     if (newState != op.state) {
                         op.state = newState
                         this.operationDao.updateState(op.gufi, newState)
+                        let operationInfo = {
+                            gufi: op.gufi,
+                            state: newState
+                        }
+                        sendOpertationStateChange(operationInfo)
                     }
                 }
                 return response.json(entitie);
