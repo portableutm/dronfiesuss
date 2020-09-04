@@ -84,6 +84,13 @@ let operations = [
     action: "acpetPendingOperation",
     middlewares: [checkJwt]
 },
+{
+    method: "post",
+    route: `/operation/:id/updatestate`,
+    controller: OperationController,
+    action: "updateState",
+    middlewares: [checkJwt]
+},
 ...doRoutes("operation", OperationController)]
 
 let user = [

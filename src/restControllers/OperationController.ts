@@ -217,6 +217,30 @@ export class OperationController {
     }
   }
 
+  async updateState(request: Request, response: Response, next: NextFunction) {
+    let gufi = request.params.id
+    let newState = request.body.state
+
+    console.log(`Gufi::${gufi}, ->${JSON.stringify(request.body)}`)
+    try {
+      let { role, username } = getPayloadFromResponse(response)
+
+      if (role == Role.ADMIN) {
+        // let result = await this.dao.updateStateWhereState(gufi, OperationState.PENDING, OperationState.ACCEPTED);
+        let result = await this.dao.updateState(gufi, newState);
+        changeState({
+          gufi: gufi,
+          state: newState
+        })
+        return response.json(result);
+      } else {
+        return response.sendStatus(401)
+      }
+    } catch (error) {
+      return response.sendStatus(404)
+    }
+  }
+
   private async addNewAproval(username, operationGufi, comments, approved) {
     let appr = {
       user: {username},
