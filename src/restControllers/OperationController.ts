@@ -153,8 +153,9 @@ export class OperationController {
    * @param next 
    */
   async save(request: Request, response: Response, next: NextFunction) {
-    let { username, role } = response.locals.jwtPayload
+    let { role } = response.locals.jwtPayload
     let errors = validateOperation(request.body)
+    let username = request.body.owner
     try {
       for (let index = 0; index < request.body.uas_registrations.length; index++) {
         const element = request.body.uas_registrations[index];

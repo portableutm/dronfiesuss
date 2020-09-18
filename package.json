@@ -1,6 +1,6 @@
 {
    "name": "DronfiesUSS",
-   "version": "0.0.1",
+   "version": "0.1.0",
    "description": "Awesome project developed with TypeORM.",
    "devDependencies": {
       "@types/mocha": "^5.2.7",

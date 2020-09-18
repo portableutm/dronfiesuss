@@ -34,7 +34,7 @@ export class VehicleDao {
         // console.log(`Dao vehiculo::id>${id}<`)
         let v =  await this.repository.findOneOrFail(id,{
             where : {
-                registeredBy : username
+                owner : username
             }
         });
         // let vehiculos = this.repository.find({

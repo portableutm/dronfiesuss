@@ -231,6 +231,7 @@ export class OperationDao {
         createQueryBuilder("operation")
             .innerJoinAndSelect("operation.owner", "owner")
             .innerJoinAndSelect("operation.operation_volumes", "operation_volume")
+            .leftJoinAndSelect('operation.uas_registrations', 'uas_registration')
             .where(" owner.\"username\" =  :username"
             )
             .setParameters({
