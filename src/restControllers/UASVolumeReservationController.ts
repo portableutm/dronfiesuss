@@ -6,7 +6,7 @@ import { OperationVolume } from "../entities/OperationVolume";
 import { OperationDao } from "../daos/OperationDaos";
 import { Operation, OperationState } from "../entities/Operation";
 import { validateStringDateIso, dateTimeStringFormat } from "../utils/validationUtils"
-import {sendOpertationStateChange} from "../services/asyncBrowserComunication";
+import { sendOpertationStateChange } from "../services/asyncBrowserComunication";
 
 export class UASVolumeReservationController {
 
@@ -26,7 +26,7 @@ export class UASVolumeReservationController {
         } catch (error) {
             response.status(400)
             return response.json(error)
-            
+
         }
     }
 
@@ -42,7 +42,7 @@ export class UASVolumeReservationController {
             let uas = await this.dao.one(request.params.id)
             return response.json(uas);
         } catch (error) {
-            return response.sendStatus(404)  
+            return response.sendStatus(404)
         }
     }
 
@@ -78,23 +78,35 @@ export class UASVolumeReservationController {
                 // entitie = await this.dao.save(request.body)
                 // console.log(`New uvr ${entitie.message_id}`)
                 //get operations that need to chage the state
-                let volume = createVolumeFromUvr(entitie)
-                let operations = await this.operationDao.getOperationByVolume(volume)
-                // console.log(JSON.stringify(operations, null, 2))
-                for (let index = 0; index < operations.length; index++) {
-                    const op: Operation = operations[index];
-                    // console.log(`The operation ${op.gufi} intersect with this uvr`)
-                    let newState: OperationState = getNextOperationState(op)
-                    // console.log(`The opertion ${op.gufi} chage the state from ${op.state} to ${newState}`)
-                    if (newState != op.state) {
-                        op.state = newState
-                        this.operationDao.updateState(op.gufi, newState)
-                        let operationInfo = {
-                            gufi: op.gufi,
-                            state: newState
+                try {
+                    let volume = createVolumeFromUvr(entitie)
+                    let operations = await this.operationDao.getOperationByVolume(volume)
+                    // console.log(JSON.stringify(operations, null, 2))
+                    for (let index = 0; index < operations.length; index++) {
+                        try {
+                            const op: Operation = operations[index];
+                            // console.log(`The operation ${op.gufi} intersect with this uvr`)
+                            let newState: OperationState = getNextOperationState(op)
+                            // console.log(`The opertion ${op.gufi} chage the state from ${op.state} to ${newState}`)
+                            if (newState != op.state) {
+                                op.state = newState
+                                this.operationDao.updateState(op.gufi, newState)
+                                let operationInfo = {
+                                    gufi: op.gufi,
+                                    state: newState
+                                }
+                                sendOpertationStateChange(operationInfo)
+                            }
+
+                        } catch (error) {
+                            response.status(500)
+                            return response.json({ msg: "Error when update operation status", error: error })
                         }
-                        sendOpertationStateChange(operationInfo)
                     }
+                }
+                catch (error) {
+                    response.status(500)
+                    return response.json({ msg: "Error when trying to get operations", error: error })
                 }
                 return response.json(entitie);
             } else {
