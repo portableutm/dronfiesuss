@@ -64,7 +64,8 @@
       "format": "xo --fix",
       "typeorm": "ts-node  ./node_modules/typeorm/cli.js",
       "typeorm:migration:create": "npm run typeorm -- migration:create -n prueba",
-      "typeorm:migration:generate": "npm run typeorm -- migration:generate -n prueba"
+      "typeorm:migration:generate": "npm run typeorm -- migration:generate -n prueba",
+      "dev-mail" : "fake-smtp-server -- -a prueba@prueba.com:prueba  --debug"
    },
    "xo": {
       "prettier": true,
