@@ -8,6 +8,7 @@ if ((process.env.NODE_ENV=="production")  && (process.env.JWTSECRET=='' || proce
 export const smtpUrl = process.env.SMTP_URL
 export const smtpUsername = process.env.SMTP_USERNAME
 export const smtpPassword = process.env.SMTP_PASSWORD
+export const smtpPort = process.env.SMTP_PORT
 
 export const frontEndUrl = "http://localhost:3000/"
 
