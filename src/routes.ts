@@ -7,6 +7,7 @@ import { PositionController } from "./restControllers/PositionController";
 import { UASVolumeReservationController } from "./restControllers/UASVolumeReservationController";
 import { NotamController } from "./restControllers/NotamRestController";
 import { RestrictedFlightVolumeController } from "./restControllers/RestrictedFlightVolumeController";
+import { MailController } from "./restControllers/MailController";
 
 import { checkJwt } from "./middleware/checkJwt";
 import { QuickFlyController } from "./restControllers/QuickFly";
@@ -133,6 +134,14 @@ let auth = [{
     
 }]
 
+let mail = [{
+    method: "post",
+    route: "/mail/pending",
+    controller: MailController,
+    action: "sendMailForPendingOperation",
+    middlewares: [checkJwt],
+}]
+
 let r : CustomRoute[] = [
     ...user, // ...doRoutes("user",UserController),
     ...doRoutes("notam", NotamController),
@@ -144,7 +153,8 @@ let r : CustomRoute[] = [
     ...doRoutes("quickfly", QuickFlyController), 
     
     ...operations, 
-    ...auth
+    ...auth,
+    ...mail,
 ];
 
 // if(process.env.NODE_ENV == "dev"){
