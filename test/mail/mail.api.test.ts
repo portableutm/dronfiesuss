@@ -19,7 +19,7 @@ import { OperationDao } from "../../src/daos/OperationDaos";
 const userSmtp = "prueba@prueba.com"
 const passSmtp = "prueba"
 
-describe.only('>>> Mail api test <<<', function () {
+describe('>>> Mail api test <<<', function () {
     before(function (done) {
         this.timeout(TEST_TIMEOUT);
         initAsync()
@@ -65,26 +65,26 @@ describe.only('>>> Mail api test <<<', function () {
             .catch(done);
     });
 
-    it("/POST shoud fail because not sended ", function (done) {
-        this.timeout(10000);
-        const receiverMail = "pendigOperationTest@dronfies.com"
-        let mailData = {
-            receiverMail: receiverMail,
-            bodyMail: ""
-        }
-        let token = getToken('admin@dronfies.com', 'admin', Role.ADMIN)
+    // it("/POST shoud fail because gufi is not sended ", function (done) {
+    //     this.timeout(10000);
+    //     const receiverMail = "pendigOperationTest@dronfies.com"
+    //     let mailData = {
+    //         receiverMail: receiverMail,
+    //         bodyMail: ""
+    //     }
+    //     let token = getToken('admin@dronfies.com', 'admin', Role.ADMIN)
 
-        chai.request(app.app)
-            .post(`/mail/pending`)
-            .set('Accept', 'application/json')
-            .set('auth', token)
-            .send(mailData)
-            .then(res => {
-                res.should.have.status(400);
-                done()
-            })
-            .catch(done);
-    });
+    //     chai.request(app.app)
+    //         .post(`/mail/pending`)
+    //         .set('Accept', 'application/json')
+    //         .set('auth', token)
+    //         .send(mailData)
+    //         .then(res => {
+    //             res.should.have.status(400);
+    //             done()
+    //         })
+    //         .catch(done);
+    // });
 
     it("/POST shoud send a mail with operation data ", function (done) {
         this.timeout(10000);
