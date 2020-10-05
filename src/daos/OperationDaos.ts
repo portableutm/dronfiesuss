@@ -250,4 +250,32 @@ export class OperationDao {
         .getMany()
     }
 
+    /**
+     * Return all operations that contain 'point', altitude, time and uvin
+     * @param point 
+     * @param altitude 
+     * @param time 
+     * @param uvin 
+     */
+    async getOperationByPositionAndDrone(point, altitude, time, uvin){
+        return this.repository
+        .createQueryBuilder("operation")
+        .innerJoinAndSelect("operation.operation_volumes", "operation_volume")
+        .innerJoinAndSelect("operation.uas_registrations", "vehicle_reg")
+        
+        .where("st_contains(operation_volume.\"operation_geography\" ,ST_GeomFromGeoJSON(:origin))")
+        .andWhere(":altitude ::numeric <@ numrange(operation_volume.\"min_altitude\", operation_volume.\"max_altitude\")")
+        .andWhere(":time ::timestamp <@ tsrange(operation_volume.\"effective_time_begin\", operation_volume.\"effective_time_end\")")
+        .andWhere("\"state\" = 'ACTIVATED'")
+        .andWhere("vehicle_reg.\"uvin\" = :uvin")
+        .setParameters({
+            origin: JSON.stringify(point)  ,
+            altitude: altitude,
+            time: time,
+            uvin: uvin
+
+        })
+        .getMany()
+    }
+
 }   
