@@ -90,6 +90,8 @@ describe('>>> Mail api test <<<', function () {
         this.timeout(10000);
 
         let op = deepCopy(Operations[0])
+        delete op.gufi 
+
         let newGufi = '6bec947c-ee13-47f3-a2c7-8722b379eba8'
 
         op.gufi = newGufi

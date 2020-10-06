@@ -18,11 +18,12 @@ import { OperationDao } from "../../src/daos/OperationDaos";
 
 describe('>>> Position entity <<< ', function () {
 
+
     before(function (done) {
         this.timeout(TEST_TIMEOUT);
         initAsync()
             // .then(done)
-            .then((function(application){
+            .then((function (application) {
                 done()
             }))
             .catch(done)
@@ -47,6 +48,8 @@ describe('>>> Position entity <<< ', function () {
             let gufi = "c42e9384-14d2-9b6b-1c1c-1c3c8aaa2b99"
             let opDao = new OperationDao()
             let op = deepCopy(Operations[0])
+            delete op.gufi
+
             op.gufi = gufi
             op.uas_registrations = []
             op.flight_comments = "For automate Testing operation and position"
@@ -126,6 +129,8 @@ describe('>>> Position entity <<< ', function () {
             let gufi = "d12e9172-14d2-9b6b-7b7b-1c3c8ccc1e12"
             let opDao = new OperationDao()
             let op = deepCopy(Operations[0])
+            delete op.gufi
+
             op.gufi = gufi
             op.uas_registrations = []
             op.flight_comments = "For automate Testing operation and altitude"
@@ -379,20 +384,20 @@ describe('>>> Position entity <<< ', function () {
             // let opDao = new OperationDao()
             // opDao.updateState('b92c7431-13c4-4c6c-9b4a-1c3c8eec8c63', OperationState.ACTIVATED).then(
             //     (res) => {
-                    chai.request(app.app)
-                    .post('/position/drone')
-                    .set('auth', token)
-                    .send(positionToInsert)
-                    .then(function (res) {
-                        res.should.have.status(400);
-                        done();
-                    })
-                    .catch(done);
-                // }).catch(done)
-        // });
-    })
+            chai.request(app.app)
+                .post('/position/drone')
+                .set('auth', token)
+                .send(positionToInsert)
+                .then(function (res) {
+                    res.should.have.status(400);
+                    done();
+                })
+                .catch(done);
+            // }).catch(done)
+            // });
+        })
 
-        it("/POST ", function (done) {
+        it.skip("/POST ", function (done) {
             let token = getToken('admin@dronfies.com', 'admin', Role.ADMIN)
             let positionToInsert = {
                 "altitude_gps": 30,
@@ -411,14 +416,14 @@ describe('>>> Position entity <<< ', function () {
             opDao.updateState('b92c7431-13c4-4c6c-9b4a-1c3c8eec8c63', OperationState.ACTIVATED).then(
                 (res) => {
                     chai.request(app.app)
-                    .post('/position/drone')
-                    .set('auth', token)
-                    .send(positionToInsert)
-                    .then(function (res) {
-                        res.should.have.status(200);
-                        done();
-                    })
-                    .catch(done);
+                        .post('/position/drone')
+                        .set('auth', token)
+                        .send(positionToInsert)
+                        .then(function (res) {
+                            res.should.have.status(200);
+                            done();
+                        })
+                        .catch(done);
                 }).catch(done)
         });
     })

@@ -8,6 +8,8 @@ import { TEST_TIMEOUT } from "../conf";
 import { app, initAsync } from "../../src/index";
 
 describe(' >>> Auth test <<< ', function () {
+    this.timeout(TEST_TIMEOUT);
+
 
     before(function (done) {
         this.timeout(TEST_TIMEOUT);
