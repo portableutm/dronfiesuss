@@ -31,11 +31,14 @@ export class AuthController {
         let username :string = request.body.username
         let password :string = request.body.password
         let format :string = request.body.format
-        // console.log(`username: ${username}, password:${password}`)
 
         let user : User
         try {
-            user = await this.dao.one(username)  
+            user = await this.dao.oneWithPassword(username)  
+            console.log(`Useeeer:::${JSON.stringify(user)}`)
+            if(user==undefined){
+                return response.sendStatus(401);
+            }
             
             const status = await user.status;
             if(status.status == Status.UNCONFIRMED){
@@ -48,9 +51,7 @@ export class AuthController {
             console.error(error)
             return response.sendStatus(401);
         }
-        
         let credentialValid : boolean = checkIfUnencryptedPasswordIsValid(password, user.password)
-        // console.log(`- credentialValid: ${credentialValid}`)
 
         if(credentialValid){
             //Sing JWT, valid for 1 hour

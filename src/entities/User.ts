@@ -2,6 +2,7 @@ import {Entity, PrimaryGeneratedColumn, Column, Unique, PrimaryColumn, OneToOne,
 import { UserStatus } from "./UserStatus";
 import { Polygon } from "geojson";
 import { QuickFly } from "./QuickFly";
+import { VehicleReg } from "./VehicleReg";
 
 
 export enum Role {
@@ -30,13 +31,13 @@ export class User {
     @Column()
     email: string;
 
-    @Column()
+    @Column({select: false})
     password: string;
 
     @Column({default:Role.PILOT})
     role: Role;
 
-    @OneToOne("UserStatus", {lazy:true, cascade : ["insert"]   })
+    @OneToOne("UserStatus", {lazy:true, cascade : true   })
     @JoinColumn()
     status? : UserStatus
 
@@ -51,7 +52,10 @@ export class User {
     quickFlys?:  Promise<QuickFly[]>;
     // quickFlys? : QuickFly;
 
-
+    // @ManyToMany(type => VehicleReg, {
+    //     eager: true
+    // })
+    // vehicles?: VehicleReg[];
 
 }
 

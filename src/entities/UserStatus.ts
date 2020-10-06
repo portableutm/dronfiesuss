@@ -11,7 +11,7 @@ export enum Status {
 export class UserStatus {
 
     @PrimaryGeneratedColumn()
-    id: String;
+    id?: String;
 
     @Column({default: ""})
     token: String;

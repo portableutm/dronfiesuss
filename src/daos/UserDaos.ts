@@ -14,6 +14,18 @@ export class UserDao {
         return this.userRepository.findOneOrFail(username);
     }
 
+    async oneWithPassword(username : string) {
+        // console.log(`username: ${username}`)
+        return this.userRepository
+        .createQueryBuilder()
+        .select("user")
+        .addSelect("user.password")
+        .from(User, "user")
+        .where("user.username = :username", {  username: username })
+        .getOne()
+        return this.userRepository.findOneOrFail(username);
+    }
+
     async save(user:User) {
         // console.log(`Save user: ${JSON.stringify(user)}`)
         let u = await this.userRepository.insert(user)
