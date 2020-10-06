@@ -101,7 +101,7 @@ export class PositionController {
      */
     async savePositionWithDrone(request: Request, response: Response, next: NextFunction) {
         try {
-            let gufi = request.body.gufi
+            // let gufi = request.body.gufi
             let errors = [];
             errors = validatePosition(request.body)
             const { uvin, altitude_gps, location, time_sent } = request.body

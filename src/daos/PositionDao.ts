@@ -14,7 +14,7 @@ export class  PositionDao{
         return this.repository.findOne(id);
     }
 
-    async save(entity:Position) {
+    async save(entity /*:Position*/) {
         return this.repository.save(entity);
     }
 

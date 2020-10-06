@@ -11,7 +11,7 @@ export class VehicleController {
     private dao = new VehicleDao()
 
     /**
-     * Get all the vehicles, only admin can use
+     * Get vehicles, if user role is admin get all vehicles, if user is Pilot get only the owned vehicles
      * @param request 
      * @param response 
      * @param next 

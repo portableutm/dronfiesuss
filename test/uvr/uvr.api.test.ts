@@ -13,7 +13,7 @@ import { UASVolumeReservationCause, UASVolumeReservationType } from "../../src/e
 import { deepCopy } from "../../src/utils/entitiesUtils";
 import { Operations } from "../../src/data/operations_data";
 import { OperationState, Operation } from "../../src/entities/Operation";
-import { TEST_TIMEOUT } from "../conf"; 
+import { TEST_TIMEOUT } from "../conf";
 
 describe('>>> Uas volume reservation entity <<< ', function () {
 
@@ -21,7 +21,7 @@ describe('>>> Uas volume reservation entity <<< ', function () {
         this.timeout(TEST_TIMEOUT);
         initAsync()
             // .then(done)
-            .then((function(application){
+            .then((function (application) {
                 done()
             }))
             .catch(done)
@@ -116,14 +116,18 @@ describe('>>> Uas volume reservation entity <<< ', function () {
         let op2Poly = { "type": "Polygon", "coordinates": [[[-56.1624526977539, -34.917326130709455], [-56.15816116333008, -34.92105615133446], [-56.15781784057617, -34.91620005343492], [-56.16090774536133, -34.915144341959426], [-56.1624526977539, -34.917326130709455]]] }
 
         let op = Object.assign({}, deepCopy(Operations[0]))
-        op.gufi = undefined
+        delete op.gufi
+
+        // op.gufi = undefined
         op.uas_registrations = []
         op.flight_comments = "For automate Testing UVR "
         op.state = OperationState.ACTIVATED
         op.operation_volumes[0] = Object.assign(op.operation_volumes[0], deepCopy(opVol)) //.operation_geography = op1Poly // = "For automate Testing operation "
-        
+
 
         let op2 = Object.assign({}, deepCopy(Operations[0]))
+        delete op2.gufi
+
         // let op2 = deepCopy(Operations[1])
         op2.gufi = undefined
         op2.uas_registrations = []
@@ -146,7 +150,7 @@ describe('>>> Uas volume reservation entity <<< ', function () {
                 values.forEach(op => {
                     op.should.have.property('gufi');
                 });
-                let uvrPoly = {"type": "Polygon","coordinates": [[[-56.159834861755364,-34.91795954238727],[-56.16240978240967,-34.92221734956747],[-56.15567207336426,-34.922569224576016],[-56.15395545959473,-34.920141256305946],[-56.159834861755364,-34.91795954238727]]]}
+                let uvrPoly = { "type": "Polygon", "coordinates": [[[-56.159834861755364, -34.91795954238727], [-56.16240978240967, -34.92221734956747], [-56.15567207336426, -34.922569224576016], [-56.15395545959473, -34.920141256305946], [-56.159834861755364, -34.91795954238727]]] }
 
                 let uvr = {
                     "uss_name": null,
@@ -189,7 +193,7 @@ describe('>>> Uas volume reservation entity <<< ', function () {
             .catch(done);
     });
 
-   
+
 
 
 });
