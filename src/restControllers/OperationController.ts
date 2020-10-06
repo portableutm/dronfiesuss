@@ -49,6 +49,8 @@ export class OperationController {
         } else {
           ops = await this.dao.all({ state: state })
         }
+        console.log('!!!!!!!!! Operations !!!!!!!!!!')
+        console.log(JSON.stringify(ops, null, 2))
         return response.json({ count: ops.length, ops })
 
       } catch (error) {
@@ -274,7 +276,9 @@ export class OperationController {
   async operationsByCreator(request: Request, response: Response, next: NextFunction) {
     let { username, role } = response.locals.jwtPayload
     let ops;
-    ops = await this.dao.operationsByCreator(username)
+    // let state = request.query.state
+
+    ops = await this.dao.operationsByCreator(username, request.query)
     return response.json({ count: ops.length, ops });
   }
 
@@ -287,7 +291,7 @@ export class OperationController {
   async operationsByOwner(request: Request, response: Response, next: NextFunction) {
     let { username, role } = response.locals.jwtPayload
     let ops;
-    ops = await this.dao.operationsByOwner(username)
+    ops = await this.dao.operationsByOwner(username, request.query)
     return response.json({ count: ops.length, ops });
   }
 
