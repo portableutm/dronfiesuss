@@ -49,11 +49,12 @@ export class OperationController {
         } else {
           ops = await this.dao.all({ state: state })
         }
-        console.log('!!!!!!!!! Operations !!!!!!!!!!')
-        console.log(JSON.stringify(ops, null, 2))
+        // console.log('!!!!!!!!! Operations !!!!!!!!!!')
+        // console.log(`**** ${JSON.stringify(ops.map(op=>{return {name:op.name, gufi:op.gufi, owner:op.owner}}), null, 2)}`)
         return response.json({ count: ops.length, ops })
 
       } catch (error) {
+        console.error(` -_-_-_-_-_-_-_-> ${JSON.stringify(error)}`)
         return response.sendStatus(400)
       }
     }

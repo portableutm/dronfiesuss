@@ -92,11 +92,11 @@ describe('>>> Mail api test <<<', function () {
         let op = deepCopy(Operations[0])
         delete op.gufi 
 
-        let newGufi = '6bec947c-ee13-47f3-a2c7-8722b379eba8'
-
+        let newGufi = '89250d79-7442-4e58-a12c-954537bb0820'
         op.gufi = newGufi
+        op.name = "Operation for testing mail"
         op.uas_registrations = []
-        op.flight_comments = "For automate Testing operation "
+        op.flight_comments = "Operation for testing mail comments "
         op.state = OperationState.PENDING
         op.operation_volumes[0].operation_geography = { "type": "Polygon", "coordinates": [[[-56.215668, -34.906628], [-56.212749, -34.912751], [-56.207514, -34.910429], [-56.210947, -34.904516], [-56.215668, -34.906628]]] }
 
@@ -133,7 +133,8 @@ describe('>>> Mail api test <<<', function () {
                                 let mail = res.body[0]
                                 // console.log(`Mail: ${JSON.stringify(mail, null, 2)} - subject:${mail.subject}`)
                                 mail.subject.should.include('Informaci');
-                                done()
+                                opDao.removeOperation(op).then(()=>{done()}).catch((error)=>{console.error(error);done(error)})
+                                // done()
                             })
                             .catch(done)
                     })

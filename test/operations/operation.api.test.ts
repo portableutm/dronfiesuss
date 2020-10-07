@@ -552,7 +552,7 @@ describe(' >>> Operation test <<< ', function () {
     })
 
 
-    describe.only(' Operation pagination ', function () {
+    describe(' Operation pagination ', function () {
         it("should get the two operations in diferent pages", function (done) {
             let token = getToken('maurine@dronfies.com', 'MaurineFowlie', Role.PILOT)
             chai.request(app.app)
