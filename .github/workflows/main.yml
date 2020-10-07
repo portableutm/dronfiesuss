@@ -43,9 +43,10 @@ jobs:
           DATABASE_CONNECTION_NAME=dev
           JWTSECRET=asdfasdasdfasdff  
           JWT_EXPIRATION_TIME=1h
-          SMTP_URL=smtp.dronfies.com
-          SMTP_USERNAME=prueba@dronfies.com
-          SMTP_PASSWORD=xxxxxxxxxxxx
+          SMTP_URL=localhost
+          SMTP_PORT=1025
+          SMTP_USERNAME=prueba@prueba.com
+          SMTP_PASSWORD=prueba
           TEST_TIMEOUT=5000
         write-mode:   overwrite
 
@@ -55,6 +56,8 @@ jobs:
         node-version: '10.19.0'
 
     - run: npm install
+    
+    - run: ./node_modules/.bin/fake-smtp-server  -a prueba@prueba.com:prueba &
     
     - name: run app
       run: npm run coveralls
