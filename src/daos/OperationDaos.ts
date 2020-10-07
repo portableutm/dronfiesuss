@@ -213,7 +213,7 @@ export class OperationDao {
             .innerJoinAndSelect("operation.creator", "creator")
             .innerJoinAndSelect("operation.operation_volumes", "operation_volume")
             .where(" creator.\"username\" =  :username")
-            .orderBy('operation.submit_time')
+            .orderBy('operation.submit_time', "DESC")
             .setParameters({
                 username: username,
             })
@@ -235,7 +235,7 @@ export class OperationDao {
             .innerJoinAndSelect("operation.operation_volumes", "operation_volume")
             .leftJoinAndSelect('operation.uas_registrations', 'uas_registration')
             .where(" owner.\"username\" =  :username")
-            .orderBy('operation.submit_time')
+            .orderBy('operation.submit_time', "DESC")
             .setParameters({
                 username: username,
             })
