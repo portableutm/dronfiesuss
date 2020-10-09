@@ -5,6 +5,11 @@ import { OperationVolume } from "../entities/OperationVolume";
 import { UASVolumeReservationDao } from "../daos/UASVolumeReservationDao";
 import { RestrictedFlightVolumeDao } from "../daos/RestrictedFlightVolumeDao";
 import { sendOpertationStateChange } from "./asyncBrowserComunication";
+import { OperationIntersections } from "../entities/OperationIntersection";
+import { Role } from "../entities/User";
+
+
+import { doSendMailForPendingOperation, doSendMailForNotAcceptedOperation } from "../restControllers/MailController"
 
 let operationDao: OperationDao;
 let uvrDao: UASVolumeReservationDao;
@@ -59,15 +64,37 @@ export async function processOperations() {
 async function processProposed(operation: Operation) {
     for (let index = 0; index < operation.operation_volumes.length; index++) {
         const operationVolume = operation.operation_volumes[index];
+        // try {
+        //     populateIntersections(operation, operationVolume)
+        // } catch (error) {
+        //     console.error(`------> ERROR AL GUARDAR INTERSECCIONES:: ${JSON.stringify(error)}`)
+        // }
+
         let intersect = await checkIntersection(operation, operationVolume)
-        // console.log(`Intersects is ${intersect}`)
+        if (intersect && operation.flight_comments) {
+            console.log(`------------------------------>>>`)
+            let result = await operationDao.save(operation)
+        }
+
         if (intersect) {
+            doSendMailForNotAcceptedOperation(operationDao, 
+                { receiverMail: operation.owner?operation.owner.email:"emialonzo@gmail.com" , gufi: operation.gufi, bodyMail: "Email generado automaticamente" }, 
+                { role: Role.ADMIN, username: "" })
             return changeState(operation, OperationState.NOT_ACCEPTED)
         } else if (await intersectsWithRestrictedFlightVolume(operation, operationVolume)) {
+            // let op: Operation = new Operation();
+            // op.owner.email
+            console.log(`********\n${JSON.stringify(operation,null,2)}\n********`)
+
+            operationDao = new OperationDao()
+            let error = await doSendMailForPendingOperation(
+                operationDao, 
+                { receiverMail: operation.owner?operation.owner.email:"emialonzo@gmail.com" , gufi: operation.gufi, bodyMail: "Email generado automaticamente" }, 
+                { role: Role.ADMIN, username: "" })
             return changeState(operation, OperationState.PENDING)
         }
     }
-    
+
 
     let changeToActived = false;
     let date = getNow()
@@ -80,39 +107,66 @@ async function processProposed(operation: Operation) {
             changeToActived = true // changeState(operation, OperationState.ACTIVATED)
         }
     }
-    if(changeToActived){
+    if (changeToActived) {
         changeState(operation, OperationState.ACTIVATED)
-    }else{
+    } else {
         changeState(operation, OperationState.ACCEPTED)
     }
 }
 
 async function checkIntersection(operation: Operation, operationVolume: OperationVolume) {
     try {
-
-        let operationsCount = await operationDao.getOperationVolumeByVolumeCountExcludingOneOperation(operation.gufi, operationVolume)
-        // console.log(`Count uvr`)
+        let operationsCount = await operationDao.countOperationVolumeByVolumeCountExcludingOneOperation(operation.gufi, operationVolume)
         let uvrCount = await uvrDao.countUvrIntersections(operationVolume)
-        // console.log(`Count uvr ${uvrCount}`)
+        let msg = operationsCount ? "ANOTHER_OPERATION " : "" + uvrCount ? "UVR " : ""
+        operation.flight_comments = msg
 
-        // let rfvCount = await  rfvDao.countRfvIntersections(operationVolume)
-        // console.log(`Count rfvCount ${rfvCount}`)
-
-        // return operationsCount > 0 ;
-        return (operationsCount > 0) || (uvrCount > 0) 
-        // || (rfvCount>0)
-        ;
+        return (operationsCount > 0) || (uvrCount > 0)
     } catch (e) {
         console.log(e)
         return true //TODO throw exception
     }
 }
 
-async function intersectsWithRestrictedFlightVolume(operation: Operation, operationVolume: OperationVolume){
-    let rfvCount = await rfvDao.countRfvIntersections(operationVolume)
-    // if(rfvCount > 0) console.log(`****>>${rfvCount}::${operation.gufi}->${JSON.stringify(operationVolume.operation_geography)}`)
-    return (rfvCount > 0);
+async function intersectsWithRestrictedFlightVolume(operation: Operation, operationVolume: OperationVolume) {
+    // let rfvCount = await rfvDao.countRfvIntersections(operationVolume)
+    // // if(rfvCount > 0) console.log(`****>>${rfvCount}::${operation.gufi}->${JSON.stringify(operationVolume.operation_geography)}`)
+    // return (rfvCount > 0);
+    let rfvs = await rfvDao.getRfvIntersections(operationVolume)
+    return (rfvs.length > 0);
 }
+
+async function populateIntersections(operation: Operation, operationVolume: OperationVolume) {
+
+    let operation_inserctions = new OperationIntersections // {operations:[], uvrs:[], rfvs:[]} 
+
+    let operations = await operationDao.getOperationVolumeByVolumeCountExcludingOneOperation(operation.gufi, operationVolume)
+    let operationsCount = await operationDao.countOperationVolumeByVolumeCountExcludingOneOperation(operation.gufi, operationVolume)
+    operation_inserctions.operations = operations
+
+    let uvrs = await uvrDao.getUvrIntersections(operationVolume)
+    let uvrsCount = await uvrDao.countUvrIntersections(operationVolume)
+    operation_inserctions.uvrs = uvrs
+
+    let rfvs = await rfvDao.getRfvIntersections(operationVolume)
+    let rfvsCount = await rfvDao.countRfvIntersections(operationVolume)
+    operation_inserctions.rfvs = rfvs
+
+    operation.operation_inserctions = operation_inserctions
+
+    console.log(` -  -  -  -  -  -  ->Obj!${JSON.stringify(operation_inserctions, null, 2)}`)
+    console.log(` -  -  -  -  -  -  ->OP!${operation.name}!!${JSON.stringify(operation.operation_inserctions, null, 2)}`)
+    operation.name = operation.name + " *** "
+    console.log(` -  -  -  -  -  -  ->Ops:${operationsCount}:${JSON.stringify(operations)}`)
+    console.log(` -  -  -  -  -  -  ->Uvrs:${uvrsCount}:${JSON.stringify(uvrs)}`)
+    console.log(` -  -  -  -  -  -  ->Rfvs:${rfvsCount}:${JSON.stringify(rfvs)}`)
+    await operationDao.save(operation)
+    console.log(` -  -  -  -  -  -  ->OP!${operation.name}!!${JSON.stringify(operation.operation_inserctions, null, 2)}`)
+
+    // return (rfvs.length > 0);
+}
+
+
 
 /**
  * We will delete this, is like close
@@ -187,12 +241,11 @@ async function changeState(operation: Operation, newState: OperationState) {
 
     let result = await operationDao.save(operation)
     let operationInfo = {
-        gufi : operation.gufi,
-        state : newState
+        gufi: operation.gufi,
+        state: newState
     }
     sendOpertationStateChange(operationInfo)
     return result
 }
 
 
-  
