@@ -5,7 +5,7 @@ import { OperationVolume } from "../entities/OperationVolume";
 import { UASVolumeReservationDao } from "../daos/UASVolumeReservationDao";
 import { RestrictedFlightVolumeDao } from "../daos/RestrictedFlightVolumeDao";
 import { sendOpertationStateChange } from "./asyncBrowserComunication";
-import { OperationIntersections } from "../entities/OperationIntersection";
+// import { OperationIntersections } from "../entities/OperationIntersection";
 import { Role } from "../entities/User";
 
 
@@ -136,35 +136,35 @@ async function intersectsWithRestrictedFlightVolume(operation: Operation, operat
     return (rfvs.length > 0);
 }
 
-async function populateIntersections(operation: Operation, operationVolume: OperationVolume) {
+// async function populateIntersections(operation: Operation, operationVolume: OperationVolume) {
 
-    let operation_inserctions = new OperationIntersections // {operations:[], uvrs:[], rfvs:[]} 
+//     let operation_inserctions = new OperationIntersections // {operations:[], uvrs:[], rfvs:[]} 
 
-    let operations = await operationDao.getOperationVolumeByVolumeCountExcludingOneOperation(operation.gufi, operationVolume)
-    let operationsCount = await operationDao.countOperationVolumeByVolumeCountExcludingOneOperation(operation.gufi, operationVolume)
-    operation_inserctions.operations = operations
+//     let operations = await operationDao.getOperationVolumeByVolumeCountExcludingOneOperation(operation.gufi, operationVolume)
+//     let operationsCount = await operationDao.countOperationVolumeByVolumeCountExcludingOneOperation(operation.gufi, operationVolume)
+//     operation_inserctions.operations = operations
 
-    let uvrs = await uvrDao.getUvrIntersections(operationVolume)
-    let uvrsCount = await uvrDao.countUvrIntersections(operationVolume)
-    operation_inserctions.uvrs = uvrs
+//     let uvrs = await uvrDao.getUvrIntersections(operationVolume)
+//     let uvrsCount = await uvrDao.countUvrIntersections(operationVolume)
+//     operation_inserctions.uvrs = uvrs
 
-    let rfvs = await rfvDao.getRfvIntersections(operationVolume)
-    let rfvsCount = await rfvDao.countRfvIntersections(operationVolume)
-    operation_inserctions.rfvs = rfvs
+//     let rfvs = await rfvDao.getRfvIntersections(operationVolume)
+//     let rfvsCount = await rfvDao.countRfvIntersections(operationVolume)
+//     operation_inserctions.rfvs = rfvs
 
-    operation.operation_inserctions = operation_inserctions
+//     operation.operation_inserctions = operation_inserctions
 
-    console.log(` -  -  -  -  -  -  ->Obj!${JSON.stringify(operation_inserctions, null, 2)}`)
-    console.log(` -  -  -  -  -  -  ->OP!${operation.name}!!${JSON.stringify(operation.operation_inserctions, null, 2)}`)
-    operation.name = operation.name + " *** "
-    console.log(` -  -  -  -  -  -  ->Ops:${operationsCount}:${JSON.stringify(operations)}`)
-    console.log(` -  -  -  -  -  -  ->Uvrs:${uvrsCount}:${JSON.stringify(uvrs)}`)
-    console.log(` -  -  -  -  -  -  ->Rfvs:${rfvsCount}:${JSON.stringify(rfvs)}`)
-    await operationDao.save(operation)
-    console.log(` -  -  -  -  -  -  ->OP!${operation.name}!!${JSON.stringify(operation.operation_inserctions, null, 2)}`)
+//     console.log(` -  -  -  -  -  -  ->Obj!${JSON.stringify(operation_inserctions, null, 2)}`)
+//     console.log(` -  -  -  -  -  -  ->OP!${operation.name}!!${JSON.stringify(operation.operation_inserctions, null, 2)}`)
+//     operation.name = operation.name + " *** "
+//     console.log(` -  -  -  -  -  -  ->Ops:${operationsCount}:${JSON.stringify(operations)}`)
+//     console.log(` -  -  -  -  -  -  ->Uvrs:${uvrsCount}:${JSON.stringify(uvrs)}`)
+//     console.log(` -  -  -  -  -  -  ->Rfvs:${rfvsCount}:${JSON.stringify(rfvs)}`)
+//     await operationDao.save(operation)
+//     console.log(` -  -  -  -  -  -  ->OP!${operation.name}!!${JSON.stringify(operation.operation_inserctions, null, 2)}`)
 
-    // return (rfvs.length > 0);
-}
+//     // return (rfvs.length > 0);
+// }
 
 
 
