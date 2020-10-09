@@ -156,7 +156,7 @@ export class OperationController {
    * @param next 
    */
   async save(request: Request, response: Response, next: NextFunction) {
-    let { role } = response.locals.jwtPayload
+    let { role, usernameFromRequest } = response.locals.jwtPayload
     let errors = validateOperation(request.body)
     let username = request.body.owner
     try {
@@ -169,7 +169,8 @@ export class OperationController {
     } catch (error) {
       errors.push(`The selected vehicle doesn't exists or you no are the owner.`)
     }
-    request.body.creator = username
+    // request.body.creator = username
+    request.body.creator = usernameFromRequest
     request.body.state = OperationState.PROPOSED
 
     if (errors.length == 0) {
@@ -331,6 +332,9 @@ function validateOperation(operation: any) {
   let errors = []
   // let op: Operation = operation
   let op = operation
+  if(!op.owner){
+    errors.push(`Owner is a mandatory field`)
+  }
   if (op.operation_volumes.length != 1) {
     errors.push(`Operation must have only 1 volume and has ${op.operation_volumes.length}`)
   } else {
