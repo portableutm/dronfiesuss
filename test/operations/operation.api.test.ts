@@ -16,6 +16,7 @@ import { OperationState, Operation } from "../../src/entities/Operation";
 import { TEST_TIMEOUT } from "../conf";
 import { OperationDao } from "../../src/daos/OperationDaos";
 import { ApprovalDao } from "../../src/daos/ApprovalDao";
+import { Users } from "../../src/data/users_data";
 
 
 describe(' >>> Operation test <<< ', function () {
@@ -289,6 +290,9 @@ describe(' >>> Operation test <<< ', function () {
         let token = getToken('trula@dronfies.com', 'TrulaRemon', Role.PILOT)
         let op = deepCopy(Operations[0])
         delete op.gufi
+        
+        op.owner = Users[0]
+
         op.uas_registrations = []
         op.flight_comments = "For automate Testing operation "
         op.state = OperationState.PROPOSED

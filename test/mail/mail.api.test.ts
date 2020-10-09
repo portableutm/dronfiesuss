@@ -31,15 +31,15 @@ describe('>>> Mail api test <<<', function () {
     })
 
     after(function (done) {
-        this.timeout(TEST_TIMEOUT);
-        chai.request('http://localhost:1080')
-            .delete(`/api/emails`)
-            .auth(userSmtp, passSmtp)
-            .then((res) => {
-                console.log(`Deleting: ${JSON.stringify(res.body)}`)
+        // this.timeout(TEST_TIMEOUT);
+        // chai.request('http://localhost:1080')
+        //     .delete(`/api/emails`)
+        //     .auth(userSmtp, passSmtp)
+        //     .then((res) => {
+        //         console.log(`Deleting: ${JSON.stringify(res.body)}`)
                 done()
-            })
-            .catch(done)
+        //     })
+        //     .catch(done)
     })
 
     // receiverMail, idOperation, bodyMail
@@ -98,8 +98,9 @@ describe('>>> Mail api test <<<', function () {
         op.uas_registrations = []
         op.flight_comments = "Operation for testing mail comments "
         op.state = OperationState.PENDING
-        op.operation_volumes[0].operation_geography = { "type": "Polygon", "coordinates": [[[-56.215668, -34.906628], [-56.212749, -34.912751], [-56.207514, -34.910429], [-56.210947, -34.904516], [-56.215668, -34.906628]]] }
-
+        // op.operation_volumes[0].operation_geography = { "type": "Polygon", "coordinates": [[[-56.215668, -34.906628], [-56.212749, -34.912751], [-56.207514, -34.910429], [-56.210947, -34.904516], [-56.215668, -34.906628]]] }
+        op.operation_volumes[0].operation_geography = {"type": "Polygon","coordinates": [[[-56.060829162597656,-34.84536693184099],[-56.05842590332031,-34.85635499318428],[-56.02375030517578,-34.85663671905172],[-56.03473663330078,-34.84085858477277],[-56.060829162597656,-34.84536693184099]]]}
+        
 
         const opDao = new OperationDao();
         opDao.save(op).then(function (op: any) {

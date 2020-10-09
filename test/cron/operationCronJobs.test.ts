@@ -13,6 +13,7 @@ import { processOperations } from "../../src/services/operationCronJobs";
 import { OperationState, Operation } from "../../src/entities/Operation";
 import { deepCopy } from "../../src/utils/entitiesUtils";
 import { Operations } from "../../src/data/operations_data";
+import { Users } from "../../src/data/users_data";
 
 describe('>>> Cron test <<<', function () {
 
@@ -159,23 +160,30 @@ describe('>>> Cron test <<<', function () {
         this.timeout(20000);
 
         let op = deepCopy(Operations[0])
-        // op.gufi = "" 
+        
+        op.owner = Users[0]
+        op.creator = Users[1]
+        
         delete op.gufi 
+        op.name = "Testeando el envio de emails?"
         op.operation_volumes[0].min_altitude = -20
         op.operation_volumes[0].max_altitude = 40
         op.flight_comments = "For test restricted flight volume "
         op.operation_volumes[0].operation_geography = {"type":"Polygon","coordinates":[[[-56.074905,-34.846212],[-56.08057,-34.867905],[-56.033192,-34.852411],[-56.061516,-34.8379],[-56.074905,-34.846212]]]}
         op.state = OperationState.PROPOSED
+        console.log(`********\n${JSON.stringify(op,null,2)}\n********`)
         let dao = new OperationDao();
 
         dao.save(op).then(function (op:Operation) {
             operationToRemove.push(op)
-            console.log(`Esto anda? guardo en bbdd`)
+            // console.log(`Esto anda? guardo en bbdd`)
             processOperations().then(function () {
-            console.log(`**** Processss the op ${op.gufi}`)
+            // console.log(`**** Processss the op ${op.gufi}`)
             setTimeout(async function () {
-                console.log(`**** Ya paso tiempo ${op.gufi}`)
+                // console.log(`**** Ya paso tiempo ${op.gufi}`)
                     let newOp = await dao.one(op.gufi)
+                    // let operationIntersections = await newOp.operation_inserctions
+                    // console.log(`Intersections:: ${JSON.stringify(operationIntersections)}`)
                     newOp.state.should.equal(OperationState.PENDING)
                     done()
                 }, 1000)
