@@ -10,7 +10,7 @@ export const smtpUsername = process.env.SMTP_USERNAME
 export const smtpPassword = process.env.SMTP_PASSWORD
 export const smtpPort = process.env.SMTP_PORT
 
-export const frontEndUrl = "http://localhost:3000/"
+export const frontEndUrl = process.env.FRONT_END_URL ||  "http://localhost:3000/"
 
 
 
