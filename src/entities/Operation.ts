@@ -7,6 +7,8 @@ import { VehicleReg } from "./VehicleReg";
 import { ContingencyPlan } from "./ContingencyPlan";
 import { NegotiationAgreement } from "./NegotiationAgreement";
 import { PriorityElements } from "./PriorityElements";
+// import { OperationIntersections } from "./OperationIntersection";
+// import { OperationCanceledException } from "typescript";
 
 type operations_vol = Array<OperationVolume>;
 
@@ -40,7 +42,7 @@ type operations_vol = Array<OperationVolume>;
     See USS Specification for requirements to transition to this state.
  */
 export enum OperationState {
-     PROPOSED = "PROPOSED"
+    PROPOSED = "PROPOSED"
     , ACCEPTED = "ACCEPTED"
     , ACTIVATED = "ACTIVATED"
     , CLOSED = "CLOSED"
@@ -167,6 +169,11 @@ export class Operation {
     @Column(type => PriorityElements)
     // @JoinColumn()
     'priority_elements'?: PriorityElements;
+
+
+    // @OneToOne("OperationIntersections", { lazy: true, cascade: true })
+    // // @JoinColumn()
+    // 'operation_inserctions'?: OperationIntersections
 
 
     //es nuleable
