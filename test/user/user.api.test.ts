@@ -100,13 +100,13 @@ describe('>>> User rest controller test <<<', function () {
                         assert.equal(newUsers.length, CountPreInsert + 1)
                         done();
                     }).catch(err => {
-                        console.error(err);
+                        // console.error(err);
                         done(err);
                     });
 
                 })
                 .catch(err => {
-                    console.error(err);
+                    // console.error(err);
                     done(err);
                 });
 
@@ -139,7 +139,7 @@ describe('>>> User rest controller test <<<', function () {
                 .set('Accept', 'application/json')
                 .send(user)
                 .then(res => {
-                    console.log(res.body)
+                    // console.log(res.body)
                     res.body.should.have.property('username').equal(user.username);
                     res.body.should.have.property('email').equal(user.email);
                     res.body.should.have.property('firstName').equal(user.firstName);
@@ -166,7 +166,7 @@ describe('>>> User rest controller test <<<', function () {
                     // });
                 })
                 .catch(err => {
-                    console.error(err);
+                    // console.error(err);
                     done(err);
                 });
         })
@@ -197,13 +197,13 @@ describe('>>> User rest controller test <<<', function () {
                         assert.equal(newUsers.length, CountPreInsert)
                         done();
                     }).catch(err => {
-                        console.error(err);
+                        // console.error(err);
                         done(err);
                     });
 
                 })
                 .catch(err => {
-                    console.error(err);
+                    // console.error(err);
                     done(err);
                 });
 
@@ -234,13 +234,13 @@ describe('>>> User rest controller test <<<', function () {
                         assert.equal(newUsers.length, CountPreInsert)
                         done();
                     }).catch(err => {
-                        console.error(err);
+                        // console.error(err);
                         done(err);
                     });
 
                 })
                 .catch(err => {
-                    console.error(err);
+                    // console.error(err);
                     done(err);
                 });
         })
@@ -270,13 +270,13 @@ describe('>>> User rest controller test <<<', function () {
                         assert.equal(newUsers.length, CountPreInsert)
                         done();
                     }).catch(err => {
-                        console.error(err);
+                        // console.error(err);
                         done(err);
                     });
 
                 })
                 .catch(err => {
-                    console.error(err);
+                    // console.error(err);
                     done(err);
                 });
         })
@@ -381,13 +381,13 @@ describe('>>> User rest controller test <<<', function () {
                             assert.equal(newUsers.length, CountPreInsert)
                             done();
                         }).catch(err => {
-                            console.error(err);
+                            // console.error(err);
                             done(err);
                         });
 
                     })
                     .catch(err => {
-                        console.error(err);
+                        // console.error(err);
                         done(err);
                     });
             })
@@ -413,12 +413,12 @@ describe('>>> User rest controller test <<<', function () {
 
                     })
                     .catch(err => {
-                        console.error(err);
+                        // console.error(err);
                         done(err)
                     });
             })
             .catch(err => {
-                console.error(err);
+                // console.error(err);
                 done(err)
             });
     });
@@ -438,12 +438,12 @@ describe('>>> User rest controller test <<<', function () {
 
                     })
                     .catch(err => {
-                        console.error(err);
+                        // console.error(err);
                         done(err)
                     });
             })
             .catch(err => {
-                console.error(err);
+                // console.error(err);
                 done(err)
             });
     });
@@ -458,7 +458,7 @@ describe('>>> User rest controller test <<<', function () {
                 done()
             })
             .catch(err => {
-                console.error(err);
+                // console.error(err);
                 done(err)
             });
 
@@ -522,10 +522,10 @@ describe('>>> User rest controller test <<<', function () {
 
             dao.one(user.username)
                 .then(function (newUser) {
-                    console.log(`Get the user to change status ${newUser.username}`)
+                    // console.log(`Get the user to change status ${newUser.username}`)
                     getUserStatus(newUser)
                         .then(status => {
-                            console.log(`Get the status ${JSON.stringify(status)}`)
+                            // console.log(`Get the status ${JSON.stringify(status)}`)
                             status.should.have.property("status").equal(Status.UNCONFIRMED)
 
                             let confirmJson = {

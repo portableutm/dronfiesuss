@@ -227,7 +227,7 @@ describe(' >>> Notams test <<< ', function () {
                 done()
             })
             .catch(function(error){
-                console.log(error)
+                // console.log(error)
                 done(error)
             });
     });
@@ -255,7 +255,7 @@ describe(' >>> Notams test <<< ', function () {
                 done()
             })
             .catch(function(error){
-                console.log(error)
+                // console.log(error)
                 done(error)
             });
     });

@@ -204,7 +204,7 @@ describe(' >>> Operation test <<< ', function () {
                     .set('Accept', 'application/json')
                     .then(function (res) {
                         res.should.have.status(200);
-                        console.log(res.body)
+                        // console.log(res.body)
                         opDao.one(newGufi).then(function (op) {
                             op.state.should.eq(OperationState.ACCEPTED)
                             approvalDao.one(res.body.id).then(function (app) {
@@ -242,7 +242,7 @@ describe(' >>> Operation test <<< ', function () {
                     .set('Accept', 'application/json')
                     .then(function (res) {
                         res.should.have.status(200);
-                        console.log(res.body)
+                        // console.log(res.body)
                         opDao.one(newGufi).then(function (op) {
                             op.state.should.eq(OperationState.CLOSED)
                             approvalDao.one(res.body.id).then(function (app) {
@@ -274,7 +274,7 @@ describe(' >>> Operation test <<< ', function () {
                     .set('auth', token)
                     .set('Accept', 'application/json')
                     .then(function (res) {
-                        console.log(res.body)
+                        // console.log(res.body)
                         res.should.have.status(404);
                         opDao.one(newGufi).then(function (op) {
                             op.state.should.eq(OperationState.NOT_ACCEPTED)

@@ -28,7 +28,7 @@ describe(' >>> Auth test <<< ', function () {
                 done()
             })
             .catch(err => {
-                console.error(err);
+                // console.error(err);
                 done(err)
             });
     });

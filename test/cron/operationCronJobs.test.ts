@@ -138,7 +138,7 @@ describe('>>> Cron test <<<', function () {
 
         dao.save(op).then(function (op:Operation) {
             operationToRemove.push(op)
-            console.log(` ------- Date is:: ${getNow()}`)
+            // console.log(` ------- Date is:: ${getNow()}`)
             fakeTime("2019-12-11T21:20:10.000Z")
             processOperations().then(function () {
                 setTimeout(async function () {
@@ -171,7 +171,7 @@ describe('>>> Cron test <<<', function () {
         op.flight_comments = "For test restricted flight volume "
         op.operation_volumes[0].operation_geography = {"type":"Polygon","coordinates":[[[-56.074905,-34.846212],[-56.08057,-34.867905],[-56.033192,-34.852411],[-56.061516,-34.8379],[-56.074905,-34.846212]]]}
         op.state = OperationState.PROPOSED
-        console.log(`********\n${JSON.stringify(op,null,2)}\n********`)
+        // console.log(`********\n${JSON.stringify(op,null,2)}\n********`)
         let dao = new OperationDao();
 
         dao.save(op).then(function (op:Operation) {

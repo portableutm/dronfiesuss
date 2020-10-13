@@ -32,7 +32,7 @@ describe('>>> Socket io <<< ', function () {
             .then(function(application:App){
                 // app = application
                 app.listen(()=>{
-                    console.log("><>< FINISH initAsync ><><")
+                    // console.log("><>< FINISH initAsync ><><")
                     done()
                 });
             })
@@ -49,7 +49,7 @@ describe('>>> Socket io <<< ', function () {
         try {
             socket.close()
             app.stop(function(){
-                console.log("callback app close")
+                // console.log("callback app close")
                 done()
             })
         }
@@ -75,7 +75,7 @@ describe('>>> Socket io <<< ', function () {
         // socket.emit("chat message", {data:"data"})
         /* Initialize sockets */
         socket.on('new-position', function (info) {
-            console.log(`TesT: new position ${JSON.stringify(info)}`)
+            // console.log(`TesT: new position ${JSON.stringify(info)}`)
             done()
         });
 
