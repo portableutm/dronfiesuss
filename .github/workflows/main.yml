@@ -24,14 +24,14 @@ jobs:
 
     - uses: actions/checkout@v2
       
-    - name: Build the stack
+    - name: Run docker compose
       run: docker-compose up -d
               
     - uses: DamianReeves/write-file-action@v1.0
       with:
         path: .coveralls.yml
         contents: |
-          service_name: travis-ci
+          service_name: github-action
           repo_token: ${{ secrets.COVERALLS_TOKEN }}
         write-mode:   overwrite
 
@@ -55,13 +55,13 @@ jobs:
         path: ormconfig.json
         contents: |
           [{
-           "name": "test",
+           "name": "dev",
            "type": "postgres",
            "host": "localhost",
            "port": 5432,
            "username": "test",
            "password": "test",
-           "database": "test",
+           "database": "app",
            "synchronize": true,
            "dropSchema": true,
            "logging": false,
@@ -88,7 +88,9 @@ jobs:
 
     - run: npm install
     
+    - run: cat ormconfig.json
+    
     - run: ./node_modules/.bin/fake-smtp-server  -a prueba@prueba.com:prueba &
     
-    - name: run app
+    - name: run test with coveralls
       run: npm run coveralls
