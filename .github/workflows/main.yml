@@ -49,7 +49,38 @@ jobs:
           SMTP_PASSWORD=prueba
           TEST_TIMEOUT=5000
         write-mode:   overwrite
-
+      
+    - uses: DamianReeves/write-file-action@v1.0
+      with:
+        path: ormconfig.json
+        contents: |
+          [{
+           "name": "test",
+           "type": "postgres",
+           "host": "localhost",
+           "port": 5432,
+           "username": "test",
+           "password": "test",
+           "database": "test",
+           "synchronize": true,
+           "dropSchema": true,
+           "logging": false,
+           "entities": [
+              "src/entities/**/*.ts"
+           ],
+           "migrations": [
+              "src/migration/**/*.ts"
+           ],
+           "subscribers": [
+              "src/subscriber/**/*.ts"
+           ],
+           "cli": {
+              "entitiesDir": "src/entities",
+              "migrationsDir": "src/migration",
+              "subscribersDir": "src/subscriber"
+           }
+          }]
+        write-mode:   overwrite
 
     - uses: actions/setup-node@v2-beta
       with:
