@@ -31,7 +31,7 @@ jobs:
       with:
         path: .coveralls.yml
         contents: |
-          service_name: travis-ci
+          service_name: github-action
           repo_token: ${{ secrets.COVERALLS_TOKEN }}
         write-mode:   overwrite
 
@@ -87,6 +87,8 @@ jobs:
         node-version: '10.19.0'
 
     - run: npm install
+    
+    - run: cat ormconfig.json
     
     - run: ./node_modules/.bin/fake-smtp-server  -a prueba@prueba.com:prueba &
     
