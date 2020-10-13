@@ -55,7 +55,7 @@ jobs:
         path: ormconfig.json
         contents: |
           [{
-           "name": "test",
+           "name": "dev",
            "type": "postgres",
            "host": "localhost",
            "port": 5432,
