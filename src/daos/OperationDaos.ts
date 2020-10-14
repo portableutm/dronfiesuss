@@ -179,7 +179,10 @@ export class OperationDao {
     }
 
     async one(id: string) {
-        return this.repository.findOne(id);
+        if(!id){
+            throw "Invalid gufi"
+        }
+        return this.repository.findOneOrFail(id);
     }
 
     async oneByCreator(id: string, username: string) {
