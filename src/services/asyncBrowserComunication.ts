@@ -4,7 +4,7 @@ import { User } from "../entities/User";
 
 
 function send(topic, object){
-    console.log(`Sending ${JSON.stringify(object)} to ${topic}`)
+    // console.log(`Sending ${JSON.stringify(object)} to ${topic}`)
     // if(process.env.NODE_ENV != "test"){
     //     app.io.emit(topic, object)
     // } else {
@@ -14,7 +14,7 @@ function send(topic, object){
     if(app.io != undefined) {
         app.io.emit(topic, object)
     }else{
-        console.log(`app.io is undefined`)
+        // console.log(`app.io is undefined`)
         return [topic, object]
     }
 

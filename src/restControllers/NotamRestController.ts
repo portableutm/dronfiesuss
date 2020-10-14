@@ -32,8 +32,8 @@ export class NotamController {
             }
             return response.json(list);
         } catch (error) {
-            console.error("error")
-            console.error(error)
+            // console.error("error")
+            // console.error(error)
             response.statusCode = 400
             return response.json(error)
         }

@@ -35,7 +35,7 @@ export class AuthController {
         let user : User
         try {
             user = await this.dao.oneWithPassword(username)  
-            console.log(`Useeeer:::${JSON.stringify(user)}`)
+            // console.log(`Useeeer:::${JSON.stringify(user)}`)
             if(user==undefined){
                 return response.sendStatus(401);
             }

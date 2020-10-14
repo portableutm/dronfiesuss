@@ -50,7 +50,7 @@ export class MailController {
         return response.json({ status: "ok" })
       }
     } catch (error) {
-      console.error(error)
+      // console.error(error)
       return response.sendStatus(400)
     }
   }
@@ -97,7 +97,7 @@ export const doSendMailForNotAcceptedOperation = async (dao, { receiverMail, guf
       uvrs = uvrs.concat(await uvrDao.getUvrIntersections(operationVolume))
     }
 
-    console.log(`+++++\n${JSON.stringify(uvrs, null, 2)}`)
+    // console.log(`+++++\n${JSON.stringify(uvrs, null, 2)}`)
 
   
     let subject = `Información sobre operación de dron que entro en estado no aceptado`
