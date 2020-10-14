@@ -195,8 +195,8 @@ class App {
                 // console.log(`chat message ${tokenT}`)
                 console.log(`Chat message **> ${JSON.stringify(data)}`);
                 // socket.emit('', data)
-                socket.emit('chat message', data)
-                // socket.broadcast.emit('chat message', data);
+                //socket.emit('chat message', data)
+                socket.broadcast.emit('chat message', data);
             });
         });
 
