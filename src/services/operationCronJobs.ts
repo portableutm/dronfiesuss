@@ -118,7 +118,7 @@ async function checkIntersection(operation: Operation, operationVolume: Operatio
     try {
         let operationsCount = await operationDao.countOperationVolumeByVolumeCountExcludingOneOperation(operation.gufi, operationVolume)
         let uvrCount = await uvrDao.countUvrIntersections(operationVolume)
-        let msg = operationsCount ? "ANOTHER_OPERATION " : "" + uvrCount ? "UVR " : ""
+        let msg = ((operationsCount > 0) ? "ANOTHER_OPERATION " : "") + ((uvrCount > 0)  ? "UVR " : "")
         operation.flight_comments = msg
 
         return (operationsCount > 0) || (uvrCount > 0)
