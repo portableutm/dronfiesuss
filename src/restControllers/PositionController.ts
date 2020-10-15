@@ -104,7 +104,7 @@ export class PositionController {
             // let gufi = request.body.gufi
             let errors = [];
             errors = validatePosition(request.body)
-            const { uvin, altitude_gps, location, time_sent } = request.body
+            const { uvin, altitude_gps, location, time_sent, heading } = request.body
             if (errors.length == 0) {
                 //save position
                 if (this.operationDao == undefined) {
@@ -123,7 +123,8 @@ export class PositionController {
                     altitude_gps : request.body.altitude_gps,
                     location : request.body.location,
                     time_sent : request.body.time_sent,
-                    gufi: operation
+                    gufi: operation,
+                    heading: heading
                 }
 
                 let position = await this.dao.save(posToSave)
