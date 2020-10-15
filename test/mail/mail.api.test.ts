@@ -45,7 +45,7 @@ describe('>>> Mail api test <<<', function () {
     // receiverMail, idOperation, bodyMail
     it("/POST shoud fail because the operation not exists ", function (done) {
         this.timeout(10000);
-        const receiverMail = "pendigOperationTest@dronfies.com"
+        const receiverMail = "pendigOperationTest@fail.com"
         let mailData = {
             receiverMail: receiverMail,
             gufi: "xxx-Invalid Id operation",
@@ -67,7 +67,7 @@ describe('>>> Mail api test <<<', function () {
 
     it("/POST shoud fail because gufi is not sended ", function (done) {
         this.timeout(10000);
-        const receiverMail = "pendigOperationTest@dronfies.com"
+        const receiverMail = "pendigOperationTest@fail.com"
         let mailData = {
             receiverMail: receiverMail,
             bodyMail: ""
@@ -99,6 +99,7 @@ describe('>>> Mail api test <<<', function () {
         op.flight_comments = "Operation for testing mail comments "
         op.state = OperationState.PENDING
         // op.operation_volumes[0].operation_geography = { "type": "Polygon", "coordinates": [[[-56.215668, -34.906628], [-56.212749, -34.912751], [-56.207514, -34.910429], [-56.210947, -34.904516], [-56.215668, -34.906628]]] }
+        // esto debria intersectar con el aeropuerto
         op.operation_volumes[0].operation_geography = { "type": "Polygon", "coordinates": [[[-56.060829162597656, -34.84536693184099], [-56.05842590332031, -34.85635499318428], [-56.02375030517578, -34.85663671905172], [-56.03473663330078, -34.84085858477277], [-56.060829162597656, -34.84536693184099]]] }
 
 
@@ -132,8 +133,10 @@ describe('>>> Mail api test <<<', function () {
                                 res.should.have.status(200);
                                 res.body.should.be.a('array');
                                 let mail = res.body[0]
-                                // console.log(`Mail: ${JSON.stringify(mail, null, 2)} - subject:${mail.subject}`)
+                                console.log(`Mail: ${JSON.stringify(mail, null, 2)} `)
                                 mail.subject.should.include('Informaci');
+                                mail.html.should.include('Airport MVD');
+                                mail.html.should.include('rfv/056ccb91-c58c-439b-93a0-592e19cba0b8');
                                 opDao.removeOperation(op).then(() => { done() }).catch((error) => { 
                                     // console.error(error); 
                                     done(error) 
