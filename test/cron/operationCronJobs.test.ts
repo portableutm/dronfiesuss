@@ -19,6 +19,10 @@ import { Operations } from "../../src/data/operations_data";
 import { Users } from "../../src/data/users_data";
 import { Polygon } from "geojson";
 
+
+const userSmtp = "prueba@prueba.com"
+const passSmtp = "prueba"
+
 describe('>>> Cron test <<<', function () {
 
     let operationToRemove = []
@@ -194,7 +198,7 @@ describe('>>> Cron test <<<', function () {
     })
 
     it.only("should pass a operation to not accepted because the operation intersect with an uvr", function (done) {
-        this.timeout(4000);
+        this.timeout(6000);
 
         let uvrPoly: Polygon = { "type": "Polygon", "coordinates": [[[-54.156761169433594, -34.65928102289186], [-54.158692359924316, -34.661681384600065], [-54.15358543395996, -34.66159313723899], [-54.15328502655029, -34.65982817028159], [-54.15478706359863, -34.65820436748019], [-54.156761169433594, -34.65928102289186]]] }
         let uvr: UASVolumeReservation = {
@@ -219,7 +223,7 @@ describe('>>> Cron test <<<', function () {
         let uvrDao = new UASVolumeReservationDao()
         uvrDao.save(uvr).then(function (uvr) {
             let op = deepCopy(Operations[0])
-            op.owner = Users[0]
+            op.owner = Users[1]
             op.creator = Users[1]
             delete op.gufi
             op.name = "pass a operation to not accepted intersect with uvr"
@@ -238,10 +242,26 @@ describe('>>> Cron test <<<', function () {
                 processOperations().then(function () {
                     setTimeout(async function () {
                         let newOp = await dao.one(op.gufi)
+                        // console.log(`OP:${JSON.stringify(newOp, null, 2)}`)
                         newOp.state.should.equal(OperationState.NOT_ACCEPTED)
                         newOp.flight_comments.should.equal("UVR")
-                        done()
-                    }, 1000)
+
+                        chai.request('http://localhost:1080')
+                            .get(`/api/emails?to=${op.owner.email}`)
+                            .auth(userSmtp, passSmtp)
+                            .then(res => {
+                                res.should.have.status(200);
+                                res.body.should.be.a('array');
+                                let mail = res.body[0]
+                                // console.log(`Mail: ${JSON.stringify(mail, null, 2)} `)
+                                mail.subject.should.include('Informaci');
+                                mail.html.should.include('Zona 1');
+                                mail.html.should.include(`uvr/${uvr.message_id}`);
+                                done()
+                            })
+                            .catch(done)
+                        // done()
+                    }, 2000)
                 }).catch(done)
             }).catch(done)
 

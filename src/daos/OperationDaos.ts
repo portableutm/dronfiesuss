@@ -278,6 +278,7 @@ export class OperationDao {
         return this.repository.
             createQueryBuilder("operation")
             .innerJoinAndSelect("operation.operation_volumes", "operation_volume")
+            .leftJoinAndSelect("operation.owner", "owner")
             .where("\"state\" in ('ACCEPTED', 'PROPOSED', 'ACTIVATED', 'NONCONFORMING', 'ROGUE', 'NOT_ACCEPTED')")
             .getMany()
     }
