@@ -5,8 +5,11 @@ let chaiHttp = require('chai-http');
 chai.use(chaiHttp);
 chai.should();
 import { OperationDao } from "../../src/daos/OperationDaos";
+import { UASVolumeReservationDao } from "../../src/daos/UASVolumeReservationDao";
+import { UASVolumeReservation, UASVolumeReservationCause, UASVolumeReservationPermitedUas, UASVolumeReservationRequiredSupport, UASVolumeReservationType } from "../../src/entities/UASVolumeReservation";
 
 import { app, initAsync } from "../../src/index";
+
 import { getNow, fakeTime } from "../../src/services/dateTimeService";
 import { TEST_TIMEOUT } from "../conf";
 import { processOperations } from "../../src/services/operationCronJobs";
@@ -14,6 +17,7 @@ import { OperationState, Operation } from "../../src/entities/Operation";
 import { deepCopy } from "../../src/utils/entitiesUtils";
 import { Operations } from "../../src/data/operations_data";
 import { Users } from "../../src/data/users_data";
+import { Polygon } from "geojson";
 
 describe('>>> Cron test <<<', function () {
 
@@ -24,7 +28,7 @@ describe('>>> Cron test <<<', function () {
 
         initAsync()
             // .then(done)
-            .then((function(application){
+            .then((function (application) {
                 done()
             }))
             .catch(done)
@@ -34,16 +38,16 @@ describe('>>> Cron test <<<', function () {
         this.timeout(TEST_TIMEOUT);
         // console.log(" ---- Removing new ops ---- ")
         let dao = new OperationDao();
-        let operationPromises = operationToRemove.map(function(op){
+        let operationPromises = operationToRemove.map(function (op) {
             return dao.removeOperation(op)
         })
         Promise.all(operationPromises)
-        .then(values => { 
-            // console.log(values); // [3, 1337, "foo"] 
-            // console.log(" ---- Removing new ops ---- ")
-            done()
-          })
-          .catch(done)
+            .then(values => {
+                // console.log(values); // [3, 1337, "foo"] 
+                // console.log(" ---- Removing new ops ---- ")
+                done()
+            })
+            .catch(done)
 
     })
 
@@ -54,7 +58,6 @@ describe('>>> Cron test <<<', function () {
         // dao.all().then(function (ops) {
         //     ops.forEach(op => {
         //         console.log(`${op.gufi}) ${op.flight_comments} :: ${op.state} -> ${op.operation_volumes[0].effective_time_begin}`)
-
         //     });
         // console.log(` ------- Date is:: ${getNow()}`)
         fakeTime("2019-12-11T20:20:10.000Z")
@@ -129,14 +132,14 @@ describe('>>> Cron test <<<', function () {
         this.timeout(20000);
 
         let op = deepCopy(Operations[0])
-        delete op.gufi 
+        delete op.gufi
         op.operation_volumes[0].min_altitude = -500
         op.flight_comments = "For automate Testing operation "
-        op.operation_volumes[0].operation_geography = {"type":"Polygon","coordinates":[[[-56.138935,-34.913103],[-56.142712,-34.920141],[-56.130352,-34.91986],[-56.13018,-34.915919],[-56.138935,-34.913103]]]}
+        op.operation_volumes[0].operation_geography = { "type": "Polygon", "coordinates": [[[-56.138935, -34.913103], [-56.142712, -34.920141], [-56.130352, -34.91986], [-56.13018, -34.915919], [-56.138935, -34.913103]]] }
         op.state = OperationState.ROGUE
         let dao = new OperationDao();
 
-        dao.save(op).then(function (op:Operation) {
+        dao.save(op).then(function (op: Operation) {
             operationToRemove.push(op)
             // console.log(` ------- Date is:: ${getNow()}`)
             fakeTime("2019-12-11T21:20:10.000Z")
@@ -160,27 +163,26 @@ describe('>>> Cron test <<<', function () {
         this.timeout(20000);
 
         let op = deepCopy(Operations[0])
-        
         op.owner = Users[0]
         op.creator = Users[1]
-        
-        delete op.gufi 
+
+        delete op.gufi
         op.name = "Testeando el envio de emails?"
         op.operation_volumes[0].min_altitude = -20
         op.operation_volumes[0].max_altitude = 40
         op.flight_comments = "For test restricted flight volume "
-        op.operation_volumes[0].operation_geography = {"type":"Polygon","coordinates":[[[-56.074905,-34.846212],[-56.08057,-34.867905],[-56.033192,-34.852411],[-56.061516,-34.8379],[-56.074905,-34.846212]]]}
+        op.operation_volumes[0].operation_geography = { "type": "Polygon", "coordinates": [[[-56.074905, -34.846212], [-56.08057, -34.867905], [-56.033192, -34.852411], [-56.061516, -34.8379], [-56.074905, -34.846212]]] }
         op.state = OperationState.PROPOSED
         // console.log(`********\n${JSON.stringify(op,null,2)}\n********`)
         let dao = new OperationDao();
 
-        dao.save(op).then(function (op:Operation) {
+        dao.save(op).then(function (op: Operation) {
             operationToRemove.push(op)
             // console.log(`Esto anda? guardo en bbdd`)
             processOperations().then(function () {
-            // console.log(`**** Processss the op ${op.gufi}`)
-            setTimeout(async function () {
-                // console.log(`**** Ya paso tiempo ${op.gufi}`)
+                // console.log(`**** Processss the op ${op.gufi}`)
+                setTimeout(async function () {
+                    // console.log(`**** Ya paso tiempo ${op.gufi}`)
                     let newOp = await dao.one(op.gufi)
                     // let operationIntersections = await newOp.operation_inserctions
                     // console.log(`Intersections:: ${JSON.stringify(operationIntersections)}`)
@@ -191,7 +193,62 @@ describe('>>> Cron test <<<', function () {
         }).catch(done)
     })
 
-    
+    it.only("should pass a operation to not accepted because the operation intersect with an uvr", function (done) {
+        this.timeout(4000);
+
+        let uvrPoly: Polygon = { "type": "Polygon", "coordinates": [[[-54.156761169433594, -34.65928102289186], [-54.158692359924316, -34.661681384600065], [-54.15358543395996, -34.66159313723899], [-54.15328502655029, -34.65982817028159], [-54.15478706359863, -34.65820436748019], [-54.156761169433594, -34.65928102289186]]] }
+        let uvr: UASVolumeReservation = {
+            "uss_name": null,
+            "type": UASVolumeReservationType.DYNAMIC_RESTRICTION,
+            "permitted_uas": [
+                // "PART_107"
+                UASVolumeReservationPermitedUas.PART_107
+            ],
+            "required_support": [
+                UASVolumeReservationRequiredSupport.ENHANCED_SAFE_LANDING
+            ],
+            "cause": UASVolumeReservationCause.MUNICIPALITY,
+            "geography": uvrPoly, //{"type": "Polygon","coordinates": [  [    [      -56.159834861755364,      -34.91795954238727    ],    [      -56.16240978240967,      -34.92221734956747    ],    [      -56.15567207336426,      -34.922569224576016    ],    [      -56.15395545959473,      -34.920141256305946    ],    [      -56.159834861755364,      -34.91795954238727    ]  ]]},
+            "effective_time_begin": "2020-03-11T14:00:00.000Z",
+            "effective_time_end": "2020-03-11T15:00:00.000Z",
+            "actual_time_end": null,
+            "min_altitude": 20,
+            "max_altitude": 50,
+            "reason": "uasVolumeReservation.REASON"
+        }
+        let uvrDao = new UASVolumeReservationDao()
+        uvrDao.save(uvr).then(function (uvr) {
+            let op = deepCopy(Operations[0])
+            op.owner = Users[0]
+            op.creator = Users[1]
+            delete op.gufi
+            op.name = "pass a operation to not accepted intersect with uvr"
+            op.operation_volumes[0].min_altitude = -20
+            op.operation_volumes[0].max_altitude = 40
+            op.operation_volumes[0].effective_time_begin = "2020-03-11T14:30:00.000Z",
+            op.operation_volumes[0].effective_time_end = "2020-03-11T15:30:00.000Z",
+            op.flight_comments = "For test restricted flight volume "
+            let opPoly = { "type": "Polygon", "coordinates": [[[-54.1580057144165, -34.65785136266103], [-54.1556453704834, -34.660798906760135], [-54.15380001068115, -34.66078125710747], [-54.15279150009155, -34.65795726426466], [-54.153714179992676, -34.65594511065539], [-54.1580057144165, -34.65785136266103]]] }
+            op.operation_volumes[0].operation_geography = opPoly
+            op.state = OperationState.PROPOSED
+
+            let dao = new OperationDao();
+            dao.save(op).then(function (op: Operation) {
+                operationToRemove.push(op)
+                processOperations().then(function () {
+                    setTimeout(async function () {
+                        let newOp = await dao.one(op.gufi)
+                        newOp.state.should.equal(OperationState.NOT_ACCEPTED)
+                        newOp.flight_comments.should.equal("UVR")
+                        done()
+                    }, 1000)
+                }).catch(done)
+            }).catch(done)
+
+        }).catch(done)
+    })
+
+
 
 
     //     it("Should pass a operation from proposed to closed because there are an other operation", async function(){
