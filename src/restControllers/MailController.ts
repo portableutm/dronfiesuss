@@ -17,17 +17,6 @@ export class MailController {
 
   private dao = new OperationDao()
 
-  //   async sendMailForPendingOperation(request: Request, response: Response, next: NextFunction) {
-  //     // console.log(` ---> request.params.gufi:${request.params.id}`)
-  //     let { receiverMail, idOperation, bodyMail } = request.body
-  //     try {
-  //       await sendMailPedingOperationFunction(request.body, getPayloadFromResponse(response))
-  //     } catch (error) {
-  //       return response.sendStatus(404)
-  //     }
-  //   }
-  // }
-
   /**
    * Send a mail to receiverMail, with the content of bodyMail and the informatio of the operation with gufi
    * @example POST /mail/pending mailData = { receiverMail: receiverMail, gufi: gufi, bodyMail: "La operació... "}
@@ -60,7 +49,7 @@ export class MailController {
 
 //FIXME the methods below must go to other files like mailUtils.js
 
-export const doSendMailForPendingOperation = async (dao, { receiverMail, gufi, bodyMail }, { role, username }) => {
+export const doSendMailForPendingOperation = async (dao:OperationDao, { receiverMail, gufi, bodyMail }, { role, username }) => {
   if (role == Role.ADMIN) {
     let operation = <Operation>await dao.one(gufi);
 

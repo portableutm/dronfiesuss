@@ -12,5 +12,7 @@ export const smtpPort = process.env.SMTP_PORT
 
 export const frontEndUrl = process.env.FRONT_END_URL ||  "http://localhost:3000/"
 
+export const adminEmail = "info@dronfies.com"
+
 
 

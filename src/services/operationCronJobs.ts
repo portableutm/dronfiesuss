@@ -5,6 +5,7 @@ import { OperationVolume } from "../entities/OperationVolume";
 import { UASVolumeReservationDao } from "../daos/UASVolumeReservationDao";
 import { RestrictedFlightVolumeDao } from "../daos/RestrictedFlightVolumeDao";
 import { sendOpertationStateChange } from "./asyncBrowserComunication";
+import { adminEmail } from "../config/config";
 // import { OperationIntersections } from "../entities/OperationIntersection";
 import { Role } from "../entities/User";
 
@@ -64,6 +65,7 @@ export async function processOperations() {
 async function processProposed(operation: Operation) {
     for (let index = 0; index < operation.operation_volumes.length; index++) {
         const operationVolume = operation.operation_volumes[index];
+   
         // try {
         //     populateIntersections(operation, operationVolume)
         // } catch (error) {
@@ -76,20 +78,21 @@ async function processProposed(operation: Operation) {
             let result = await operationDao.save(operation)
         }
 
+        console.log(`-=-=-=-=-\n${operation.name} ${JSON.stringify(operation.owner)}`)
         if (intersect) {
-            doSendMailForNotAcceptedOperation(operationDao, 
-                { receiverMail: operation.owner?operation.owner.email:"emialonzo@gmail.com" , gufi: operation.gufi, bodyMail: "Email generado automaticamente" }, 
+            doSendMailForNotAcceptedOperation(operationDao,
+                { receiverMail: operation.owner ? operation.owner.email : adminEmail, gufi: operation.gufi, bodyMail: "Email generado automaticamente" },
                 { role: Role.ADMIN, username: "" })
             return changeState(operation, OperationState.NOT_ACCEPTED)
         } else if (await intersectsWithRestrictedFlightVolume(operation, operationVolume)) {
             // let op: Operation = new Operation();
             // op.owner.email
-            console.log(`********\n${JSON.stringify(operation,null,2)}\n********`)
+            console.log(`********\n${JSON.stringify(operation, null, 2)}\n********`)
 
             operationDao = new OperationDao()
             let error = await doSendMailForPendingOperation(
-                operationDao, 
-                { receiverMail: operation.owner?operation.owner.email:"emialonzo@gmail.com" , gufi: operation.gufi, bodyMail: "Email generado automaticamente" }, 
+                operationDao,
+                { receiverMail: operation.owner ? operation.owner.email : adminEmail, gufi: operation.gufi, bodyMail: "Email generado automaticamente" },
                 { role: Role.ADMIN, username: "" })
             return changeState(operation, OperationState.PENDING)
         }
@@ -118,7 +121,7 @@ async function checkIntersection(operation: Operation, operationVolume: Operatio
     try {
         let operationsCount = await operationDao.countOperationVolumeByVolumeCountExcludingOneOperation(operation.gufi, operationVolume)
         let uvrCount = await uvrDao.countUvrIntersections(operationVolume)
-        let msg = ((operationsCount > 0) ? "ANOTHER_OPERATION" : "") + ((uvrCount > 0)  ? "UVR" : "")
+        let msg = ((operationsCount > 0) ? "ANOTHER_OPERATION" : "") + ((uvrCount > 0) ? "UVR" : "")
         operation.flight_comments = msg
 
         return (operationsCount > 0) || (uvrCount > 0)

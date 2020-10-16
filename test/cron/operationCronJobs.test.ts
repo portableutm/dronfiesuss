@@ -102,7 +102,7 @@ describe('>>> Cron test <<<', function () {
     it("Should pass 3 operations to Closed", function (done) {
         this.timeout(20000);
         let dao = new OperationDao();
-        console.log(` ------- Date is:: ${getNow()}`)
+        // console.log(` ------- Date is:: ${getNow()}`)
         fakeTime("2019-12-11T21:20:10.000Z")
         processOperations().then(function () {
             setTimeout(async function () {
@@ -197,7 +197,7 @@ describe('>>> Cron test <<<', function () {
         }).catch(done)
     })
 
-    it.only("should pass a operation to not accepted because the operation intersect with an uvr", function (done) {
+    it("should pass a operation to not accepted because the operation intersect with an uvr", function (done) {
         this.timeout(6000);
 
         let uvrPoly: Polygon = { "type": "Polygon", "coordinates": [[[-54.156761169433594, -34.65928102289186], [-54.158692359924316, -34.661681384600065], [-54.15358543395996, -34.66159313723899], [-54.15328502655029, -34.65982817028159], [-54.15478706359863, -34.65820436748019], [-54.156761169433594, -34.65928102289186]]] }
@@ -257,7 +257,10 @@ describe('>>> Cron test <<<', function () {
                                 mail.subject.should.include('Informaci');
                                 mail.html.should.include('Zona 1');
                                 mail.html.should.include(`uvr/${uvr.message_id}`);
-                                done()
+                                uvrDao.remove(uvr.message_id).then(()=>{
+                                    done()
+                                }).catch(done)
+                                // done()
                             })
                             .catch(done)
                         // done()

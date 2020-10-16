@@ -472,7 +472,7 @@ describe('>>> User rest controller test <<<', function () {
                 let CountPreInsert = users.length
                 let user: User = {
                     username: "unconfirmedTestUser",
-                    email: `ealonzo@dronfies.com`,
+                    email: `info@dronfies.com`,
                     firstName: `unconfirmedTestUser`,
                     lastName: `unconfirmedTestUser`,
                     password: `unconfirmedTestUser`,
