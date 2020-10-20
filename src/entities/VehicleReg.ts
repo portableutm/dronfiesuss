@@ -58,4 +58,7 @@ export class VehicleReg {
 
     @Column({ nullable: true })
     'org-uuid': string;
+
+    @Column({ unique: true, nullable: true })
+    'trackerId'?: string
 }
