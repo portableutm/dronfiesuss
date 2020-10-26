@@ -50,7 +50,8 @@ export const Vehicles : VehicleReg[] = nums.map(num => {
         // registeredBy : '',
         vehicleTypeId : '',
         nNumber : '',
-        uvin : ids[num-1]
+        uvin : ids[num-1],
+        trackerId: `${num}`.repeat(20)
     }
     return vehicle
 })
