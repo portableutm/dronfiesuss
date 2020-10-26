@@ -170,7 +170,7 @@ export class PositionController {
                 if (this.operationDao == undefined) {
                     this.operationDao = new OperationDao();
                 }
-                let operations = await this.operationDao.getOperationByPositionAndDrone(location,altitude_gps, time_sent, trackerId)
+                let operations = await this.operationDao.getOperationByPositionAndDroneTrackerId(location,altitude_gps, time_sent, trackerId)
                 console.log(`\t*** ${JSON.stringify(operations, null, 2)}`)
                 if(operations.length > 1){
                     throw "There are more than one operation"

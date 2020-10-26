@@ -150,6 +150,13 @@ let positions = [
         action: "savePositionWithDrone",
         middlewares: [checkJwt],
     },
+    {
+        method: "post",
+        route: "/position/tracker",
+        controller: PositionController,
+        action: "savePositionWithDroneTrackerId",
+        middlewares: [checkJwt],
+    },
     ...doRoutes("position", PositionController),
 ]
 
