@@ -338,8 +338,8 @@ describe('>>> Position entity <<< ', function () {
             .catch(done)
     });
 
-    describe('>>> Position without gufi <<< ', function () {
-        it("/POST ", function (done) {
+    describe('>>> Position without gufi: uvin and tracker id <<< ', function () {
+        it("/POST /position/drone with fake uvin will throw 400", function (done) {
             let token = getToken('admin@dronfies.com', 'admin', Role.ADMIN)
             // let dao = new PositionDao()
             let positionToInsert = {
@@ -366,7 +366,7 @@ describe('>>> Position entity <<< ', function () {
                 .catch(done);
         });
 
-        it("/POST ", function (done) {
+        it("/POST /position/drone with an not actived operation will return 400 ", function (done) {
             let token = getToken('admin@dronfies.com', 'admin', Role.ADMIN)
             let positionToInsert = {
                 "altitude_gps": 30,
@@ -397,7 +397,7 @@ describe('>>> Position entity <<< ', function () {
             // });
         })
 
-        it.skip("/POST ", function (done) {
+        it("/POST with uvin in a activated operation will registrate a new position", function (done) {
             let token = getToken('admin@dronfies.com', 'admin', Role.ADMIN)
             let positionToInsert = {
                 "altitude_gps": 30,
@@ -420,13 +420,47 @@ describe('>>> Position entity <<< ', function () {
                         .set('auth', token)
                         .send(positionToInsert)
                         .then(function (res) {
+                            console.log(`Res::: ${JSON.stringify(res)}`)
                             res.should.have.status(200);
                             done();
                         })
                         .catch(done);
                 }).catch(done)
         });
+
+        it("/POST with trackerID in a activated operation will registrate a new position", function (done) {
+            let token = getToken('admin@dronfies.com', 'admin', Role.ADMIN)
+            let positionToInsert = {
+                "altitude_gps": 30,
+                "location": {
+                    "type": "Point",
+                    "coordinates": [
+                        -56.1636114120483,
+                        -34.9068213410793
+                    ]
+                },
+                "time_sent": "2019-12-11T20:39:10.000Z",
+                "trackerId": "6".repeat(20),
+                "heading": 0
+            }
+            let opDao = new OperationDao()
+            opDao.updateState('b92c7431-13c4-4c6c-9b4a-1c3c8eec8c63', OperationState.ACTIVATED).then(
+                (res) => {
+                    chai.request(app.app)
+                        .post('/position/tracker')
+                        .set('auth', token)
+                        .send(positionToInsert)
+                        .then(function (res) {
+                            console.log(`Res::: ${JSON.stringify(res)}`)
+                            res.should.have.status(200);
+                            done();
+                        })
+                        .catch(done);
+                }).catch(done)
+        })
+
+
     })
+})
 
 
-});
