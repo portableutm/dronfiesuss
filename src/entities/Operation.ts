@@ -140,7 +140,7 @@ export class Operation {
 
     //se obtiene automaticamente del token
     @ManyToOne(type => User, {
-        eager: false
+        eager: true
     })
     'creator': User;
 
