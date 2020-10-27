@@ -156,13 +156,14 @@ export class OperationController {
    * @param next 
    */
   async save(request: Request, response: Response, next: NextFunction) {
-    let { role, usernameFromRequest } = response.locals.jwtPayload
+    let { role, username } = response.locals.jwtPayload
+    let usernameFromRequest = username
     let errors = validateOperation(request.body)
-    let username = request.body.owner
+    let usernameOwner = request.body.owner
     try {
       for (let index = 0; index < request.body.uas_registrations.length; index++) {
         const element = request.body.uas_registrations[index];
-        let veh = await this.daoVehiculo.oneByUser(element, username)
+        let veh = await this.daoVehiculo.oneByUser(element, usernameOwner)
         request.body.uas_registrations[index] = veh
       }
 
@@ -170,13 +171,14 @@ export class OperationController {
       errors.push(`The selected vehicle doesn't exists or you no are the owner.`)
     }
     // request.body.creator = username
-    request.body.creator = usernameFromRequest
+    console.log(`Username---> ${usernameFromRequest}`)
+    request.body.creator = { username: usernameFromRequest }
     request.body.state = OperationState.PROPOSED
 
     if (errors.length == 0) {
       try {
         let operation = <Operation>await this.dao.save(request.body)
-        sendNewOperation({gufi: operation.gufi})
+        sendNewOperation({ gufi: operation.gufi })
         return response.json(operation);
       } catch (error) {
         response.status(400)
@@ -198,7 +200,7 @@ export class OperationController {
       let { role, username } = getPayloadFromResponse(response)
 
       if (role == Role.ADMIN) {
-        let newState = approved? OperationState.ACCEPTED : OperationState.CLOSED
+        let newState = approved ? OperationState.ACCEPTED : OperationState.CLOSED
         // let result = await this.dao.updateStateWhereState(gufi, OperationState.PENDING, OperationState.ACCEPTED);
         let result = await this.dao.updateStateWhereState(gufi, OperationState.PENDING, newState);
         changeState({
@@ -248,8 +250,8 @@ export class OperationController {
 
   private async addNewAproval(username, operationGufi, comments, approved) {
     let appr = {
-      user: {username},
-      operation: {gufi:operationGufi},
+      user: { username },
+      operation: { gufi: operationGufi },
       approved: approved,
       comments: comments,
     }
@@ -332,7 +334,7 @@ function validateOperation(operation: any) {
   let errors = []
   // let op: Operation = operation
   let op = operation
-  if(!op.owner){
+  if (!op.owner) {
     errors.push(`Owner is a mandatory field`)
   }
   if (op.operation_volumes.length != 1) {
@@ -340,10 +342,10 @@ function validateOperation(operation: any) {
   } else {
     for (let index = 0; index < op.operation_volumes.length; index++) {
       const element = op.operation_volumes[index];
-      
+
       var firstItem = element.operation_geography.coordinates[0];
-      var lastItem = element.operation_geography.coordinates[element.operation_geography.coordinates.length-1];
-      if(firstItem != lastItem){
+      var lastItem = element.operation_geography.coordinates[element.operation_geography.coordinates.length - 1];
+      if (firstItem != lastItem) {
         errors.push(`Invalid polygon`)
       }
       if (!(element.min_altitude >= MIN_MIN_ALTITUDE)) {
@@ -374,11 +376,11 @@ function validateOperation(operation: any) {
       } else
         if (difference < MIN_TIME_INTERVAL) {
           errors.push(`The time interval must be greater than ${MIN_TIME_INTERVAL / 60 / 1000} min and is ${difference / 60 / 1000} min`)
-        } 
-    //     else
-    //       if (difference > MAX_TIME_INTERVAL) {
-    //         errors.push(`The time interval must be lower than ${MAX_TIME_INTERVAL / 60 / 1000 / 60} hours and is ${roundWithDecimals(difference / 60 / 1000 / 60)} hours`)
-    //       }
+        }
+      //     else
+      //       if (difference > MAX_TIME_INTERVAL) {
+      //         errors.push(`The time interval must be lower than ${MAX_TIME_INTERVAL / 60 / 1000 / 60} hours and is ${roundWithDecimals(difference / 60 / 1000 / 60)} hours`)
+      //       }
     }
   }
   return errors
@@ -388,6 +390,6 @@ function roundWithDecimals(num) {
   return Math.round(num * 100) / 100
 }
 
-function changeState(operationInfo){
+function changeState(operationInfo) {
   sendOpertationStateChange(operationInfo)
 }
