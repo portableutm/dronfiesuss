@@ -49,7 +49,7 @@ describe(' >>> Operation test <<< ', function () {
 
     });
 
-    it("Should not get all operations for admin user ADMIN", function (done) {
+    it("GET /operation Should not get all operations for admin user ADMIN", function (done) {
         let token = getToken('admin@dronfies.com', 'admin', Role.ADMIN)
         chai.request(app.app)
             .get('/operation')
@@ -107,7 +107,7 @@ describe(' >>> Operation test <<< ', function () {
             .catch(done)
     });
 
-    it("Should get 2 operations by creator MaurineFowlie", function (done) {
+    it.only("Should get 2 operations by creator MaurineFowlie", function (done) {
         let token = getToken('maurine@dronfies.com', 'MaurineFowlie', Role.PILOT)
         chai.request(app.app)
             .get('/operation/owner')
@@ -116,6 +116,7 @@ describe(' >>> Operation test <<< ', function () {
             .then(function (res) {
                 res.should.have.status(200);
                 res.body.ops.length.should.be.eq(2)
+                res.body.ops[0].uas_registrations[0].owner.should.be.a('object')
                 done();
             })
             .catch(done)
@@ -305,10 +306,31 @@ describe(' >>> Operation test <<< ', function () {
             .set('Accept', 'application/json')
             .send(op)
             .then(function (res) {
+                // console.log(res)
+                console.log(`CREATE OP: ${JSON.stringify(res.body, null, 2)}`)
                 res.should.have.status(200);
                 res.body.should.have.property('state').equal(OperationState.PROPOSED);
+                res.body.should.have.property('creator').be.a('object');
                 res.body.should.have.property('gufi').be.a('string')
-                done();
+
+                const opDao = new OperationDao();
+                opDao.one(res.body.gufi).then(op=>{
+                    // console.log(`NewOp:${JSON.stringify(op, null, 2)}`)
+                    op.creator.should.deep.include({
+                        "username": "TrulaRemon",
+                        "firstName": "Trula",
+                        "lastName": "Remon",
+                        "email": "trula@dronfies.com",
+                        "role": "pilot",
+                        // "VolumesOfInterest": null,
+                        "settings": {
+                          "langauge": "EN"
+                        },
+                        // "extraData": null
+                      })
+                      done();
+                })
+                .catch(done)
             })
             .catch(done)
     });
