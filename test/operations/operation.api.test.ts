@@ -107,7 +107,7 @@ describe(' >>> Operation test <<< ', function () {
             .catch(done)
     });
 
-    it.only("Should get 2 operations by creator MaurineFowlie", function (done) {
+    it("Should get 2 operations by creator MaurineFowlie", function (done) {
         let token = getToken('maurine@dronfies.com', 'MaurineFowlie', Role.PILOT)
         chai.request(app.app)
             .get('/operation/owner')
