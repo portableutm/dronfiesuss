@@ -235,6 +235,8 @@ export class OperationDao {
             createQueryBuilder("operation")
             .innerJoinAndSelect("operation.creator", "creator")
             .innerJoinAndSelect("operation.operation_volumes", "operation_volume")
+            .leftJoinAndSelect('operation.uas_registrations', 'uas_registration')
+            .leftJoinAndSelect('uas_registration.owner', 'vehicleowner')
             .where(" creator.\"username\" =  :username")
             .orderBy('operation.submit_time', "DESC")
             .setParameters({
@@ -257,6 +259,7 @@ export class OperationDao {
             .innerJoinAndSelect("operation.owner", "owner")
             .innerJoinAndSelect("operation.operation_volumes", "operation_volume")
             .leftJoinAndSelect('operation.uas_registrations', 'uas_registration')
+            .leftJoinAndSelect('uas_registration.owner', 'vehicleowner')
             .where(" owner.\"username\" =  :username")
             .orderBy('operation.submit_time', "DESC")
             .setParameters({
