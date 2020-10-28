@@ -360,6 +360,7 @@ describe('>>> Position entity <<< ', function () {
                 .set('auth', token)
                 .send(positionToInsert)
                 .then(function (res) {
+                    console.log(res)
                     res.should.have.status(400);
                     done();
                 })
@@ -394,68 +395,100 @@ describe('>>> Position entity <<< ', function () {
                 })
                 .catch(done);
             // }).catch(done)
-            // });
+            // }); 
         })
 
-        it("/POST with uvin in a activated operation will registrate a new position", function (done) {
-            let token = getToken('admin@dronfies.com', 'admin', Role.ADMIN)
-            let positionToInsert = {
-                "altitude_gps": 30,
-                "location": {
-                    "type": "Point",
-                    "coordinates": [
-                        -56.1636114120483,
-                        -34.9068213410793
-                    ]
-                },
-                "time_sent": "2019-12-11T20:39:10.000Z",
-                "uvin": "a26fdc00-8626-4b08-8b9e-5c50da12fff1",
-                "heading": 0
-            }
-            let opDao = new OperationDao()
-            opDao.updateState('b92c7431-13c4-4c6c-9b4a-1c3c8eec8c63', OperationState.ACTIVATED).then(
-                (res) => {
-                    chai.request(app.app)
-                        .post('/position/drone')
-                        .set('auth', token)
-                        .send(positionToInsert)
-                        .then(function (res) {
-                            console.log(`Res::: ${JSON.stringify(res)}`)
-                            res.should.have.status(200);
-                            done();
-                        })
-                        .catch(done);
-                }).catch(done)
-        });
+        // it("/POST with uvin in a activated operation will registrate a new position", function (done) {
+        //     let token = getToken('admin@dronfies.com', 'admin', Role.ADMIN)
+        //     let positionToInsert = {
+        //         "altitude_gps": 30,
+        //         "location": {
+        //             "type": "Point",
+        //             "coordinates": [
+        //                 -56.1636114120483,
+        //                 -34.9068213410793
+        //             ]
+        //         },
+        //         "time_sent": "2019-12-11T20:39:10.000Z",
+        //         "uvin": "a26fdc00-8626-4b08-8b9e-5c50da12fff1",
+        //         "heading": 0
+        //     }
+        //     let opDao = new OperationDao()
+        //     opDao.updateState('b92c7431-13c4-4c6c-9b4a-1c3c8eec8c63', OperationState.ACTIVATED).then(
+        //         (op) => {
+        //             opDao.one('b92c7431-13c4-4c6c-9b4a-1c3c8eec8c63').then((op) => {
+        //                 console.log('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
+        //                 console.log(`OP:${JSON.stringify(op, null, 2)}`)
+        //                 chai.request(app.app)
+        //                     .post('/position/drone')
+        //                     .set('auth', token)
+        //                     .send(positionToInsert)
+        //                     .then(function (res) {
+        //                         console.log(`Res::: ${JSON.stringify(res)}`)
+        //                         res.should.have.status(200);
+        //                         done();
+        //                     })
+        //                     .catch(done);
+        //             }).catch(done)
+        //         }
+
+        //     ).catch()
+
+        // });
 
         it("/POST with trackerID in a activated operation will registrate a new position", function (done) {
             let token = getToken('admin@dronfies.com', 'admin', Role.ADMIN)
+
+            let op = deepCopy(Operations[0])
+            delete op.gufi
+            let newGufi = '36dd6070-ba9b-4f64-a140-66a453c578cd'
+            op.gufi = newGufi
+
+            op.uas_registrations = [{
+                uvin:"188d89d8-fb4f-40be-a5ee-059feca02cca",
+            }]
+            op.owner = {
+                username:"admin"
+            }
+            op.creator = {
+                username:"admin"
+            }
+            op.flight_comments = "For testing tracker id position "
+            op.state = OperationState.ACTIVATED
+            op.operation_volumes[0].operation_geography = { "type": "Polygon", "coordinates": [ [ [ -56.16114377975466, -34.878185887594604 ], [ -56.16161584854126, -34.883783521872395 ], [ -56.155607700347865, -34.884575609138835 ], [ -56.153697967529254, -34.88226973385944 ], [ -56.156551837921164, -34.88001660239215 ], [ -56.16114377975466, -34.878185887594604 ] ] ] }
+            // const opDao = new OperationDao();
+            // opDao.save(op).then(function (op: any) {})
+
             let positionToInsert = {
                 "altitude_gps": 30,
                 "location": {
                     "type": "Point",
                     "coordinates": [
-                        -56.1636114120483,
-                        -34.9068213410793
+                        -56.15781784057617,
+                        -34.88381872591298
                     ]
                 },
                 "time_sent": "2019-12-11T20:39:10.000Z",
-                "trackerId": "6".repeat(20),
+                "trackerId": "1".repeat(20),
                 "heading": 0
             }
             let opDao = new OperationDao()
-            opDao.updateState('b92c7431-13c4-4c6c-9b4a-1c3c8eec8c63', OperationState.ACTIVATED).then(
+            opDao.save(op).then(
                 (res) => {
-                    chai.request(app.app)
-                        .post('/position/tracker')
-                        .set('auth', token)
-                        .send(positionToInsert)
-                        .then(function (res) {
-                            console.log(`Res::: ${JSON.stringify(res)}`)
-                            res.should.have.status(200);
-                            done();
-                        })
-                        .catch(done);
+                    opDao.one(newGufi).then((op) => {
+                        console.log(`OPPP:${JSON.stringify(op, null, 2)}`)
+                        chai.request(app.app)
+                            .post('/position/tracker')
+                            .set('auth', token)
+                            .send(positionToInsert)
+                            .then(function (res) {
+                                // console.log(`Res::: ${JSON.stringify(res)}`)
+                                res.should.have.status(200);
+                                done();
+                            })
+                            .catch(done);
+
+                    }).catch(done)
                 }).catch(done)
         })
 
