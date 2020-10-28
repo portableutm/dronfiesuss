@@ -3,7 +3,7 @@ import { UserStatus } from "./UserStatus";
 import { Polygon } from "geojson";
 import { QuickFly } from "./QuickFly";
 import { VehicleReg } from "./VehicleReg";
-
+import { DinaciaUser } from "./DinaciaUser";
 
 export enum Role {
      ADMIN = "admin"
@@ -56,6 +56,11 @@ export class User {
     //     eager: true
     // })
     // vehicles?: VehicleReg[];
+
+    
+    @OneToOne("DinaciaUser", {eager:true, cascade : true, nullable:true})
+    @JoinColumn()
+    dinacia_user?: DinaciaUser;
 
 }
 

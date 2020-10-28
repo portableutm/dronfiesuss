@@ -1,6 +1,7 @@
-import { Entity, PrimaryGeneratedColumn, Column, PrimaryColumn, ManyToOne, CreateDateColumn } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, PrimaryColumn, ManyToOne, CreateDateColumn, JoinColumn, OneToOne } from "typeorm";
 import { User } from "./User";
 import { type } from "os";
+import { DinaciaVehicle } from "./DinaciaVehicle";
 
 export enum vehicleType {
     MULTIROTOR = "MULTIROTOR",
@@ -61,4 +62,8 @@ export class VehicleReg {
 
     @Column({ unique: true, nullable: true })
     'trackerId'?: string
+
+    @OneToOne("DinaciaVehicle", {eager:true, cascade : true, nullable:true})
+    @JoinColumn()
+    dinacia_vehicle?: DinaciaVehicle;
 }
