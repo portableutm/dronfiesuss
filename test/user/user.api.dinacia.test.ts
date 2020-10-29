@@ -14,7 +14,7 @@ import { Status, UserStatus } from "../../src/entities/UserStatus";
 
 import { TEST_TIMEOUT } from "../conf"; 
 import { DinaciaUser } from "../../src/entities/DinaciaUser";
-import { DinaciaBusiness } from "../../src/entities/DinaciaBusiness";
+import { DinaciaCompany } from "../../src/entities/DinaciaCompany";
 
 describe('>>> User rest controller test <<<', function () {
 
@@ -74,7 +74,7 @@ describe('>>> User rest controller test <<<', function () {
     //         });
     // });
 
-    it("POST /user Should create a new user", function (done) {
+    it.only("POST /user Should create a new user", function (done) {
         let dao = new UserDao()
         dao.all().then(function (users) {
             let CountPreInsert = users.length
@@ -88,21 +88,21 @@ describe('>>> User rest controller test <<<', function () {
             }
 
             let dinaciaUser = new DinaciaUser()
-            dinaciaUser.celular = "099909090"
-            dinaciaUser.domicilio = "Av siempre viva 1234"
-            dinaciaUser.nacionalidad = "UY"
-            dinaciaUser.numero_documento = "12345678"
-            dinaciaUser.telefono = "24004040"
-            dinaciaUser.tipo_documento = "Cedula"
+            dinaciaUser.cellphone = "099909090"
+            dinaciaUser.address = "Av siempre viva 1234"
+            dinaciaUser.nationality = "UY"
+            dinaciaUser.document_number = "12345678"
+            dinaciaUser.phone = "24004040"
+            dinaciaUser.document_type = "Cedula"
 
-            let dinaciaBusiness = new DinaciaBusiness()
-            dinaciaBusiness.RUT = "1234567890"
-            dinaciaBusiness.domicilio = "Av De Los Caminos 9876"
-            dinaciaBusiness.nombre_comercial = "Los nombres comerciales"
-            dinaciaBusiness.razon_social = "Los Comerciales SRL"
-            dinaciaBusiness.telefono = "25005050"
+            let dinacia_company = new DinaciaCompany()
+            dinacia_company.RUT = "1234567890"
+            dinacia_company.domicilio = "Av De Los Caminos 9876"
+            dinacia_company.nombre_comercial = "Los nombres comerciales"
+            dinacia_company.razon_social = "Los Comerciales SRL"
+            dinacia_company.telefono = "25005050"
 
-            dinaciaUser.dinacia_business = dinaciaBusiness
+            dinaciaUser.dinacia_company = dinacia_company
             user.dinacia_user = dinaciaUser
 
             chai.request(app.app)
@@ -118,7 +118,7 @@ describe('>>> User rest controller test <<<', function () {
                     res.body.should.have.property('lastName').equal(user.lastName);
                     res.body.should.have.property('role').equal(user.role);
                     res.body.should.have.property('dinacia_user').deep.include(dinaciaUser)
-                    res.body.dinacia_user.should.have.property('dinacia_business').deep.include(dinaciaBusiness)
+                    res.body.dinacia_user.should.have.property('dinacia_company').deep.include(dinacia_company)
 
                     dao.all().then(function (newUsers) {
                         assert.equal(newUsers.length, CountPreInsert + 1)

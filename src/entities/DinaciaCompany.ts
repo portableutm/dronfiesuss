@@ -8,7 +8,7 @@ import {
 
 
 @Entity({})
-export class DinaciaBusiness
+export class DinaciaCompany
 {
 
     @PrimaryGeneratedColumn("uuid")

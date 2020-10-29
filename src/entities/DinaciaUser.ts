@@ -5,36 +5,35 @@ import {
     Column,
     Unique, PrimaryColumn, OneToOne, JoinColumn, OneToMany, JoinTable
 } from "typeorm";
-import { DinaciaBusiness } from "./DinaciaBusiness";
+import { DinaciaCompany } from "./DinaciaCompany";
 
 
 @Entity({})
-export class DinaciaUser
-{
+export class DinaciaUser {
 
     @PrimaryGeneratedColumn("uuid")
     'id'?: string;
 
     // Nombre:
     @Column()
-    domicilio : string;
+    address: string;
     @Column()
-    tipo_documento : string;
+    document_type: string;
     @Column()
-    numero_documento : string;
+    document_number: string;
     @Column()
-    telefono : string;
+    phone: string;
     @Column()
-    celular : string;
+    cellphone: string;
     @Column()
-    nacionalidad : string;
+    nationality: string;
 
 
-    @OneToOne("DinaciaBusiness", {
-        eager:true, cascade : true
+    @OneToOne("DinaciaCompany", {
+        eager: true, cascade: true
     })
     @JoinColumn()
-    dinacia_business?: DinaciaBusiness;
-    
-    
+    dinacia_company?: DinaciaCompany;
+
+
 }
