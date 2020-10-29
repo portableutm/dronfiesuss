@@ -74,7 +74,7 @@ describe('>>> User rest controller test <<<', function () {
     //         });
     // });
 
-    it.only("POST /user Should create a new user", function (done) {
+    it("POST /user Should create a new user", function (done) {
         let dao = new UserDao()
         dao.all().then(function (users) {
             let CountPreInsert = users.length
