@@ -74,7 +74,6 @@ export class VehicleController {
      */
     async save(request: Request, response: Response, next: NextFunction) {
         let { role, username } = getPayloadFromResponse(response)
-        // let v: VehicleReg = await this.dao.save(request.body);
 
         try {
             let v = request.body //: VehicleReg = await this.dao.save(request.body);
@@ -87,6 +86,25 @@ export class VehicleController {
                 delete v.owner_id
             }
 
+
+            // let userDao = new UserDao()
+            // let usersPromises = await v.operators.map(operator => userDao.one(operator.username))
+            // Promise.all(usersPromises).then( async users => {
+            //     // console.log(users)
+            //     v.operators = users
+            //     let errors = await validateVehicle(v)
+            //     if (errors.length == 0) {
+            //         //insert vehicle
+            //         let insertedVehicle = await this.dao.save(v)
+            //         return response.json(insertedVehicle);
+            //     } else {
+            //         response.status(400)
+            //         return response.json(errors)
+            //     }
+            // })
+            //     .catch(console.error)
+
+
             let errors = await validateVehicle(v)
             if (errors.length == 0) {
                 //insert vehicle
@@ -96,6 +114,7 @@ export class VehicleController {
                 response.status(400)
                 return response.json(errors)
             }
+
         } catch (error) {
             response.sendStatus(400)
         }
@@ -110,12 +129,25 @@ async function validateVehicle(v: VehicleReg) {
     if (!genericTextLenghtValidation(v.vehicleName)) {
         errors.push("Invalid vehicle name")
     }
+    let userDao = new UserDao()
+
     try {
-        let userDao = new UserDao()
-        let u = await userDao.one(v.owner.username)    
+        let u = await userDao.one(v.owner.username)
     } catch (error) {
         errors.push(`The owner ${v.owner.username} does not exists`)
     }
-    
+
+    if(v.operators){
+        for (let index = 0; index < v.operators.length; index++) {
+            const usOperator = v.operators[index];
+            try {
+                console.log("operator " + usOperator.username)
+                let u = await userDao.one(usOperator.username)
+            } catch (error) {
+                console.log("entro?")
+                errors.push(`The operator ${usOperator.username} does not exists`)
+            }
+        }
+    }
     return errors
 }

@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, PrimaryColumn, ManyToOne, CreateDateColumn, JoinColumn, OneToOne } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, PrimaryColumn, ManyToOne, CreateDateColumn, JoinColumn, OneToOne, JoinTable, ManyToMany } from "typeorm";
 import { User } from "./User";
 import { type } from "os";
 import { DinaciaVehicle } from "./DinaciaVehicle";
@@ -29,6 +29,10 @@ export class VehicleReg {
         eager: true
     })
     owner?: User;
+
+    @ManyToMany(() => User, { eager:true, nullable: true })
+    @JoinTable()
+    operators?: User[];
 
     @Column({ nullable: true })
     'nNumber': string;
@@ -63,7 +67,7 @@ export class VehicleReg {
     @Column({ unique: true, nullable: true })
     'trackerId'?: string
 
-    @OneToOne("DinaciaVehicle", {eager:true, cascade : true, nullable:true})
+    @OneToOne("DinaciaVehicle", { eager: true, cascade: true, nullable: true })
     @JoinColumn()
     dinacia_vehicle?: DinaciaVehicle;
 }
