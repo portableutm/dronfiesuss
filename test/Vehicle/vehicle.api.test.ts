@@ -227,7 +227,6 @@ describe('>>> Vehicle entity <<< ', function () {
             .set('auth', token)
             .send(vehicleToInsert)
             .then(function (res) {
-                // console.log(res.body)
                 res.should.have.status(200);
                 res.body.should.have.property('uvin');
                 let uvin = res.body.uvin
@@ -271,6 +270,51 @@ describe('>>> Vehicle entity <<< ', function () {
             .then(function (res) {
                 res.should.have.status(400);
                 done();
+            })
+            .catch(done);
+    });
+
+
+    it("POST /vehicle get vehicles by operator", function (done) {
+        let username = 'MaurineFowlie'
+        let token = getToken('maurine@dronfies.com', username, Role.PILOT)
+        // console.log("*****")
+        // console.log(token)
+        // console.log("*****")
+
+        let dao = new VehicleDao()
+
+        let vehicleToInsert = {
+            "nNumber": "",
+            "faaNumber": "faaNumber_81128_Operator_test2",
+            "vehicleName": "vehicle_name828",
+            "manufacturer": "PIXHAWK",
+            "model": "model_828",
+            "class": "Fixed wing",
+            "accessType": "",
+            "vehicleTypeId": "",
+            "org-uuid": "",
+            "owner_id": username,
+            "operators": [
+                { username: "MaurineFowlie" },
+                { username: "BettyeStopford" },
+            ]
+        }
+        chai.request(app.app)
+            .post('/vehicle')
+            .set('auth', token)
+            .send(vehicleToInsert)
+            .then(function (res) {
+
+                chai.request(app.app)
+                    .get('/vehicle/operator')
+                    .set('auth', token)
+                    .then(function (res) {
+                        // console.log(`resp:Operator:${JSON.stringify(res.body)}`)
+                        res.body.length.should.be.equal(1)
+                        done();
+                    })
+                    .catch(done);
             })
             .catch(done);
     });

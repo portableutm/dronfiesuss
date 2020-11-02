@@ -17,6 +17,17 @@ export class VehicleDao {
         });
     }
 
+    async vehiclesByOperator(username) {
+        return this.repository
+            .createQueryBuilder("vehicle_reg")
+            .innerJoinAndSelect("vehicle_reg.operators", "operator")
+            .where("operator.\"username\" = :username")
+            .setParameters({
+                username: username
+            })
+            .getMany()
+    }
+
     async one(id : string) {
         // console.log(`Dao vehiculo::id>${id}<`)
         let v =  await this.repository.findOneOrFail(id);

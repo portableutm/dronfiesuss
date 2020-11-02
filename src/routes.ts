@@ -160,15 +160,26 @@ let positions = [
     ...doRoutes("position", PositionController),
 ]
 
+let vehicles = [
+    {
+        method: "get",
+        route: "/vehicle/operator",
+        controller: VehicleController,
+        action: "allVehiclesOperator",
+        middlewares: [checkJwt],
+    },
+    ...doRoutes("vehicle", VehicleController),
+]
+
 let r: CustomRoute[] = [
     ...user, // ...doRoutes("user",UserController),
     ...doRoutes("notam", NotamController),
     ...doRoutes("utmmessage", UTMMessageController),
-    ...doRoutes("vehicle", VehicleController),
+    
     ...doRoutes("uasvolume", UASVolumeReservationController),
     ...doRoutes("restrictedflightvolume", RestrictedFlightVolumeController),
     ...doRoutes("quickfly", QuickFlyController),
-
+    ...vehicles,
     ...positions,
     ...operations,
     ...auth,

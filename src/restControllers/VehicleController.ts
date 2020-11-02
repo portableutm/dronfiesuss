@@ -28,6 +28,20 @@ export class VehicleController {
         return response.json(vehicles)
     }
 
+    /**
+    * Get vehicles, that the user is operator
+    * @param request 
+    * @param response 
+    * @param next 
+    */
+    async allVehiclesOperator(request: Request, response: Response, next: NextFunction) {
+        let { role, username } = getPayloadFromResponse(response)
+        let vehicles
+        vehicles = await this.dao.vehiclesByOperator(username);
+
+        return response.json(vehicles)
+    }
+
     //solo los propios si role piloto
     /**
      * Get one vehicle . Admin can see all vehicles, pilot only owned vehicles
@@ -87,24 +101,6 @@ export class VehicleController {
             }
 
 
-            // let userDao = new UserDao()
-            // let usersPromises = await v.operators.map(operator => userDao.one(operator.username))
-            // Promise.all(usersPromises).then( async users => {
-            //     // console.log(users)
-            //     v.operators = users
-            //     let errors = await validateVehicle(v)
-            //     if (errors.length == 0) {
-            //         //insert vehicle
-            //         let insertedVehicle = await this.dao.save(v)
-            //         return response.json(insertedVehicle);
-            //     } else {
-            //         response.status(400)
-            //         return response.json(errors)
-            //     }
-            // })
-            //     .catch(console.error)
-
-
             let errors = await validateVehicle(v)
             if (errors.length == 0) {
                 //insert vehicle
@@ -137,14 +133,14 @@ async function validateVehicle(v: VehicleReg) {
         errors.push(`The owner ${v.owner.username} does not exists`)
     }
 
-    if(v.operators){
+    if (v.operators) {
         for (let index = 0; index < v.operators.length; index++) {
             const usOperator = v.operators[index];
             try {
-                console.log("operator " + usOperator.username)
+                // console.log("operator " + usOperator.username)
                 let u = await userDao.one(usOperator.username)
             } catch (error) {
-                console.log("entro?")
+                // console.log("entro?")
                 errors.push(`The operator ${usOperator.username} does not exists`)
             }
         }
