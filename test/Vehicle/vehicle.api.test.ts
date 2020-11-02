@@ -278,12 +278,7 @@ describe('>>> Vehicle entity <<< ', function () {
     it("POST /vehicle get vehicles by operator", function (done) {
         let username = 'MaurineFowlie'
         let token = getToken('maurine@dronfies.com', username, Role.PILOT)
-        // console.log("*****")
-        // console.log(token)
-        // console.log("*****")
-
         let dao = new VehicleDao()
-
         let vehicleToInsert = {
             "nNumber": "",
             "faaNumber": "faaNumber_81128_Operator_test2",
@@ -305,13 +300,115 @@ describe('>>> Vehicle entity <<< ', function () {
             .set('auth', token)
             .send(vehicleToInsert)
             .then(function (res) {
+                res.should.have.status(200);
 
                 chai.request(app.app)
                     .get('/vehicle/operator')
                     .set('auth', token)
                     .then(function (res) {
+                        res.should.have.status(200);
                         // console.log(`resp:Operator:${JSON.stringify(res.body)}`)
                         res.body.length.should.be.equal(1)
+                        done();
+                    })
+                    .catch(done);
+            })
+            .catch(done);
+    });
+
+
+    it.only("POST /vehicle/authorize authorize the registred vehicle", function (done) {
+        let username = 'MaurineFowlie'
+        let token = getToken('admin@dronfies.com', "admin", Role.ADMIN)
+        let dao = new VehicleDao()
+        let vehicleToInsert = {
+            "nNumber": "",
+            "faaNumber": "faaNumber_81128_Operator_test2",
+            "vehicleName": "vehicle_name828",
+            "manufacturer": "PIXHAWK",
+            "model": "model_828",
+            "class": "Fixed wing",
+            "accessType": "",
+            "vehicleTypeId": "",
+            "org-uuid": "",
+            "owner_id": username,
+            "operators": [
+                { username: "MaurineFowlie" },
+                { username: "BettyeStopford" },
+            ]
+        }
+        chai.request(app.app)
+            .post('/vehicle')
+            .set('auth', token)
+            .send(vehicleToInsert)
+            .then(function (res) {
+                res.should.have.status(200);
+
+                res.body.authorized.should.be.equal(false)
+                let uvin = res.body.uvin
+                uvin.should.be.a('string')
+
+                let uvinToAuthorize = {
+                    id: uvin
+                }
+
+                chai.request(app.app)
+                    .post('/vehicle/authorize')
+                    .set('auth', token)
+                    .send(uvinToAuthorize)
+                    .then(function (res) {
+                        res.should.have.status(200);
+                        res.body.authorized.should.be.equal(true)
+                        done();
+                    })
+                    .catch(done);
+            })
+            .catch(done);
+    });
+
+    it.only("POST /vehicle/authorize should fail if no user admin authorize ", function (done) {
+        let username = 'MaurineFowlie'
+        let token = getToken('maurine@dronfies.com', username, Role.PILOT)
+        let dao = new VehicleDao()
+        let vehicleToInsert = {
+            "nNumber": "",
+            "faaNumber": "faaNumber_81128_Operator_test2",
+            "vehicleName": "vehicle_name828",
+            "manufacturer": "PIXHAWK",
+            "model": "model_828",
+            "class": "Fixed wing",
+            "accessType": "",
+            "vehicleTypeId": "",
+            "org-uuid": "",
+            "owner_id": username,
+            "operators": [
+                { username: "MaurineFowlie" },
+                { username: "BettyeStopford" },
+            ]
+        }
+        chai.request(app.app)
+            .post('/vehicle')
+            .set('auth', token)
+            .send(vehicleToInsert)
+            .then(function (res) {
+                res.should.have.status(200);
+
+                res.body.authorized.should.be.equal(false)
+                let uvin = res.body.uvin
+                uvin.should.be.a('string')
+
+                let uvinToAuthorize = {
+                    id: uvin
+                }
+
+                chai.request(app.app)
+                    .post('/vehicle/authorize')
+                    .set('auth', token)
+                    .send(uvinToAuthorize)
+                    .then(function (res) {
+                        // console.log(`resp:Operator:${JSON.stringify(res.body)}`)
+                        res.should.have.status(401);
+                        // res.body.authorized.should.be.equal(false)
                         done();
                     })
                     .catch(done);

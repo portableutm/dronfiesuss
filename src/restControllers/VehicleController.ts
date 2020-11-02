@@ -117,6 +117,35 @@ export class VehicleController {
 
     }
 
+
+
+    /**
+     * Change the status of user with username passed and status.token 
+     * @example {
+     *  id: string
+     * }
+     * @param request 
+     * @param response 
+     * @param next 
+     */
+    async authorizeVehicle(request: Request, response: Response, next: NextFunction) {
+        try {
+            // console.log(`authorizeVehicle::${JSON.stringify(request.body, null, 2)}`)
+            let { role, username } = getPayloadFromResponse(response)
+            if (role == Role.ADMIN) {
+                let uvin = request.body.id || request.body.uvin 
+                let v = await this.dao.one(uvin);
+                v.authorized = true
+                let updated = await this.dao.save(v)
+                return response.json(updated)
+            } else {
+                return response.sendStatus(401)
+            }
+        } catch (error) {
+            return response.sendStatus(404)
+        }
+    }
+
 }
 
 

@@ -67,6 +67,10 @@ export class VehicleReg {
     @Column({ unique: true, nullable: true })
     'trackerId'?: string
 
+
+    @Column({default:false})
+    authorized?: boolean;
+
     @OneToOne("DinaciaVehicle", { eager: true, cascade: true, nullable: true })
     @JoinColumn()
     dinacia_vehicle?: DinaciaVehicle;

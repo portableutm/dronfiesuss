@@ -168,6 +168,13 @@ let vehicles = [
         action: "allVehiclesOperator",
         middlewares: [checkJwt],
     },
+    {
+        method: "post",
+        route: "/vehicle/authorize",
+        controller: VehicleController,
+        action: "authorizeVehicle",
+        middlewares: [checkJwt],
+    },
     ...doRoutes("vehicle", VehicleController),
 ]
 
