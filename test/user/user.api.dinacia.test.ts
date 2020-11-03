@@ -12,7 +12,7 @@ import { User, Role } from "../../src/entities/User";
 import { getToken } from "../../src/services/tokenService";
 import { Status, UserStatus } from "../../src/entities/UserStatus";
 
-import { TEST_TIMEOUT } from "../conf"; 
+import { TEST_TIMEOUT } from "../conf";
 import { DinaciaUser } from "../../src/entities/DinaciaUser";
 import { DinaciaCompany } from "../../src/entities/DinaciaCompany";
 
@@ -21,65 +21,18 @@ describe('>>> User rest controller test <<<', function () {
     before(function (done) {
         this.timeout(TEST_TIMEOUT);
         initAsync()
-            .then((function(application){
+            .then((function (application) {
                 done()
             }))
             .catch(done)
     })
-
-    // it("GET /user Should get all users", function (done) {
-    //     chai.request(app.app)
-    //         .get('/user')
-    //         .set('bypass', 'a')
-    //         .set('Accept', 'application/json')
-    //         .end((err, res) => {
-    //             res.should.have.status(200);
-    //             res.body.length.should.be.eq(12)
-    //             done();
-    //         });
-    // });
-
-    // it("GET /user Should not get all users for anonymus user", function (done) {
-    //     chai.request(app.app)
-    //         .get('/user')
-    //         .set('Accept', 'application/json')
-    //         .end((err, res) => {
-    //             res.should.have.status(401);
-    //             done();
-    //         });
-    // });
-
-    // it("GET /user Should not get all users for non ADMIN user", function (done) {
-    //     let token = getToken('maurine@dronfies.com', 'MaurineFowlie', Role.PILOT)
-    //     chai.request(app.app)
-    //         .get('/user')
-    //         .set('Accept', 'application/json')
-    //         .set('auth', token)
-    //         .end((err, res) => {
-    //             res.should.have.status(401);
-    //             done();
-    //         });
-    // });
-
-    // it("GET /user Should get all users", function (done) {
-    //     chai.request(app.app)
-    //         .get('/user')
-    //         .set('bypass', 'a')
-    //         .end((err, res) => {
-    //             res.should.have.status(200);
-    //             res.body.should.be.a('array')
-    //             res.body.length.should.be.gt(5)
-    //             res.body.length.should.be.eq(12)
-    //             done();
-    //         });
-    // });
 
     it("POST /user Should create a new user", function (done) {
         let dao = new UserDao()
         dao.all().then(function (users) {
             let CountPreInsert = users.length
             let user: User = {
-                username: "UserToInsert",
+                username: "UserToInsertDinacia",
                 email: `userToInsert@dronfies.com`,
                 firstName: `Algun`,
                 lastName: `Nombre`,
@@ -122,9 +75,8 @@ describe('>>> User rest controller test <<<', function () {
 
                     dao.all().then(function (newUsers) {
                         assert.equal(newUsers.length, CountPreInsert + 1)
-                        done();
+                        dao.remove(user.username).then(() => { done() }).catch(done)
                     }).catch(err => {
-                        // console.error(err);
                         done(err);
                     });
 
@@ -146,7 +98,7 @@ describe('>>> User rest controller test <<<', function () {
     //         let status = new UserStatus()
     //         status.status = Status.CONFIRMED
     //         status.token = ""
-            
+
     //         let user : User = {
     //             username: "testBug",
     //             email: `testBug@dronfies.com`,
