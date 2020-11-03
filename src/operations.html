@@ -97,16 +97,21 @@
       return [position.location.coordinates[1], position.location.coordinates[0]]
     }
 
-    function newPosition(position) {
-      console.log(`Processing ${JSON.stringify(position)}`)
-      if (positions[position.gufi] === undefined) {
+    // function newPosition(position) {
+    //   console.log(`Processing ${JSON.stringify(position)}`)
+    //   if (positions[position.gufi] === undefined) {
+    //     console.log(`Nueva posicion`)
+    //     positions[position.gufi] = L.marker(getCoords(position)).addTo(mymap)
+    //   }
+    //   else {
+    //     console.log(`Actualizo posicion`)
+    //     positions[position.gufi].setLatLng(getCoords(position))
+    //   }
+    // }
+
+     function newPosition(position) {
         console.log(`Nueva posicion`)
         positions[position.gufi] = L.marker(getCoords(position)).addTo(mymap)
-      }
-      else {
-        console.log(`Actualizo posicion`)
-        positions[position.gufi].setLatLng(getCoords(position))
-      }
     }
 
     $(function () {
@@ -125,9 +130,9 @@
           srs: "EPSG:4326",
         }).addTo(mymap);
       } else {
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        }).addTo(mymap);
+          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          }).addTo(mymap);
       }
 
 
@@ -195,23 +200,45 @@
 
 
         const socket = io(window.location.origin, {
+          query : {
+            // token: 'pifqwdausfb371287*&G*&GE@&*B',
+            bypass: "a"
+          },
           transports: ['websocket']
         });
         console.log('Conectado?')
         $('form').submit(function () {
+          console.log(`Send message`)
           socket.emit('chat message', $('#m').val());
           $('#m').val('');
           return false;
         });
+        socket.on('connect', () => {
+            console.log("se contectó ")
+        });
+
         socket.on('chat message', function (msg) {
+          console.log(`Respuesta message ${msg}`)
           $('#messages').append($('<li>').text(msg));
           window.scrollTo(0, document.body.scrollHeight);
         });
+
         socket.on('new-position', function (position) {
           console.log(`New position ${position}`)
           newPosition(position)
-
         });
+
+        socket.on('operation-state-change', function (operationInfo) {
+          console.log(`New state ${operationInfo.gufi} -> ${operationInfo.state}`)
+          // newPosition(position)
+        });
+
+        socket.on('new-operation', function (operationInfo) {
+          console.log(`New Operation ${operationInfo.gufi} -> ${operationInfo.state}`)
+          // newPosition(position)
+        });
+
+
         // socket.on('position-status', function (inPosition) {
         //   console.log(`Position Status ${inPosition}`)
         //   // newPosition(position)
@@ -244,7 +271,7 @@
 
             let layerJson = L.geoJSON(geojsonFeature)
             layers.push(layerJson)
-            layerJson.bindPopup(`<b>gufi</b>:${op.gufi}<br /><b>State</b>:${op.state}${str}`)
+            layerJson.bindPopup(`<b>OPERACION::gufi</b>:${op.gufi}<br /><b>State</b>:${op.state}${str}`)
             layerJson.addTo(mymap)
           })
         })
@@ -262,7 +289,7 @@
           ${uvr.min_altitude} y ${uvr.max_altitude}`
             let layerJson = L.geoJSON(geojsonFeature)
             layerJson.setStyle({ fillColor: 'red' })
-            layerJson.bindPopup(`<b>message_id</b>:${uvr.message_id}${str}`)
+            layerJson.bindPopup(`<b>Uas volume reservation:message_id</b>:${uvr.message_id}${str}`)
             layerJson.addTo(mymap)
           })
         })
@@ -273,7 +300,7 @@
           notams.forEach(notam => {
             geojsonFeature = notam.geography
             let str = `
-          <b>text</b>:${notam.text}<br />
+          <b>NoTam::text</b>:${notam.text}<br />
           <b>message_id</b>:${notam.message_id}<br />
           <br />${notam.effective_time_begin} y ${notam.effective_time_end}  `
             let layerJson = L.geoJSON(geojsonFeature)
@@ -289,7 +316,7 @@
           notams.forEach(rfv => {
             geojsonFeature = rfv.geography
             let str = `
-          <b>text</b>:${rfv.comments}<br />
+          <b>RFV::text</b>:${rfv.comments}<br />
           <b>id</b>:${rfv.id}<br />
           <br />${rfv.min_altitude} y ${rfv.max_altitude}  `
             let layerJson = L.geoJSON(geojsonFeature)
