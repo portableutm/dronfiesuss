@@ -15,7 +15,7 @@ import { Operations } from "../../src/data/operations_data";
 import { OperationState } from "../../src/entities/Operation";
 import { OperationDao } from "../../src/daos/OperationDaos";
 
-describe.only('>>> Paragliding Position entity <<< ', function () {
+describe('>>> Paragliding Position entity <<< ', function () {
 
 
     before(function (done) {
@@ -62,7 +62,7 @@ describe.only('>>> Paragliding Position entity <<< ', function () {
             .set('auth', token)
             .send(positionToInsert)
             .then(function (res) {
-                console.log(res.body)
+                // console.log(res.body)
                 res.should.have.status(200);
                 res.body.should.be.a('object')
                 res.body.should.have.property('id');
