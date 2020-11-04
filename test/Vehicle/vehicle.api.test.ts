@@ -317,7 +317,7 @@ describe('>>> Vehicle entity <<< ', function () {
     });
 
 
-    it.only("POST /vehicle/authorize authorize the registred vehicle", function (done) {
+    it("POST /vehicle/authorize authorize the registred vehicle", function (done) {
         let username = 'MaurineFowlie'
         let token = getToken('admin@dronfies.com', "admin", Role.ADMIN)
         let dao = new VehicleDao()
@@ -366,7 +366,7 @@ describe('>>> Vehicle entity <<< ', function () {
             .catch(done);
     });
 
-    it.only("POST /vehicle/authorize should fail if no user admin authorize ", function (done) {
+    it("POST /vehicle/authorize should fail if no user admin authorize ", function (done) {
         let username = 'MaurineFowlie'
         let token = getToken('maurine@dronfies.com', username, Role.PILOT)
         let dao = new VehicleDao()
