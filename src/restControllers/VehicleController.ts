@@ -103,6 +103,13 @@ export class VehicleController {
 
             let errors = await validateVehicle(v)
             if (errors.length == 0) {
+
+                if(v.dinacia_vehicle && !v.dinacia_vehicle.caa_registration){
+                    // console.log("Generando matricula")
+                    v.dinacia_vehicle.caa_registration = await generateCaaRegistration(this.dao)
+                    // console.log(`Matricula generada: ${v.dinacia_vehicle.caa_registration}`)
+                }
+
                 //insert vehicle
                 let insertedVehicle = await this.dao.save(v)
                 return response.json(insertedVehicle);
@@ -112,6 +119,7 @@ export class VehicleController {
             }
 
         } catch (error) {
+            console.error(error)
             response.sendStatus(400)
         }
 
@@ -175,4 +183,12 @@ async function validateVehicle(v: VehicleReg) {
         }
     }
     return errors
+}
+
+async function generateCaaRegistration(dao: VehicleDao) {
+    
+    let year = new Date().getFullYear();
+    let count = await dao.countDinaciaVehiclesByYear(year)
+    let caa_register = `CX-${year}-${count + 1}`
+    return caa_register
 }
