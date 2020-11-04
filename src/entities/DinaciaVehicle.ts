@@ -8,8 +8,7 @@ import {
 
 
 @Entity({})
-export class DinaciaVehicle
-{    
+export class DinaciaVehicle {
     @PrimaryGeneratedColumn("uuid")
     'id'?: string;
 
@@ -18,71 +17,74 @@ export class DinaciaVehicle
     // modelo
     // tipo_dispositivo: "ala_fija" | "rotatorio"
 
-    @Column({default:false})
+    @Column({ default: false })
     authorized: boolean;
 
 
-    @Column ()
-    usage: string;
-    @Column ()
-    construction_material: string;
-    @Column ()
-    year: string;
-    @Column ()
-    serial_number: string;
-    @Column ()
-    empty_weight: number;
-    @Column ()
-    max_weight: number;
-    @Column ()
-    takeoff_method: string;
-    @Column ()
-    sensor_type_and_mark: string;
-    @Column ()
-    packing: string;
-    @Column ()
-    longitude: number;
-    @Column ()
-    height: number;
-    @Column ()
-    color: string;
-    @Column ()
-    max_speed: number;
-    @Column ()
-    cruise_speed: number;
-    @Column ()
-    landing_speed: number;
-    @Column ()
-    time_autonomy: string;
-    @Column ()
-    radio_accion: string;
-    @Column ()
-    ceiling: string;
-    @Column ()
-    communication_control_system_command_navigation_vigilance: string;
-    @Column ()
-    maintenance_inspections: string;
-    @Column ()
-    remarks: string;
+    @Column()
+    caa_registration?: string;
 
-    @Column ()
-    engine_manufacturer: string;
-    @Column ()
-    engine_type: string;
-    @Column ()
-    engine_model: string;
-    @Column ()
-    engine_power: string;
-    @Column ()
-    engine_fuel: string;
-    @Column ()
-    engine_quantity_batteries: string;
-    @Column ()
-    propeller_type: string;
-    @Column ()
-    propeller_model: string;
-    @Column ()
-    propeller_material: string;
+    @Column({ nullable: true })
+    usage?: string;
+    @Column({ nullable: true })
+    construction_material?: string;
+    @Column({ default: new Date().getFullYear(), nullable: true  })
+    year?: string;
+    @Column({ nullable: true })
+    serial_number?: string;
+    @Column({ nullable: true })
+    empty_weight?: number;
+    @Column({ nullable: true })
+    max_weight?: number;
+    @Column({ nullable: true })
+    takeoff_method?: string;
+    @Column({ nullable: true })
+    sensor_type_and_mark?: string;
+    @Column({ nullable: true })
+    packing?: string;
+    @Column({ nullable: true })
+    longitude?: number;
+    @Column({ nullable: true })
+    height?: number;
+    @Column({ nullable: true })
+    color?: string;
+    @Column({ nullable: true })
+    max_speed?: number;
+    @Column({ nullable: true })
+    cruise_speed?: number;
+    @Column({ nullable: true })
+    landing_speed?: number;
+    @Column({ nullable: true })
+    time_autonomy?: string;
+    @Column({ nullable: true })
+    radio_accion?: string;
+    @Column({ nullable: true })
+    ceiling?: string;
+    @Column({ nullable: true })
+    communication_control_system_command_navigation_vigilance?: string;
+    @Column({ nullable: true })
+    maintenance_inspections?: string;
+    @Column({ nullable: true })
+    remarks?: string;
+
+    @Column({ nullable: true })
+    engine_manufacturer?: string;
+    @Column({ nullable: true })
+    engine_type?: string;
+    @Column({ nullable: true })
+    engine_model?: string;
+    @Column({ nullable: true })
+    engine_power?: string;
+    @Column({ nullable: true })
+    engine_fuel?: string;
+    @Column({ nullable: true })
+    engine_quantity_batteries?: string;
+    @Column({ nullable: true })
+    propeller_type?: string;
+    @Column({ nullable: true })
+    propeller_model?: string;
+    @Column({ nullable: true })
+    propeller_material?: string;
 
     // @Column()
     // uso: string;
@@ -146,9 +148,9 @@ export class DinaciaVehicle
     // helice_modelo: string;
     // @Column()
     // helice_material: string;
-    
 
 
-  
-    
+
+
+
 }
