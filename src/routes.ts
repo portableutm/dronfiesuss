@@ -4,6 +4,7 @@ import { OperationController } from "./restControllers/OperationController";
 import { UTMMessageController } from "./restControllers/UtmMessageRestController";
 import { AuthController } from "./restControllers/AuthController";
 import { PositionController } from "./restControllers/PositionController";
+import { ParaglidingPositionController } from "./restControllers/ParaglidingPositionController";
 import { UASVolumeReservationController } from "./restControllers/UASVolumeReservationController";
 import { NotamController } from "./restControllers/NotamRestController";
 import { RestrictedFlightVolumeController } from "./restControllers/RestrictedFlightVolumeController";
@@ -186,6 +187,7 @@ let r: CustomRoute[] = [
     ...doRoutes("uasvolume", UASVolumeReservationController),
     ...doRoutes("restrictedflightvolume", RestrictedFlightVolumeController),
     ...doRoutes("quickfly", QuickFlyController),
+    ...doRoutes("paraglidingposition", ParaglidingPositionController),
     ...vehicles,
     ...positions,
     ...operations,
