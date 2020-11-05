@@ -10,6 +10,14 @@ import { app, initAsync } from "../../src/index";
 import { TEST_TIMEOUT } from "../conf";
 import { getToken } from "../../src/services/tokenService";
 import { Role } from "../../src/entities/User";
+import { sleepPromise } from "../../src/utils/miscUtils";
+
+
+
+import { smtpUsername, smtpPassword } from "../../src/config/config";
+import { generateAuthorizeVehicleMailHTML } from "../../src/utils/mailContentUtil";
+
+
 
 describe('>>> Vehicle entity <<< ', function () {
 
@@ -317,104 +325,194 @@ describe('>>> Vehicle entity <<< ', function () {
     });
 
 
-    it("POST /vehicle/authorize authorize the registred vehicle", function (done) {
-        let username = 'MaurineFowlie'
-        let token = getToken('admin@dronfies.com', "admin", Role.ADMIN)
-        let dao = new VehicleDao()
-        let vehicleToInsert = {
-            "nNumber": "",
-            "faaNumber": "faaNumber_81128_Operator_test2",
-            "vehicleName": "vehicle_name828",
-            "manufacturer": "PIXHAWK",
-            "model": "model_828",
-            "class": "Fixed wing",
-            "accessType": "",
-            "vehicleTypeId": "",
-            "org-uuid": "",
-            "owner_id": username,
-            "operators": [
-                { username: "MaurineFowlie" },
-                { username: "BettyeStopford" },
-            ]
-        }
-        chai.request(app.app)
-            .post('/vehicle')
-            .set('auth', token)
-            .send(vehicleToInsert)
-            .then(function (res) {
-                res.should.have.status(200);
+    describe.only("Vehicle authorization", function () {
+        it("POST /vehicle/authorize authorize the registred vehicle", function (done) {
+            let username = 'MaurineFowlie'
+            let token = getToken('admin@dronfies.com', "admin", Role.ADMIN)
+            let dao = new VehicleDao()
+            let vehicleToInsert = {
+                "nNumber": "",
+                "faaNumber": "faaNumber_81128_Operator_test2",
+                "vehicleName": "vehicle_name828",
+                "manufacturer": "PIXHAWK",
+                "model": "model_828",
+                "class": "Fixed wing",
+                "accessType": "",
+                "vehicleTypeId": "",
+                "org-uuid": "",
+                "owner_id": username,
+                "operators": [
+                    { username: "MaurineFowlie" },
+                    { username: "BettyeStopford" },
+                ]
+            }
+            chai.request(app.app)
+                .post('/vehicle')
+                .set('auth', token)
+                .send(vehicleToInsert)
+                .then(function (res) {
+                    res.should.have.status(200);
 
-                res.body.authorized.should.be.equal(false)
-                let uvin = res.body.uvin
-                uvin.should.be.a('string')
+                    res.body.authorized.should.be.equal('PENDING')
+                    let uvin = res.body.uvin
+                    uvin.should.be.a('string')
 
-                let uvinToAuthorize = {
-                    id: uvin
-                }
+                    let uvinToAuthorize = {
+                        id: uvin,
+                        status: 'AUTHORIZED'
+                    }
 
-                chai.request(app.app)
-                    .post('/vehicle/authorize')
-                    .set('auth', token)
-                    .send(uvinToAuthorize)
-                    .then(function (res) {
-                        res.should.have.status(200);
-                        res.body.authorized.should.be.equal(true)
-                        done();
-                    })
-                    .catch(done);
-            })
-            .catch(done);
-    });
+                    chai.request(app.app)
+                        .post('/vehicle/authorize')
+                        .set('auth', token)
+                        .send(uvinToAuthorize)
+                        .then(function (res) {
+                            res.should.have.status(200);
+                            res.body.authorized.should.be.equal('AUTHORIZED')
+                            let vehicle = res.body
 
-    it("POST /vehicle/authorize should fail if no user admin authorize ", function (done) {
-        let username = 'MaurineFowlie'
-        let token = getToken('maurine@dronfies.com', username, Role.PILOT)
-        let dao = new VehicleDao()
-        let vehicleToInsert = {
-            "nNumber": "",
-            "faaNumber": "faaNumber_81128_Operator_test2",
-            "vehicleName": "vehicle_name828",
-            "manufacturer": "PIXHAWK",
-            "model": "model_828",
-            "class": "Fixed wing",
-            "accessType": "",
-            "vehicleTypeId": "",
-            "org-uuid": "",
-            "owner_id": username,
-            "operators": [
-                { username: "MaurineFowlie" },
-                { username: "BettyeStopford" },
-            ]
-        }
-        chai.request(app.app)
-            .post('/vehicle')
-            .set('auth', token)
-            .send(vehicleToInsert)
-            .then(function (res) {
-                res.should.have.status(200);
+                            sleepPromise(1000).then(() => {
+                                chai.request('http://localhost:1080')
+                                    // /api/emails?from=joe@example.com&to=bob@example.com&since=2017-09-18T12:00:00Z&until=2017-09-19T00:00:00Z
+                                    .get(`/api/emails`)
+                                    .auth(smtpUsername, smtpPassword)
+                                    .then(res => {
+                                        res.should.have.status(200);
+                                        res.body.should.be.a('array');
+                                        let mail = res.body[0]
+                                        // console.log(`Mail: ${JSON.stringify(mail, null, 2)} `)
+                                        mail.subject.should.include('Información sobre authorización');
+                                        mail.html.should.include(generateAuthorizeVehicleMailHTML(vehicle));
+                                        done()
+                                    })
+                                    .catch(done)
+                            }).catch(done)
 
-                res.body.authorized.should.be.equal(false)
-                let uvin = res.body.uvin
-                uvin.should.be.a('string')
+                        })
+                        .catch(done);
+                })
+                .catch(done);
+        });
 
-                let uvinToAuthorize = {
-                    id: uvin
-                }
+        it("POST /vehicle/authorize NOT_AUTHORIZE the registred vehicle", function (done) {
+            let username = 'MaurineFowlie'
+            let token = getToken('admin@dronfies.com', "admin", Role.ADMIN)
+            let dao = new VehicleDao()
+            let vehicleToInsert = {
+                "nNumber": "",
+                "faaNumber": "faaNumber_81128_Operator_test2",
+                "vehicleName": "vehicle_name828",
+                "manufacturer": "PIXHAWK",
+                "model": "model_828",
+                "class": "Fixed wing",
+                "accessType": "",
+                "vehicleTypeId": "",
+                "org-uuid": "",
+                "owner_id": username,
+                "operators": [
+                    { username: "MaurineFowlie" },
+                    { username: "BettyeStopford" },
+                ]
+            }
+            chai.request(app.app)
+                .post('/vehicle')
+                .set('auth', token)
+                .send(vehicleToInsert)
+                .then(function (res) {
+                    res.should.have.status(200);
 
-                chai.request(app.app)
-                    .post('/vehicle/authorize')
-                    .set('auth', token)
-                    .send(uvinToAuthorize)
-                    .then(function (res) {
-                        // console.log(`resp:Operator:${JSON.stringify(res.body)}`)
-                        res.should.have.status(401);
-                        // res.body.authorized.should.be.equal(false)
-                        done();
-                    })
-                    .catch(done);
-            })
-            .catch(done);
-    });
+                    res.body.authorized.should.be.equal('PENDING')
+                    let uvin = res.body.uvin
+                    uvin.should.be.a('string')
+
+                    let uvinToAuthorize = {
+                        id: uvin,
+                        status: 'NOT_AUTHORIZED'
+                    }
+
+                    chai.request(app.app)
+                        .post('/vehicle/authorize')
+                        .set('auth', token)
+                        .send(uvinToAuthorize)
+                        .then(function (res) {
+                            res.should.have.status(200);
+                            res.body.authorized.should.be.equal('NOT_AUTHORIZED')
+                            let vehicle = res.body
+
+                            sleepPromise(1000).then(() => {
+                                chai.request('http://localhost:1080')
+                                    // /api/emails?from=joe@example.com&to=bob@example.com&since=2017-09-18T12:00:00Z&until=2017-09-19T00:00:00Z
+                                    .get(`/api/emails`)
+                                    .auth(smtpUsername, smtpPassword)
+                                    .then(res => {
+                                        res.should.have.status(200);
+                                        res.body.should.be.a('array');
+                                        let mail = res.body[0]
+                                        // console.log(`Mail: ${JSON.stringify(mail, null, 2)} `)
+                                        mail.subject.should.include('Información sobre authorización');
+                                        mail.html.should.include(generateAuthorizeVehicleMailHTML(vehicle));
+
+                                        done()
+
+                                    })
+                                    .catch(done)
+                            }).catch(done)
+                        })
+                        .catch(done);
+                })
+                .catch(done);
+        });
+
+        it("POST /vehicle/authorize should fail if no user admin authorize ", function (done) {
+            let username = 'MaurineFowlie'
+            let token = getToken('maurine@dronfies.com', username, Role.PILOT)
+            let dao = new VehicleDao()
+            let vehicleToInsert = {
+                "nNumber": "",
+                "faaNumber": "faaNumber_81128_Operator_test2",
+                "vehicleName": "vehicle_name828",
+                "manufacturer": "PIXHAWK",
+                "model": "model_828",
+                "class": "Fixed wing",
+                "accessType": "",
+                "vehicleTypeId": "",
+                "org-uuid": "",
+                "owner_id": username,
+                "operators": [
+                    { username: "MaurineFowlie" },
+                    { username: "BettyeStopford" },
+                ]
+            }
+            chai.request(app.app)
+                .post('/vehicle')
+                .set('auth', token)
+                .send(vehicleToInsert)
+                .then(function (res) {
+                    res.should.have.status(200);
+
+                    res.body.authorized.should.be.equal('PENDING')
+                    let uvin = res.body.uvin
+                    uvin.should.be.a('string')
+
+                    let uvinToAuthorize = {
+                        id: uvin
+                    }
+
+                    chai.request(app.app)
+                        .post('/vehicle/authorize')
+                        .set('auth', token)
+                        .send(uvinToAuthorize)
+                        .then(function (res) {
+                            res.should.have.status(401);
+                            done();
+                        })
+                        .catch(done);
+                })
+                .catch(done);
+        });
+
+    })
+
 
 
 });
