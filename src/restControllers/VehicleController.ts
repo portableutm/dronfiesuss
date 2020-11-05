@@ -5,6 +5,11 @@ import { VehicleReg } from "../entities/VehicleReg";
 import { Role } from "../entities/User";
 import { getPayloadFromResponse } from "../utils/authUtils";
 import { genericTextLenghtValidation } from "../utils/validationUtils";
+import { generateNewVehicleMailHTML, generateNewVehicleMailText, generateAuthorizeVehicleMailHTML, generateAuthorizeVehicleMailText } from "../utils/mailContentUtil";
+import { sendMail } from "../services/mailService";
+
+import { adminEmail } from "../config/config";
+
 
 export class VehicleController {
 
@@ -104,7 +109,7 @@ export class VehicleController {
             let errors = await validateVehicle(v)
             if (errors.length == 0) {
 
-                if(v.dinacia_vehicle && !v.dinacia_vehicle.caa_registration){
+                if ((v.dinacia_vehicle != undefined) && !v.dinacia_vehicle.caa_registration) {
                     // console.log("Generando matricula")
                     v.dinacia_vehicle.caa_registration = await generateCaaRegistration(this.dao)
                     // console.log(`Matricula generada: ${v.dinacia_vehicle.caa_registration}`)
@@ -112,6 +117,11 @@ export class VehicleController {
 
                 //insert vehicle
                 let insertedVehicle = await this.dao.save(v)
+                try {
+                    sendMail([adminEmail], "Vehículo nuevo", generateNewVehicleMailText(v), generateNewVehicleMailHTML(v))
+                } catch (error) {
+
+                }
                 return response.json(insertedVehicle);
             } else {
                 response.status(400)
@@ -141,10 +151,13 @@ export class VehicleController {
             // console.log(`authorizeVehicle::${JSON.stringify(request.body, null, 2)}`)
             let { role, username } = getPayloadFromResponse(response)
             if (role == Role.ADMIN) {
-                let uvin = request.body.id || request.body.uvin 
+                let uvin = request.body.id || request.body.uvin
+                let authorizedStatus = request.body.status
                 let v = await this.dao.one(uvin);
-                v.authorized = true
+                v.authorized = authorizedStatus
+                // v.authorized = true
                 let updated = await this.dao.save(v)
+                sendMail([v.owner.email], "Información sobre authorización", generateAuthorizeVehicleMailText(v), generateAuthorizeVehicleMailHTML(v))
                 return response.json(updated)
             } else {
                 return response.sendStatus(401)
@@ -186,7 +199,7 @@ async function validateVehicle(v: VehicleReg) {
 }
 
 async function generateCaaRegistration(dao: VehicleDao) {
-    
+
     let year = new Date().getFullYear();
     let count = await dao.countDinaciaVehiclesByYear(year)
     let caa_register = `CX-${year}-${count + 1}`

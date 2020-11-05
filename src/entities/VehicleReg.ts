@@ -10,6 +10,12 @@ export enum vehicleType {
     OTRO = "OTRO"
 }
 
+export enum VehicleAuthorizeStatus {
+    PENDING = "PENDING",
+    AUTHORIZED = "AUTHORIZED",
+    NOT_AUTHORIZED = "NOT_AUTHORIZED",
+}
+
 @Entity()
 export class VehicleReg {
     @PrimaryGeneratedColumn("uuid")
@@ -68,8 +74,8 @@ export class VehicleReg {
     'trackerId'?: string
 
 
-    @Column({default:false})
-    authorized?: boolean;
+    @Column({default:VehicleAuthorizeStatus.PENDING})
+    authorized?: VehicleAuthorizeStatus;
 
     @OneToOne("DinaciaVehicle", { eager: true, cascade: true, nullable: true })
     @JoinColumn()
