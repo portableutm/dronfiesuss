@@ -39,6 +39,7 @@
       "js-yaml": "^3.13.1",
       "jsonwebtoken": "^8.5.1",
       "morgan": "^1.9.1",
+      "multer": "^1.4.2",
       "node-cron": "^2.0.3",
       "nodemailer": "^6.4.6",
       "pg": "^7.3.0",
@@ -65,7 +66,7 @@
       "typeorm": "ts-node  ./node_modules/typeorm/cli.js",
       "typeorm:migration:create": "npm run typeorm -- migration:create -n prueba",
       "typeorm:migration:generate": "npm run typeorm -- migration:generate -n prueba",
-      "dev-mail" : "fake-smtp-server -- -a prueba@prueba.com:prueba  --debug"
+      "dev-mail": "fake-smtp-server -- -a prueba@prueba.com:prueba  --debug"
    },
    "xo": {
       "prettier": true,
