@@ -9,6 +9,7 @@ import { buildConfirmationLink, buildConfirmationHtmlMail, buildConfirmationText
 import { UserStatus, Status } from "../entities/UserStatus";
 import { UserStatusDao } from "../daos/UserStatusDao";
 import { frontEndUrl } from "../config/config";
+import { multipleFiles } from "../services/uploadFileService";
 
 
 export class UserController {
@@ -16,7 +17,7 @@ export class UserController {
     private dao = new UserDao()
     private userStatusDao = new UserStatusDao()
 
-    
+
     /**
      * Get all usesrs, only admin can use it.
      * @param request 
@@ -72,9 +73,9 @@ export class UserController {
         try {
             if (role == Role.ADMIN) {
                 let user: User = request.body
-                let status : UserStatus = request.body.status
-                if(status == undefined){
-                    status  = new UserStatus()
+                let status: UserStatus = request.body.status
+                if (status == undefined) {
+                    status = new UserStatus()
                     status.status = Status.UNCONFIRMED
                     status.token = generateToken();
                     user.status = status
@@ -82,7 +83,7 @@ export class UserController {
                 // trimFields(user)
                 let errors = validateUser(user)
                 if (errors.length == 0) {
-                    let s = await this.userStatusDao.save(status)   
+                    let s = await this.userStatusDao.save(status)
                     user.password = hashPassword(user.password)
                     let insertedDetails = await this.dao.save(user)
                     return response.json(user);
@@ -196,35 +197,79 @@ export class UserController {
      * @param response 
      * @param next 
      */
-    async userRegister(request: Request, response: Response, next: NextFunction) {
+    async userRegister(request, response: Response, next: NextFunction) {
+
+        let dao = this.dao
+        let userStatusDao = this.userStatusDao
+
         try {
-            let user: User = request.body
-            const origin = request.headers.origin
 
-            user.role = user.role || Role.PILOT;
+            // let user: User //= request.body
+            let upload = multipleFiles([
+                { name: 'document_file', maxCount: 1 },
+                { name: 'permit_front_file', maxCount: 1 },
+                { name: 'permit_back_file', maxCount: 1 },
+            ]);
+            upload(request, response, async function (err) {
+                try {
+                    if (err) {
+                        console.error(err)
+                    } else {
+                    }
+
+                    // let user: User = request.body
+                    let user: User = {
+                        "username": request.body.username,
+                        "email": request.body.email, 
+                        "firstName": request.body.firstName, 
+                        "lastName": request.body.lastName, 
+                        "password": request.body.password, 
+                        "role": Role.PILOT
+                    }
+                    
+                    const origin = request.headers.origin
+
+                    let dinaciaUser = JSON.parse(request.body.dinacia_user_str)
+                    delete request.body.dinacia_user_str
+                    user.dinacia_user = dinaciaUser
+                    user.dinacia_user.document_file_path = request.files.document_file[0].path
+                    user.dinacia_user.permit_front_file_path = request.files.permit_front_file[0].path
+                    user.dinacia_user.permit_back_file_path = request.files.permit_back_file[0].path
+                    
+                    
+                    let status = new UserStatus()
+                    status.status = Status.UNCONFIRMED
+                    status.token = generateToken();
+
+                    user.status = status
+
+                    console.log("Register request", request.headers.origin);
+
+                    let errors = validateUser(user)
+                    if (errors.length == 0) {
+                        //TODO do transaction with this two saves
+                        let s = await userStatusDao.save(status)
+                        user.password = hashPassword(user.password)
+
+                        // console.log(`User to insert:${JSON.stringify(user, null, 2)}`)
+                        let insertedDetails = await dao.save(user)
+                        console.log(`INERTED DETAILS::${JSON.stringify(insertedDetails, null, 2)}`)
+                        sendMailToConfirm(user, status, origin)
+
+                        return response.json(user);
+                    } else {
+                        response.status(400)
+                        return response.json(errors)
+                    }
+                } catch (error) {
+                    console.error("Register error" + JSON.stringify(error))
+                    response.status(400)
+                    return response.json({ "Error": error })
+                }
 
 
-            let status = new UserStatus()
-            status.status = Status.UNCONFIRMED
-            status.token = generateToken();
-            
-            user.status = status
+            })
 
-            console.log("Register request", request.headers.origin);
-
-            let errors = validateUser(user)
-            if (errors.length == 0) {
-                //TODO do transaction with this two saves
-                let s = await this.userStatusDao.save(status)   
-                user.password = hashPassword(user.password)
-                let insertedDetails = await this.dao.save(user)
-                sendMailToConfirm(user, status, origin)
-                return response.json(user);
-            } else {
-                response.status(400)
-                return response.json(errors)
-            }
-            
         } catch (error) {
             console.log("Register error", error)
             response.status(400)
@@ -252,24 +297,24 @@ export class UserController {
 
             let status = await user.status;
             // console.log(`Estado que obtengo de bbdd ${JSON.stringify(status, null, 2)}`)
-            if(token == status.token){ //FIXME add status unconfirmed check
+            if (token == status.token) { //FIXME add status unconfirmed check
                 try {
                     status.status = Status.CONFIRMED
                     // console.log(`Estado antes de pasar al save ${JSON.stringify(status, null, 2)}`)
-                    let info = await this.userStatusDao.save(status)   
+                    let info = await this.userStatusDao.save(status)
                     // console.log(`Info del save ${JSON.stringify(info, null, 2)}`)
                     // console.log(`Estado antes de pasar al save ${JSON.stringify(status, null, 2)}`)
-                    return response.json( {message:"Confirmed user"} );
+                    return response.json({ message: "Confirmed user" });
                 } catch (error) {
                     // response.statusCode = 400
                     // return response.json({error:"Invalid token"})
                     return response.sendStatus(404)
 
                 }
-            }else{
+            } else {
                 console.log(`${token} == ${status.token}`)
                 response.statusCode = 401
-                    return response.json({error:"Invalid link"})
+                return response.json({ error: "Invalid link" })
             }
         } catch (error) {
             return response.sendStatus(404)
@@ -327,11 +372,11 @@ function generateToken(): String {
     return hashPassword(d.toUTCString())
 }
 
-function sendMailToConfirm(user: User, status:UserStatus, url){
+function sendMailToConfirm(user: User, status: UserStatus, url) {
     let confirmSubjcet = `${user.firstName}, please confirm your new PortableUTM user`
     let link = buildConfirmationLink(user.username, status.token, url)
     let textContent = buildConfirmationTextMail(user.username, link)
     let htmlContent = buildConfirmationHtmlMail(user.username, link)
-    
+
     sendMail([user.email], confirmSubjcet, textContent, htmlContent)
 }

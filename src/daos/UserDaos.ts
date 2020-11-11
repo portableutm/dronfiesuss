@@ -1,9 +1,11 @@
 import { getRepository } from "typeorm";
 import { Role, User } from "../entities/User";
+import { DinaciaUser } from "../entities/DinaciaUser";
 
 export class UserDao {
 
     private userRepository = getRepository(User);
+    private dinaciaUserRepository = getRepository(DinaciaUser);
 
     async all() {
         return this.userRepository.find();
@@ -28,14 +30,18 @@ export class UserDao {
 
     async save(user: User) {
         // console.log(`Save user: ${JSON.stringify(user, null, 2)}`)
+        let dinaciaUser = user.dinacia_user
+        let d;
+        if(dinaciaUser){
+            d = await this.dinaciaUserRepository.save(dinaciaUser)
+        }
+        user.dinacia_user = d
         let u = await this.userRepository.insert(user)
         //let u = await this.userRepository.save(user);
         return u;
     }
 
     async update(user: User) {
-        // console.log(`Save user: ${JSON.stringify(user)}`)
-        //let u = await this.userRepository.insert(user)
         let u = await this.userRepository.save(user);
         return u;
     }
