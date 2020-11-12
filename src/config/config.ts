@@ -10,9 +10,12 @@ export const smtpUsername = process.env.SMTP_USERNAME
 export const smtpPassword = process.env.SMTP_PASSWORD
 export const smtpPort = process.env.SMTP_PORT
 
-export const frontEndUrl = process.env.FRONT_END_URL ||  "http://localhost:3000/"
+export const frontEndUrl = process.env.FRONT_END_URL ||  "http://localhost/"
+export const backendUrl = process.env.BACKEND_URL ||  "http://localhost:3000"
 
 export const adminEmail = process.env.ADMIN_EMAIL || "info@dronfies.com"
+
+export const uploadFolder = process.env.UPLOAD_FOLDER || "upload"
 
 
 
