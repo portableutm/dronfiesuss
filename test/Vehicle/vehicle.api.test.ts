@@ -325,7 +325,7 @@ describe('>>> Vehicle entity <<< ', function () {
     });
 
 
-    describe.only("Vehicle authorization", function () {
+    describe("Vehicle authorization", function () {
         it("POST /vehicle/authorize authorize the registred vehicle", function (done) {
             let username = 'MaurineFowlie'
             let token = getToken('admin@dronfies.com', "admin", Role.ADMIN)
