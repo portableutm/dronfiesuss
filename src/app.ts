@@ -2,6 +2,8 @@ import "reflect-metadata";
 require('dotenv').config()
 import { jwtSecret } from "./config/config";
 import * as express from 'express';
+import * as path from 'path';
+// const path = require('path');
 import { Request, Response } from "express";
 import { Connection } from 'typeorm';
 var cors = require('cors')
@@ -85,6 +87,10 @@ class App {
         this.app.use(cors({
             exposedHeaders: ['token'],
         }))
+
+        // console.log(`Path to save upload files::${path.join(__dirname, 'uploads')}`)
+        this.app.use('/static', express.static(path.join(__dirname, 'uploads')))
+
         // this.app.use(morgan('dev'))
 
         // this.app.use(function (req, res, next) {
@@ -171,6 +177,10 @@ class App {
         this.app.get('/ops', function (req, res) {
             res.sendFile(__dirname + '/operations.html');
         });
+
+        // this.app.get('/form', function (req, res) {
+        //     res.sendFile(__dirname + '/pruebaForm/forms.html');
+        // });
 
         const port = this.port;
 
