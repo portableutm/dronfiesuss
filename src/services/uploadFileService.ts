@@ -3,9 +3,9 @@ import { url } from "inspector";
 import { backendUrl, uploadFolder } from "../config/config";
 
 
-const uploadPath = '/Users/dronfies/desarrollo/utm/dronfiesuss/src' + uploadFolder
+const uploadPath = '/Users/dronfies/desarrollo/utm/dronfiesuss/src/' + uploadFolder
 
-export const getUrl = (filename:string) => `${backendUrl}/${uploadFolder}/${filename}`
+export const getUrl = (filename:string) => `${backendUrl}/static/${filename}`
 
 
 // File: {"fieldname":"file","originalname":"prueba.txt","encoding":"7bit","mimetype":"text/plain"}
