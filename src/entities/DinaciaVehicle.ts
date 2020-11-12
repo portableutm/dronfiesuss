@@ -7,7 +7,7 @@ import {
 } from "typeorm";
 
 
-@Entity({})
+@Entity()
 export class DinaciaVehicle {
     @PrimaryGeneratedColumn("uuid")
     'id'?: string;
@@ -23,6 +23,10 @@ export class DinaciaVehicle {
 
     @Column()
     caa_registration?: string;
+    
+    @Column()
+    serial_number_file_path?: string;
+
 
     @Column({ nullable: true })
     usage?: string;
