@@ -1,5 +1,12 @@
 var multer = require('multer')
-const uploadFolder = '/Users/dronfies/desarrollo/utm/dronfiesuss/uploads'
+import { url } from "inspector";
+import { backendUrl, uploadFolder } from "../config/config";
+
+
+const uploadPath = '/Users/dronfies/desarrollo/utm/dronfiesuss/' + uploadFolder
+
+export const getFileUrl = (filename:string) => `${backendUrl}/${uploadFolder}/${filename}`
+
 
 // File: {"fieldname":"file","originalname":"prueba.txt","encoding":"7bit","mimetype":"text/plain"}
 
@@ -14,7 +21,7 @@ const mimeTypes = [
 let storage = multer.diskStorage({
     destination: function (req, file, cb) {
 
-        cb(null, uploadFolder)
+        cb(null, uploadPath)
 
     },
 
