@@ -322,6 +322,7 @@ export class OperationDao {
             .andWhere(":time ::timestamp <@ tsrange(operation_volume.\"effective_time_begin\", operation_volume.\"effective_time_end\")")
             .andWhere("\"state\" = 'ACTIVATED'")
             .andWhere("vehicle_reg.\"uvin\" = :uvin")
+            .andWhere("vehicle_reg.\"authorized\" = 'AUTHORIZED'")
             .setParameters({
                 origin: JSON.stringify(point),
                 altitude: altitude,
@@ -350,6 +351,7 @@ export class OperationDao {
             .andWhere(":time ::timestamp <@ tsrange(operation_volume.\"effective_time_begin\", operation_volume.\"effective_time_end\")")
             .andWhere("\"state\" = 'ACTIVATED'")
             .andWhere("vehicle_reg.\"trackerId\" = :trackerId")
+            .andWhere("vehicle_reg.\"authorized\" = 'AUTHORIZED'")
             .setParameters({
                 origin: JSON.stringify(point),
                 altitude: altitude,
