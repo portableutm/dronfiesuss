@@ -7,6 +7,8 @@ import { getPayloadFromResponse } from "../utils/authUtils";
 import { genericTextLenghtValidation } from "../utils/validationUtils";
 import { generateNewVehicleMailHTML, generateNewVehicleMailText, generateAuthorizeVehicleMailHTML, generateAuthorizeVehicleMailText } from "../utils/mailContentUtil";
 import { sendMail } from "../services/mailService";
+import { multipleFiles, singleFile, getUrl} from "../services/uploadFileService";
+
 
 import { adminEmail } from "../config/config";
 
@@ -73,6 +75,61 @@ export class VehicleController {
 
     }
 
+    // /**
+    //  * Save the vehicle passed in post
+    //  * @example {
+    //  *     "nNumber": "",
+    //  *     "faaNumber": "faaNumber_81128",
+    //  *     "vehicleName": "vehicle_name828",
+    //  *     "manufacturer": "PIXHAWK",
+    //  *     "model": "model_828",
+    //  *     "class": "Fixed wing",
+    //  *     "accessType": "",
+    //  *     "vehicleTypeId": "",
+    //  *     "org-uuid": "",
+    //  *     "registeredBy": "userX"
+    //  * }
+    //  * @param request 
+    //  * @param response 
+    //  * @param next 
+    //  */
+    // async save(request: Request, response: Response, next: NextFunction) {
+
+    //     console.log(`Mime type:${response.getHeader('content-type')}`)
+    //     let { role, username } = getPayloadFromResponse(response)
+    //     try {
+    //         let v = request.body //: VehicleReg = await this.dao.save(request.body);
+    //         v.date = undefined
+    //         v.registeredBy = { username: username }
+    //         if (v.owner_id) {
+    //             v.owner = { username: v.owner_id }
+    //             delete v.owner_id
+    //         }
+    //         let errors = await validateVehicle(v)
+    //         if (errors.length == 0) {
+
+    //             if ((v.dinacia_vehicle != undefined) && !v.dinacia_vehicle.caa_registration) {
+    //                 v.dinacia_vehicle.caa_registration = await generateCaaRegistration(this.dao)
+    //             }
+
+    //             //insert vehicle
+    //             let insertedVehicle = await this.dao.save(v)
+    //             try {
+    //                 sendMail([adminEmail], "Vehículo nuevo", generateNewVehicleMailText(v), generateNewVehicleMailHTML(v))
+    //             } catch (error) {
+
+    //             }
+    //             return response.json(insertedVehicle);
+    //         } else {
+    //             response.status(400)
+    //             return response.json(errors)
+    //         }
+    //     } catch (error) {
+    //         console.error(error)
+    //         response.sendStatus(400)
+    //     }
+    // }
+
     /**
      * Save the vehicle passed in post
      * @example {
@@ -91,47 +148,66 @@ export class VehicleController {
      * @param response 
      * @param next 
      */
-    async save(request: Request, response: Response, next: NextFunction) {
-        let { role, username } = getPayloadFromResponse(response)
+    async save(request /*: Request */, response: Response, next: NextFunction) {
 
+        // console.log(`Mime type:${request.headers['content-type']}`)
+
+        let dao = this.dao
         try {
-            let v = request.body //: VehicleReg = await this.dao.save(request.body);
-
-            v.date = undefined
-            v.registeredBy = { username: username }
-
-            if (v.owner_id) {
-                v.owner = { username: v.owner_id }
-                delete v.owner_id
-            }
-
-
-            let errors = await validateVehicle(v)
-            if (errors.length == 0) {
-
-                if ((v.dinacia_vehicle != undefined) && !v.dinacia_vehicle.caa_registration) {
-                    // console.log("Generando matricula")
-                    v.dinacia_vehicle.caa_registration = await generateCaaRegistration(this.dao)
-                    // console.log(`Matricula generada: ${v.dinacia_vehicle.caa_registration}`)
-                }
-
-                //insert vehicle
-                let insertedVehicle = await this.dao.save(v)
+            let upload = singleFile("serial_number_file")
+            upload(request, response, async function (err) {
+                console.log(`File:${request.file}`)
+                // console.log(request)
                 try {
-                    sendMail([adminEmail], "Vehículo nuevo", generateNewVehicleMailText(v), generateNewVehicleMailHTML(v))
+                    let { role, username } = getPayloadFromResponse(response)
+
+                    let dinaciaVehicle = JSON.parse(request.body.dinacia_vehicle_str)
+                    let operators = JSON.parse(request.body.operators_str)
+                    delete request.body.dinacia_vehicle_str
+                    dinaciaVehicle.serial_number_file_path = getUrl(request.file.filename)
+
+                    let v = JSON.parse(JSON.stringify(request.body)) //: VehicleReg = await this.dao.save(request.body);
+                    v.dinacia_vehicle = dinaciaVehicle
+                    v.operators = operators
+                    
+                    delete v.date
+                    
+                    v.registeredBy = { username: username } //AGREGAR
+
+                    if (v.owner_id) {
+                        v.owner = { username: v.owner_id }
+                        delete v.owner_id
+                    }
+                    let errors = await validateVehicle(v)
+                    if (errors.length == 0) {
+
+                        if ((v.dinacia_vehicle != undefined) && !v.dinacia_vehicle.caa_registration) {
+                            v.dinacia_vehicle.caa_registration = await generateCaaRegistration(dao)
+                        }
+
+                        //insert vehicle
+                        let insertedVehicle = await dao.save(v)
+                        try {
+                            sendMail([adminEmail], "Vehículo nuevo", generateNewVehicleMailText(v), generateNewVehicleMailHTML(v))
+                        } catch (error) {
+
+                        }
+                        return response.json(insertedVehicle);
+                    } else {
+                        response.status(400)
+                        return response.json(errors)
+                    }
                 } catch (error) {
-
+                    console.error(error)
+                    response.sendStatus(400)
                 }
-                return response.json(insertedVehicle);
-            } else {
-                response.status(400)
-                return response.json(errors)
-            }
-
+            })
         } catch (error) {
-            console.error(error)
-            response.sendStatus(400)
+            response.status(500)
+            return response.json(error)
         }
+
+
 
     }
 
