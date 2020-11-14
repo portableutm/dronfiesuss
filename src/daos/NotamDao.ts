@@ -37,14 +37,14 @@ export class  NotamDao {
     //     .getMany()
     // }
 
-    async getNotamByDateAndArea(date : String, polygon: Polygon){
+    async getNotamByDateAndArea(date : string, polygon: Polygon){
         let params : any = {}
         let conditions = []
         if(date){
             let dateCondition = "( :date ::timestamp <@ tsrange(notams.\"effective_time_begin\", notams.\"effective_time_end\") )"
             // let dateCondition = "( tsrange(notams.\"effective_time_begin\", notams.\"effective_time_end\") <@  :date  )"
             conditions.push(dateCondition)
-            params.date = date
+            params.date = new Date(date)
         }
         if(polygon){
             let polygonCOndition = "(ST_Intersects(notams.\"geography\" ,ST_GeomFromGeoJSON(:geom)))"

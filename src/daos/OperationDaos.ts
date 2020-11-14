@@ -26,11 +26,6 @@ export class OperationDao {
             .getMany()
     }
 
-    // select *
-    // from operation
-    // where 
-    // tsrange("operationVolumeEffective_time_begin", "operationVolumeEffective_time_end") && tsrange('2019-12-11 13:59:10'::TIMESTAMP, '2019-12-11 19:59:10'::TIMESTAMP) 
-    // AND ((int4range("operationVolumeMin_altitude", "operationVolumeMax_altitude") && int4range(30, 100)))
 
     async getOperationByVolume(volume: OperationVolume) {
         return this.repository
@@ -55,8 +50,8 @@ export class OperationDao {
     async getOperationByPolygonAndAltitude(volume: OperationVolume) {
         return this.repository
             .createQueryBuilder("operation")
-            .innerJoinAndSelect("operation.creator", "creator")
-            .innerJoinAndSelect("operation.owner", "owner")
+            .leftJoinAndSelect("operation.creator", "creator")
+            .leftJoinAndSelect("operation.owner", "owner")
             .innerJoinAndSelect("operation.operation_volumes", "operation_volume")
             
             .where("(numrange(operation_volume.\"min_altitude\", operation_volume.\"max_altitude\") && numrange(:min_altitude, :max_altitude)) "
@@ -326,7 +321,7 @@ export class OperationDao {
             .setParameters({
                 origin: JSON.stringify(point),
                 altitude: altitude,
-                time: time,
+                time: new Date(time),
                 uvin: uvin
 
             })
@@ -341,25 +336,29 @@ export class OperationDao {
      * @param uvin 
      */
     async getOperationByPositionAndDroneTrackerId(point, altitude, time, trackerId) {
-        return this.repository
+        console.log(`time:${time}, typeof:${typeof time}, date:${new Date(time)}, dateT:${typeof new Date(time)}, `)
+       
+        let query = this.repository
             .createQueryBuilder("operation")
             .innerJoinAndSelect("operation.operation_volumes", "operation_volume")
             .innerJoinAndSelect("operation.uas_registrations", "vehicle_reg")
 
-            .where("st_contains(operation_volume.\"operation_geography\" ,ST_GeomFromGeoJSON(:origin))")
+            .where("st_contains(operation_volume.\"operation_geography\" ,ST_GeomFromGeoJSON(:point))")
             .andWhere(":altitude ::numeric <@ numrange(operation_volume.\"min_altitude\", operation_volume.\"max_altitude\")")
             .andWhere(":time ::timestamp <@ tsrange(operation_volume.\"effective_time_begin\", operation_volume.\"effective_time_end\")")
             .andWhere("\"state\" = 'ACTIVATED'")
             .andWhere("vehicle_reg.\"trackerId\" = :trackerId")
             .andWhere("vehicle_reg.\"authorized\" = 'AUTHORIZED'")
             .setParameters({
-                origin: JSON.stringify(point),
+                point: JSON.stringify(point),
                 altitude: altitude,
-                time: time,
+                time: new Date(time),
                 trackerId: trackerId
-
+                
             })
-            .getMany()
+        
+            console.log(`SQL:${query.getSql()}`)
+        return query    .getMany()
     }
 
 }   
