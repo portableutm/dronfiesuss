@@ -110,19 +110,19 @@ export class PositionController {
                 if (this.operationDao == undefined) {
                     this.operationDao = new OperationDao();
                 }
-                let operations = await this.operationDao.getOperationByPositionAndDrone(location,altitude_gps, time_sent, uvin)
+                let operations = await this.operationDao.getOperationByPositionAndDrone(location, altitude_gps, time_sent, uvin)
                 console.log(`\t*** ${JSON.stringify(operations, null, 2)}`)
-                if(operations.length > 1){
+                if (operations.length > 1) {
                     throw "There are more than one operation"
                 }
-                if(operations.length == 0){
+                if (operations.length == 0) {
                     throw "No operation on the drone flight"
                 }
                 let operation = operations[0]
-                let posToSave  = {
-                    altitude_gps : request.body.altitude_gps,
-                    location : request.body.location,
-                    time_sent : request.body.time_sent,
+                let posToSave = {
+                    altitude_gps: request.body.altitude_gps,
+                    location: request.body.location,
+                    time_sent: request.body.time_sent,
                     gufi: operation,
                     heading: heading
                 }
@@ -146,19 +146,19 @@ export class PositionController {
     }
 
 
-     /**
-     * Save a position. If the position dont intersect with associated operation change the state to ROUGE
-     * @example {
-     *     "altitude_gps": 30,
-     *     "location": {"type": "Point","coordinates": [-56.1636114120483,-34.9068213410793]},
-     *     "time_sent": "2019-12-11T19:59:10.000Z",
-     *     "uvin" : "f7891e78-9bb4-431d-94d3-1a506910c254",
-     *     "heading" : 160
-     * }
-     * @param request 
-     * @param response 
-     * @param next 
-     */
+    /**
+    * Save a position. If the position dont intersect with associated operation change the state to ROUGE
+    * @example {
+    *     "altitude_gps": 30,
+    *     "location": {"type": "Point","coordinates": [-56.1636114120483,-34.9068213410793]},
+    *     "time_sent": "2019-12-11T19:59:10.000Z",
+    *     "uvin" : "f7891e78-9bb4-431d-94d3-1a506910c254",
+    *     "heading" : 160
+    * }
+    * @param request 
+    * @param response 
+    * @param next 
+    */
     async savePositionWithDroneTrackerId(request: Request, response: Response, next: NextFunction) {
         try {
             // let gufi = request.body.gufi
@@ -170,19 +170,19 @@ export class PositionController {
                 if (this.operationDao == undefined) {
                     this.operationDao = new OperationDao();
                 }
-                let operations = await this.operationDao.getOperationByPositionAndDroneTrackerId(location,altitude_gps, time_sent, trackerId)
+                let operations = await this.operationDao.getOperationByPositionAndDroneTrackerId(location, altitude_gps, time_sent, trackerId)
                 console.log(`\t*** ${JSON.stringify(operations, null, 2)}`)
-                if(operations.length > 1){
+                if (operations.length > 1) {
                     throw "There are more than one operation"
                 }
-                if(operations.length == 0){
+                if (operations.length == 0) {
                     throw "No operation on the drone flight"
                 }
                 let operation = operations[0]
-                let posToSave  = {
-                    altitude_gps : request.body.altitude_gps,
-                    location : request.body.location,
-                    time_sent : request.body.time_sent,
+                let posToSave = {
+                    altitude_gps: request.body.altitude_gps,
+                    location: request.body.location,
+                    time_sent: request.body.time_sent,
                     gufi: operation,
                     heading: heading
                 }
