@@ -25,7 +25,7 @@ describe('>>> DINACIA Vehicle  entity <<< ', function () {
             .catch(done)
     })
 
-    it("POST /vehicle should insert a new vehicle with operators", function (done) {
+    it.skip("POST /vehicle should insert a new vehicle with operators", function (done) {
         let username = 'MaurineFowlie'
         let token = getToken('maurine@dronfies.com', username, Role.PILOT)
 

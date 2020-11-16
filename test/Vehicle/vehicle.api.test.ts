@@ -19,7 +19,7 @@ import { generateAuthorizeVehicleMailHTML } from "../../src/utils/mailContentUti
 
 
 
-describe('>>> Vehicle entity <<< ', function () {
+describe.skip('>>> Vehicle entity <<< ', function () {
 
     before(function (done) {
         this.timeout(TEST_TIMEOUT);

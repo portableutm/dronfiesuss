@@ -17,7 +17,7 @@ import { TEST_TIMEOUT } from "../conf";
 import { DinaciaUser } from "../../src/entities/DinaciaUser";
 import { DinaciaCompany } from "../../src/entities/DinaciaCompany";
 
-describe('>>> User rest controller test <<<', function () {
+describe('>>> DINACIA User rest controller test <<<', function () {
 
     before(function (done) {
         this.timeout(TEST_TIMEOUT);
@@ -28,12 +28,12 @@ describe('>>> User rest controller test <<<', function () {
             .catch(done)
     })
 
-    it("POST /user Should create a new user", function (done) {
+    it.skip("POST /user Should create a new user dinacia data", function (done) {
         let dao = new UserDao()
         dao.all().then(function (users) {
             let CountPreInsert = users.length
             let user: User = {
-                username: "UserToInsertDinacia",
+                username: "UserToInsertDinaciaNuevo",
                 email: `userToInsert@dronfies.com`,
                 firstName: `Algun`,
                 lastName: `Nombre`,
@@ -90,7 +90,7 @@ describe('>>> User rest controller test <<<', function () {
         })
     });
 
-    it("POST /user Should create a new user", function (done) {
+    it("POST /user/register Should registrate a new user dinacia", function (done) {
         let dao = new UserDao()
         dao.all().then(function (users) {
             let CountPreInsert = users.length
