@@ -1,6 +1,6 @@
 import { createConnection, Connection } from 'typeorm';
 
-import {VehicleReg, vehicleType} from "../entities/VehicleReg";
+import {VehicleAuthorizeStatus, VehicleReg, vehicleType} from "../entities/VehicleReg";
 
 
 let getManufacturer = (num : number) => {
@@ -51,7 +51,8 @@ export const Vehicles : VehicleReg[] = nums.map(num => {
         vehicleTypeId : '',
         nNumber : '',
         uvin : ids[num-1],
-        trackerId: `${num}`.repeat(20)
+        trackerId: `${num}`.repeat(20),
+        authorized: VehicleAuthorizeStatus.AUTHORIZED
     }
     return vehicle
 })
