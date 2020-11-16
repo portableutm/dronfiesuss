@@ -1,7 +1,7 @@
 name: Update Dev Server
 on:
   push:
-    branches: [ master ]
+    branches: [ develop ]
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -12,7 +12,7 @@ jobs:
           command: |
             ls
             cd /root/dronfiesuss
-            git pull origin master
+            git pull origin develop
             pm2 reload backend
           host: ${{ secrets.SSH_DEV_HOST }}
           user: root
