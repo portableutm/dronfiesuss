@@ -5,7 +5,7 @@ import { backendUrl, uploadFolder } from "../config/config";
 
 const uploadPath = uploadFolder
 
-export const getUrl = (filename:string) => `${backendUrl}/static/${filename}.jpg`
+export const getUrl = (filename:string) => `${backendUrl}static/${filename}`
 
 
 // File: {"fieldname":"file","originalname":"prueba.txt","encoding":"7bit","mimetype":"text/plain"}
@@ -36,7 +36,7 @@ let storage = multer.diskStorage({
 
 function fileFilter(req, file, cb) {
 
-    // The function should call `cb` with a boolean
+    // The function should call `cb` with a booleanB
     // to indicate if the file should be accepted
     if (mimeTypes.indexOf(file.mimetype) == -1) {
         cb(new Error('Invalid type of file'))
