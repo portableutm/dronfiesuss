@@ -5,7 +5,7 @@ import { backendUrl, uploadFolder } from "../config/config";
 
 const uploadPath = uploadFolder
 
-export const getUrl = (filename:string) => `${backendUrl}/static/${filename}`
+export const getUrl = (filename:string) => `${backendUrl}/static/${filename}.jpg`
 
 
 // File: {"fieldname":"file","originalname":"prueba.txt","encoding":"7bit","mimetype":"text/plain"}
@@ -28,7 +28,7 @@ let storage = multer.diskStorage({
     filename: function (req, file, cb) {
         const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9)
         // console.log(`Prueba: ${JSON.stringify(file)}`)
-        cb(null, `${uniqueSuffix}-${file.originalname}`)
+        cb(null, `${uniqueSuffix}-${file.originalname}.jpg`)
     }
 })
 
