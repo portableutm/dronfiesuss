@@ -3,7 +3,7 @@ import { url } from "inspector";
 import { backendUrl, uploadFolder } from "../config/config";
 
 
-const uploadPath = '/Users/dronfies/desarrollo/utm/dronfiesuss/src/' + uploadFolder
+const uploadPath = uploadFolder
 
 export const getUrl = (filename:string) => `${backendUrl}/static/${filename}`
 
