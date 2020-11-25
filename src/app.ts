@@ -88,8 +88,8 @@ class App {
             exposedHeaders: ['token'],
         }))
 
-        // console.log(`Path to save upload files::${path.join(__dirname, 'uploads')}`)
-        this.app.use('/static', express.static(path.join(__dirname, 'uploads')))
+        console.log(`Path to save upload files::${path.join(__dirname, 'uploads')}`)
+        this.app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
         // this.app.use(morgan('dev'))
 

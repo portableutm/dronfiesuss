@@ -15,7 +15,7 @@ export const backendUrl = process.env.BACKEND_URL ||  "http://localhost:3000"
 
 export const adminEmail = process.env.ADMIN_EMAIL || "info@dronfies.com"
 
-export const uploadFolder = process.env.UPLOAD_FOLDER || "uploads"
+export const uploadFolder = process.env.UPLOAD_FOLDER || "./src/uploads"
 
 
 

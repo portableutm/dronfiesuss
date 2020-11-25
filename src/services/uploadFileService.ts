@@ -3,9 +3,9 @@ import { url } from "inspector";
 import { backendUrl, uploadFolder } from "../config/config";
 
 
-const uploadPath = '/Users/dronfies/desarrollo/utm/dronfiesuss/src/' + uploadFolder
+const uploadPath = uploadFolder
 
-export const getUrl = (filename:string) => `${backendUrl}/static/${filename}`
+export const getUrl = (filename:string) => `${backendUrl}uploads/${filename}`
 
 
 // File: {"fieldname":"file","originalname":"prueba.txt","encoding":"7bit","mimetype":"text/plain"}
@@ -28,7 +28,7 @@ let storage = multer.diskStorage({
     filename: function (req, file, cb) {
         const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9)
         // console.log(`Prueba: ${JSON.stringify(file)}`)
-        cb(null, `${uniqueSuffix}-${file.originalname}`)
+        cb(null, `${uniqueSuffix}-${file.originalname}.jpg`)
     }
 })
 
@@ -36,7 +36,7 @@ let storage = multer.diskStorage({
 
 function fileFilter(req, file, cb) {
 
-    // The function should call `cb` with a boolean
+    // The function should call `cb` with a booleanB
     // to indicate if the file should be accepted
     if (mimeTypes.indexOf(file.mimetype) == -1) {
         cb(new Error('Invalid type of file'))
