@@ -161,10 +161,19 @@ export class VehicleController {
                 try {
                     let { role, username } = getPayloadFromResponse(response)
 
-                    let dinaciaVehicle = JSON.parse(request.body.dinacia_vehicle_str)
-                    let operators = JSON.parse(request.body.operators_str)
+                    let dinaciaVehicle
+                    if(request.body.dinacia_vehicle_str){
+                        dinaciaVehicle = JSON.parse(request.body.dinacia_vehicle_str )
+                    }
+                    let operators
+                    if(request.body.operators_str){
+                        operators = JSON.parse(request.body.operators_str)
+                    }
                     delete request.body.dinacia_vehicle_str
-                    dinaciaVehicle.serial_number_file_path = getUrl(request.file.filename)
+
+                    if(request.file){
+                        dinaciaVehicle.serial_number_file_path = getUrl(request.file.filename)
+                    }
 
                     let v = JSON.parse(JSON.stringify(request.body)) //: VehicleReg = await this.dao.save(request.body);
                     v.dinacia_vehicle = dinaciaVehicle

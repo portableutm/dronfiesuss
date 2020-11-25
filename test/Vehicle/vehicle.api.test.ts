@@ -19,7 +19,7 @@ import { generateAuthorizeVehicleMailHTML } from "../../src/utils/mailContentUti
 
 
 
-describe.skip('>>> Vehicle entity <<< ', function () {
+describe('>>> Vehicle entity <<< ', function () {
 
     before(function (done) {
         this.timeout(TEST_TIMEOUT);
@@ -78,27 +78,32 @@ describe.skip('>>> Vehicle entity <<< ', function () {
             "accessType": "",
             "vehicleTypeId": "",
             "org-uuid": "",
-            "registeredBy": "",
             "owner_id": username
         }
-        chai.request(app.app)
+
+        let req = chai.request(app.app)
             .post('/vehicle')
             .set('auth', token)
-            .send(vehicleToInsert)
-            .then(function (res) {
-                res.should.have.status(200);
-                res.body.should.have.property('uvin');
-                let uvin = res.body.uvin
-                dao.all()
-                    .then(function (vehicles) {
-                        vehicles.length.should.be.eq(vehicleCountPreInsert + 1)
-                        dao.one(uvin)
-                            .then(function (vehicle) {
-                                vehicle.registeredBy.username.should.eq(username)
-                                done();
-                            }).catch(done)
-                    }).catch(done)
-            })
+            .set('Accept', 'multipart/form-data')
+
+        for (const key in vehicleToInsert) {
+            req.field(key, vehicleToInsert[key]);
+        }
+
+        req.then(function (res) {
+            res.should.have.status(200);
+            res.body.should.have.property('uvin');
+            let uvin = res.body.uvin
+            dao.all()
+                .then(function (vehicles) {
+                    vehicles.length.should.be.eq(vehicleCountPreInsert + 1)
+                    dao.one(uvin)
+                        .then(function (vehicle) {
+                            vehicle.registeredBy.username.should.eq(username)
+                            done();
+                        }).catch(done)
+                }).catch(done)
+        })
             .catch(done);
     });
 
@@ -225,27 +230,37 @@ describe.skip('>>> Vehicle entity <<< ', function () {
             "vehicleTypeId": "",
             "org-uuid": "",
             "owner_id": username,
-            "operators": [
-                { username: "MairGiurio" },
-                { username: "BettyeStopford" },
-            ]
+            // "operators": [
+            //     { username: "MairGiurio" },
+            //     { username: "BettyeStopford" },
+            // ]
         }
-        chai.request(app.app)
+        let operators = [
+            { username: "MairGiurio" },
+            { username: "BettyeStopford" },
+        ]
+        let req = chai.request(app.app)
             .post('/vehicle')
             .set('auth', token)
-            .send(vehicleToInsert)
-            .then(function (res) {
-                res.should.have.status(200);
-                res.body.should.have.property('uvin');
-                let uvin = res.body.uvin
-                dao.one(uvin)
-                    .then(function (vehicle) {
-                        console.log(`${JSON.stringify(vehicle, null, 2)}`)
-                        vehicle.registeredBy.username.should.eq(username)
-                        vehicle.operators.length.should.be.equal(2)
-                        done();
-                    }).catch(done)
-            })
+            .set('Accept', 'multipart/form-data')
+            .field("operators_str", JSON.stringify(operators))
+
+        for (const key in vehicleToInsert) {
+            req.field(key, vehicleToInsert[key]);
+        }
+
+        req.then(function (res) {
+            res.should.have.status(200);
+            res.body.should.have.property('uvin');
+            let uvin = res.body.uvin
+            dao.one(uvin)
+                .then(function (vehicle) {
+                    console.log(`${JSON.stringify(vehicle, null, 2)}`)
+                    vehicle.registeredBy.username.should.eq(username)
+                    vehicle.operators.length.should.be.equal(2)
+                    done();
+                }).catch(done)
+        })
             .catch(done);
     });
 
@@ -266,19 +281,30 @@ describe.skip('>>> Vehicle entity <<< ', function () {
             "vehicleTypeId": "",
             "org-uuid": "",
             "owner_id": username,
-            "operators": [
-                { username: "MairGiurio" },
-                { username: "NoExisteUsuario" },
-            ]
+            // "operators": [
+            //     { username: "MairGiurio" },
+            //     { username: "NoExisteUsuario" },
+            // ]
         }
-        chai.request(app.app)
+        let operators = [
+            { username: "MairGiurio" },
+            { username: "NoExisteUsuario" },
+        ]
+
+        let req = chai.request(app.app)
             .post('/vehicle')
             .set('auth', token)
-            .send(vehicleToInsert)
-            .then(function (res) {
-                res.should.have.status(400);
-                done();
-            })
+            .set('Accept', 'multipart/form-data')
+            .field("operators_str", JSON.stringify(operators))
+
+        for (const key in vehicleToInsert) {
+            req.field(key, vehicleToInsert[key]);
+        }
+
+        req.then(function (res) {
+            res.should.have.status(400);
+            done();
+        })
             .catch(done);
     });
 
@@ -298,29 +324,40 @@ describe.skip('>>> Vehicle entity <<< ', function () {
             "vehicleTypeId": "",
             "org-uuid": "",
             "owner_id": username,
-            "operators": [
-                { username: "MaurineFowlie" },
-                { username: "BettyeStopford" },
-            ]
+            // "operators": [
+            //     { username: "MaurineFowlie" },
+            //     { username: "BettyeStopford" },
+            // ]
         }
-        chai.request(app.app)
+        let operators = [
+            { username: "MaurineFowlie" },
+            { username: "BettyeStopford" },
+        ]
+
+        let req = chai.request(app.app)
             .post('/vehicle')
             .set('auth', token)
-            .send(vehicleToInsert)
-            .then(function (res) {
-                res.should.have.status(200);
+            .set('Accept', 'multipart/form-data')
+            .field("operators_str", JSON.stringify(operators))
 
-                chai.request(app.app)
-                    .get('/vehicle/operator')
-                    .set('auth', token)
-                    .then(function (res) {
-                        res.should.have.status(200);
-                        // console.log(`resp:Operator:${JSON.stringify(res.body)}`)
-                        res.body.length.should.be.equal(1)
-                        done();
-                    })
-                    .catch(done);
-            })
+        for (const key in vehicleToInsert) {
+            req.field(key, vehicleToInsert[key]);
+        }
+
+        req.then(function (res) {
+            res.should.have.status(200);
+
+            chai.request(app.app)
+                .get('/vehicle/operator')
+                .set('auth', token)
+                .then(function (res) {
+                    res.should.have.status(200);
+                    // console.log(`resp:Operator:${JSON.stringify(res.body)}`)
+                    res.body.length.should.be.equal(1)
+                    done();
+                })
+                .catch(done);
+        })
             .catch(done);
     });
 
@@ -341,56 +378,66 @@ describe.skip('>>> Vehicle entity <<< ', function () {
                 "vehicleTypeId": "",
                 "org-uuid": "",
                 "owner_id": username,
-                "operators": [
-                    { username: "MaurineFowlie" },
-                    { username: "BettyeStopford" },
-                ]
+                // "operators": [
+                //     { username: "MaurineFowlie" },
+                //     { username: "BettyeStopford" },
+                // ]
             }
-            chai.request(app.app)
+            let operators = [
+                { username: "MaurineFowlie" },
+                { username: "BettyeStopford" },
+            ]
+            let req = chai.request(app.app)
                 .post('/vehicle')
                 .set('auth', token)
-                .send(vehicleToInsert)
-                .then(function (res) {
-                    res.should.have.status(200);
+                .set('Accept', 'multipart/form-data')
+                .field("operators_str", JSON.stringify(operators))
 
-                    res.body.authorized.should.be.equal('PENDING')
-                    let uvin = res.body.uvin
-                    uvin.should.be.a('string')
+            for (const key in vehicleToInsert) {
+                req.field(key, vehicleToInsert[key]);
+            }
 
-                    let uvinToAuthorize = {
-                        id: uvin,
-                        status: 'AUTHORIZED'
-                    }
+            req.then(function (res) {
+                res.should.have.status(200);
 
-                    chai.request(app.app)
-                        .post('/vehicle/authorize')
-                        .set('auth', token)
-                        .send(uvinToAuthorize)
-                        .then(function (res) {
-                            res.should.have.status(200);
-                            res.body.authorized.should.be.equal('AUTHORIZED')
-                            let vehicle = res.body
+                res.body.authorized.should.be.equal('PENDING')
+                let uvin = res.body.uvin
+                uvin.should.be.a('string')
 
-                            sleepPromise(1000).then(() => {
-                                chai.request('http://localhost:1080')
-                                    // /api/emails?from=joe@example.com&to=bob@example.com&since=2017-09-18T12:00:00Z&until=2017-09-19T00:00:00Z
-                                    .get(`/api/emails`)
-                                    .auth(smtpUsername, smtpPassword)
-                                    .then(res => {
-                                        res.should.have.status(200);
-                                        res.body.should.be.a('array');
-                                        let mail = res.body[0]
-                                        // console.log(`Mail: ${JSON.stringify(mail, null, 2)} `)
-                                        mail.subject.should.include('Información sobre authorización');
-                                        mail.html.should.include(generateAuthorizeVehicleMailHTML(vehicle));
-                                        done()
-                                    })
-                                    .catch(done)
-                            }).catch(done)
+                let uvinToAuthorize = {
+                    id: uvin,
+                    status: 'AUTHORIZED'
+                }
 
-                        })
-                        .catch(done);
-                })
+                chai.request(app.app)
+                    .post('/vehicle/authorize')
+                    .set('auth', token)
+                    .send(uvinToAuthorize)
+                    .then(function (res) {
+                        res.should.have.status(200);
+                        res.body.authorized.should.be.equal('AUTHORIZED')
+                        let vehicle = res.body
+
+                        sleepPromise(1000).then(() => {
+                            chai.request('http://localhost:1080')
+                                // /api/emails?from=joe@example.com&to=bob@example.com&since=2017-09-18T12:00:00Z&until=2017-09-19T00:00:00Z
+                                .get(`/api/emails`)
+                                .auth(smtpUsername, smtpPassword)
+                                .then(res => {
+                                    res.should.have.status(200);
+                                    res.body.should.be.a('array');
+                                    let mail = res.body[0]
+                                    // console.log(`Mail: ${JSON.stringify(mail, null, 2)} `)
+                                    mail.subject.should.include('Información sobre authorización');
+                                    mail.html.should.include(generateAuthorizeVehicleMailHTML(vehicle));
+                                    done()
+                                })
+                                .catch(done)
+                        }).catch(done)
+
+                    })
+                    .catch(done);
+            })
                 .catch(done);
         });
 
@@ -409,59 +456,70 @@ describe.skip('>>> Vehicle entity <<< ', function () {
                 "vehicleTypeId": "",
                 "org-uuid": "",
                 "owner_id": username,
-                "operators": [
-                    { username: "MaurineFowlie" },
-                    { username: "BettyeStopford" },
-                ]
+                // "operators": [
+                //     { username: "MaurineFowlie" },
+                //     { username: "BettyeStopford" },
+                // ]
             }
-            chai.request(app.app)
+            let operators = [
+                { username: "MaurineFowlie" },
+                { username: "BettyeStopford" },
+            ]
+            let req = chai.request(app.app)
                 .post('/vehicle')
                 .set('auth', token)
-                .send(vehicleToInsert)
-                .then(function (res) {
-                    res.should.have.status(200);
+                .set('Accept', 'multipart/form-data')
+                .field("operators_str", JSON.stringify(operators))
 
-                    res.body.authorized.should.be.equal('PENDING')
-                    let uvin = res.body.uvin
-                    uvin.should.be.a('string')
+            for (const key in vehicleToInsert) {
+                req.field(key, vehicleToInsert[key]);
+            }
 
-                    let uvinToAuthorize = {
-                        id: uvin,
-                        status: 'NOT_AUTHORIZED'
-                    }
+            req.then(function (res) {
+                res.should.have.status(200);
 
-                    chai.request(app.app)
-                        .post('/vehicle/authorize')
-                        .set('auth', token)
-                        .send(uvinToAuthorize)
-                        .then(function (res) {
-                            res.should.have.status(200);
-                            res.body.authorized.should.be.equal('NOT_AUTHORIZED')
-                            let vehicle = res.body
+                res.body.authorized.should.be.equal('PENDING')
+                let uvin = res.body.uvin
+                uvin.should.be.a('string')
 
-                            sleepPromise(1000).then(() => {
-                                chai.request('http://localhost:1080')
-                                    // /api/emails?from=joe@example.com&to=bob@example.com&since=2017-09-18T12:00:00Z&until=2017-09-19T00:00:00Z
-                                    .get(`/api/emails`)
-                                    .auth(smtpUsername, smtpPassword)
-                                    .then(res => {
-                                        res.should.have.status(200);
-                                        res.body.should.be.a('array');
-                                        let mail = res.body[0]
-                                        // console.log(`Mail: ${JSON.stringify(mail, null, 2)} `)
-                                        mail.subject.should.include('Información sobre authorización');
-                                        mail.html.should.include(generateAuthorizeVehicleMailHTML(vehicle));
+                let uvinToAuthorize = {
+                    id: uvin,
+                    status: 'NOT_AUTHORIZED'
+                }
 
-                                        done()
+                chai.request(app.app)
+                    .post('/vehicle/authorize')
+                    .set('auth', token)
+                    .send(uvinToAuthorize)
+                    .then(function (res) {
+                        res.should.have.status(200);
+                        res.body.authorized.should.be.equal('NOT_AUTHORIZED')
+                        let vehicle = res.body
 
-                                    })
-                                    .catch(done)
-                            }).catch(done)
-                        })
-                        .catch(done);
-                })
+                        sleepPromise(1000).then(() => {
+                            chai.request('http://localhost:1080')
+                                // /api/emails?from=joe@example.com&to=bob@example.com&since=2017-09-18T12:00:00Z&until=2017-09-19T00:00:00Z
+                                .get(`/api/emails`)
+                                .auth(smtpUsername, smtpPassword)
+                                .then(res => {
+                                    res.should.have.status(200);
+                                    res.body.should.be.a('array');
+                                    let mail = res.body[0]
+                                    // console.log(`Mail: ${JSON.stringify(mail, null, 2)} `)
+                                    mail.subject.should.include('Información sobre authorización');
+                                    mail.html.should.include(generateAuthorizeVehicleMailHTML(vehicle));
+
+                                    done()
+
+                                })
+                                .catch(done)
+                        }).catch(done)
+                    })
+                    .catch(done);
+            })
                 .catch(done);
         });
+        
 
         it("POST /vehicle/authorize should fail if no user admin authorize ", function (done) {
             let username = 'MaurineFowlie'
@@ -488,6 +546,7 @@ describe.skip('>>> Vehicle entity <<< ', function () {
                 .set('auth', token)
                 .send(vehicleToInsert)
                 .then(function (res) {
+                    console.log(res)
                     res.should.have.status(200);
 
                     res.body.authorized.should.be.equal('PENDING')
