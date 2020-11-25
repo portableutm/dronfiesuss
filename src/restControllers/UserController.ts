@@ -217,26 +217,41 @@ export class UserController {
                     } else {
                     }
 
-                    // let user: User = request.body
+                    // console.log(`Body::${JSON.stringify(request.body)}`)
+                    // console.log(`-files-::${JSON.stringify(request.files)}`)
                     let user: User = {
                         "username": request.body.username,
-                        "email": request.body.email, 
-                        "firstName": request.body.firstName, 
-                        "lastName": request.body.lastName, 
-                        "password": request.body.password, 
+                        "email": request.body.email,
+                        "firstName": request.body.firstName,
+                        "lastName": request.body.lastName,
+                        "password": request.body.password,
                         "role": Role.PILOT
                     }
-                    
+
                     const origin = request.headers.origin
 
-                    let dinaciaUser = JSON.parse(request.body.dinacia_user_str)
+                    // console.log(`Dinacia user req: ${request.body.dinacia_user_str}`)
+                    let dinaciaUser = JSON.parse(request.body.dinacia_user_str || "{}")
+                    // console.log(`Dinacia user: ${request.body.dinacia_user_str}`)
+
                     delete request.body.dinacia_user_str
+
                     user.dinacia_user = dinaciaUser
-                    user.dinacia_user.document_file_path = request.files.document_file[0].path
-                    user.dinacia_user.permit_front_file_path = request.files.permit_front_file[0].path
-                    user.dinacia_user.permit_back_file_path = request.files.permit_back_file[0].path
-                    
-                    
+                    if (request.files) {
+                        if (request.files.document_file) {
+                            console.log(`Assign document_file_path`)
+                            user.dinacia_user.document_file_path = request.files.document_file[0].path
+                        }
+                        if (request.files.permit_front_file) {
+                            console.log(`Assign permit_front_file`)
+                            user.dinacia_user.permit_front_file_path = request.files.permit_front_file[0].path
+                        }
+                        if (request.files.permit_back_file) {
+                            console.log(`Assign permit_back_file`)
+                            user.dinacia_user.permit_back_file_path = request.files.permit_back_file[0].path
+                        }
+                    }
+
                     let status = new UserStatus()
                     status.status = Status.UNCONFIRMED
                     status.token = generateToken();

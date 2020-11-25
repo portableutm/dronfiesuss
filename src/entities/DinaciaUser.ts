@@ -15,31 +15,31 @@ export class DinaciaUser {
     'id'?: string;
 
     // Nombre:
-    @Column()
+    @Column({nullable:true})
     address?: string;
-    @Column()
+    @Column({nullable:true})
     document_type?: string;
-    @Column()
+    @Column({nullable:true})
     document_number?: string;
-    @Column()
+    @Column({nullable:true})
     phone?: string;
-    @Column()
+    @Column({nullable:true})
     cellphone?: string;
-    @Column()
+    @Column({nullable:true})
     nationality?: string;
 
 
     @OneToOne("DinaciaCompany", {
         eager: true, cascade: true, nullable:true
-    })
+    })    
     @JoinColumn()
     dinacia_company?: DinaciaCompany;
 
-    @Column()
+    @Column({nullable:true})
     document_file_path?: string
-    @Column()
+    @Column({nullable:true})
     permit_front_file_path?: string
-    @Column()
+    @Column({nullable:true})
     permit_back_file_path?: string
 
 
