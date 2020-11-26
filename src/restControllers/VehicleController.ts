@@ -191,7 +191,11 @@ export class VehicleController {
                     if (errors.length == 0) {
 
                         if ((v.dinacia_vehicle != undefined) && !v.dinacia_vehicle.caa_registration) {
-                            v.dinacia_vehicle.caa_registration = await generateCaaRegistration(dao)
+                            if(v.dinacia_vehicle.year == undefined){
+                                // console.log(`Fecha::${v.dinacia_vehicle.year} -> ${new Date().getFullYear()}`)
+                                v.dinacia_vehicle.year = new Date().getFullYear()
+                            }
+                            v.dinacia_vehicle.caa_registration = await generateCaaRegistration(dao, v.dinacia_vehicle.year)
                         }
 
                         //insert vehicle
@@ -283,9 +287,9 @@ async function validateVehicle(v: VehicleReg) {
     return errors
 }
 
-async function generateCaaRegistration(dao: VehicleDao) {
+async function generateCaaRegistration(dao: VehicleDao, year) {
 
-    let year = new Date().getFullYear();
+    // let year = new Date().getFullYear();
     let count = await dao.countDinaciaVehiclesByYear(year)
     let caa_register = `CX-${year}-${count + 1}`
     return caa_register
