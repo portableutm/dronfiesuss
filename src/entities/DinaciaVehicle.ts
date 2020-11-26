@@ -21,10 +21,10 @@ export class DinaciaVehicle {
     authorized: boolean;
 
 
-    @Column()
+    @Column({ nullable: true })
     caa_registration?: string;
     
-    @Column()
+    @Column({ nullable: true })
     serial_number_file_path?: string;
 
 
