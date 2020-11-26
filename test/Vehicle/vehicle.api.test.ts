@@ -424,13 +424,16 @@ describe('>>> Vehicle entity <<< ', function () {
                                 .get(`/api/emails`)
                                 .auth(smtpUsername, smtpPassword)
                                 .then(res => {
-                                    res.should.have.status(200);
-                                    res.body.should.be.a('array');
-                                    let mail = res.body[0]
-                                    // console.log(`Mail: ${JSON.stringify(mail, null, 2)} `)
-                                    mail.subject.should.include('Información sobre authorización');
-                                    mail.html.should.include(generateAuthorizeVehicleMailHTML(vehicle));
-                                    done()
+                                    sleepPromise(500).then(() => {
+                                        res.should.have.status(200);
+                                        res.body.should.be.a('array');
+                                        let mail = res.body[0]
+                                        // console.log(`Mail: ${JSON.stringify(mail, null, 2)} `)
+                                        mail.subject.should.include('Información sobre authorización');
+                                        mail.html.should.include(generateAuthorizeVehicleMailHTML(vehicle));
+                                        done()
+                                    }).catch(done)
+
                                 })
                                 .catch(done)
                         }).catch(done)
@@ -502,15 +505,15 @@ describe('>>> Vehicle entity <<< ', function () {
                                 .get(`/api/emails`)
                                 .auth(smtpUsername, smtpPassword)
                                 .then(res => {
-                                    res.should.have.status(200);
-                                    res.body.should.be.a('array');
-                                    let mail = res.body[0]
-                                    // console.log(`Mail: ${JSON.stringify(mail, null, 2)} `)
-                                    mail.subject.should.include('Información sobre authorización');
-                                    mail.html.should.include(generateAuthorizeVehicleMailHTML(vehicle));
-
-                                    done()
-
+                                    sleepPromise(500).then(() => {
+                                        res.should.have.status(200);
+                                        res.body.should.be.a('array');
+                                        let mail = res.body[0]
+                                        // console.log(`Mail: ${JSON.stringify(mail, null, 2)} `)
+                                        mail.subject.should.include('Información sobre authorización');
+                                        mail.html.should.include(generateAuthorizeVehicleMailHTML(vehicle));
+                                        done()
+                                    }).catch(done)
                                 })
                                 .catch(done)
                         }).catch(done)
@@ -519,7 +522,7 @@ describe('>>> Vehicle entity <<< ', function () {
             })
                 .catch(done);
         });
-        
+
 
         it("POST /vehicle/authorize should fail if no user admin authorize ", function (done) {
             let username = 'MaurineFowlie'

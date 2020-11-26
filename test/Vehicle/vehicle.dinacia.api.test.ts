@@ -13,7 +13,7 @@ import { TEST_TIMEOUT } from "../conf";
 import { getToken } from "../../src/services/tokenService";
 import { Role } from "../../src/entities/User";
 
-describe('>>> DINACIA Vehicle  entity <<< ', function () {
+describe.only('>>> DINACIA Vehicle  entity <<< ', function () {
 
     before(function (done) {
         this.timeout(TEST_TIMEOUT);
@@ -25,13 +25,13 @@ describe('>>> DINACIA Vehicle  entity <<< ', function () {
             .catch(done)
     })
 
-    it.skip("POST /vehicle should insert a new vehicle with operators", function (done) {
+    it("POST /vehicle should insert a new vehicle with operators", function (done) {
         let username = 'MaurineFowlie'
         let token = getToken('maurine@dronfies.com', username, Role.PILOT)
 
         let dao = new VehicleDao()
 
-        let vehicleToInsert = {
+        let vehicleToInsert :any = {
             "nNumber": "",
             "faaNumber": "faaNumber_81128_DinaciaVehicle",
             "vehicleName": "vehicle_nameDinacia",
@@ -42,14 +42,15 @@ describe('>>> DINACIA Vehicle  entity <<< ', function () {
             "vehicleTypeId": "",
             "org-uuid": "",
             "owner_id": username,
-            "operators": [
-                { username: "MairGiurio" },
-                { username: "BettyeStopford" },
-            ],
-            dinacia_vehicle: {
-                year: "2020"
-            }
+            // "operators": [
+            //     { username: "MairGiurio" },
+            //     { username: "BettyeStopford" },
+            // ],
+            // dinacia_vehicle: {
+            //     year: "2020"
+            // }
         }
+        vehicleToInsert.dinacia_vehicle_str = JSON.stringify({year: "2020"})
         chai.request(app.app)
             .post('/vehicle')
             .set('auth', token)
@@ -62,7 +63,7 @@ describe('>>> DINACIA Vehicle  entity <<< ', function () {
                     .then(function (vehicle) {
                         console.log(`${JSON.stringify(vehicle, null, 2)}`)
                         vehicle.registeredBy.username.should.eq(username)
-                        vehicle.operators.length.should.be.equal(2)
+                        vehicle.operators.length.should.be.equal(0)
                         vehicle.dinacia_vehicle.caa_registration.should.be.a("string")
                         let caa = vehicle.dinacia_vehicle.caa_registration
                         caa.should.include("CX-2020")
@@ -100,7 +101,7 @@ describe('>>> DINACIA Vehicle  entity <<< ', function () {
             year: "2021"
         }
 
-        console.log(`::::> ${__dirname + '/serial.png'}`)
+        // console.log(`::::> ${__dirname + '/serial.png'}`)
         let req = chai.request(app.app)
             .post('/vehicle')
             .set('auth', token)
