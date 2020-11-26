@@ -13,7 +13,7 @@ import { TEST_TIMEOUT } from "../conf";
 import { getToken } from "../../src/services/tokenService";
 import { Role } from "../../src/entities/User";
 
-describe.only('>>> DINACIA Vehicle  entity <<< ', function () {
+describe('>>> DINACIA Vehicle  entity <<< ', function () {
 
     before(function (done) {
         this.timeout(TEST_TIMEOUT);
