@@ -188,8 +188,6 @@ describe('>>> Cron test <<<', function () {
                 setTimeout(async function () {
                     // console.log(`**** Ya paso tiempo ${op.gufi}`)
                     let newOp = await dao.one(op.gufi)
-                    // let operationIntersections = await newOp.operation_inserctions
-                    // console.log(`Intersections:: ${JSON.stringify(operationIntersections)}`)
                     newOp.state.should.equal(OperationState.PENDING)
                     done()
                 }, 1000)
@@ -230,8 +228,8 @@ describe('>>> Cron test <<<', function () {
             op.operation_volumes[0].min_altitude = -20
             op.operation_volumes[0].max_altitude = 40
             op.operation_volumes[0].effective_time_begin = "2020-03-11T14:30:00.000Z",
-            op.operation_volumes[0].effective_time_end = "2020-03-11T15:30:00.000Z",
-            op.flight_comments = "For test restricted flight volume "
+                op.operation_volumes[0].effective_time_end = "2020-03-11T15:30:00.000Z",
+                op.flight_comments = "For test restricted flight volume "
             let opPoly = { "type": "Polygon", "coordinates": [[[-54.1580057144165, -34.65785136266103], [-54.1556453704834, -34.660798906760135], [-54.15380001068115, -34.66078125710747], [-54.15279150009155, -34.65795726426466], [-54.153714179992676, -34.65594511065539], [-54.1580057144165, -34.65785136266103]]] }
             op.operation_volumes[0].operation_geography = opPoly
             op.state = OperationState.PROPOSED
@@ -257,7 +255,7 @@ describe('>>> Cron test <<<', function () {
                                 mail.subject.should.include('Informaci');
                                 mail.html.should.include('Zona 1');
                                 mail.html.should.include(`uvr/${uvr.message_id}`);
-                                uvrDao.remove(uvr.message_id).then(()=>{
+                                uvrDao.remove(uvr.message_id).then(() => {
                                     done()
                                 }).catch(done)
                                 // done()
@@ -272,29 +270,40 @@ describe('>>> Cron test <<<', function () {
     })
 
 
+    it("Should pass the new op from PROPOSED to PENDING because isDinacia=true and altitude is bigger than 120", function (done) {
+        this.timeout(20000);
 
+        let op = deepCopy(Operations[0])
+        op.owner = Users[0]
+        op.creator = Users[1]
 
-    //     it("Should pass a operation from proposed to closed because there are an other operation", async function(){
-    //         let dao = new OperationDao();
-    //         let ops = await dao.all()
-    //         ops.forEach(op => {
-    //             console.log(`${op.gufi}) ${op.flight_comments} :: ${op.state} -> ${op.operation_volumes[0].effective_time_begin}`)
+        delete op.gufi
+        op.name = "Testeando el envio de emails?"
+        op.operation_volumes[0].min_altitude = -20
+        op.operation_volumes[0].max_altitude = 130
+        op.flight_comments = "For test max altitude in dinacia "
+        op.operation_volumes[0].operation_geography = { "type": "Polygon", "coordinates": [[[-56.43024444580078, -34.827613887205494], [-56.429901123046875, -34.83747716241598], [-56.40861511230468, -34.84114036369927], [-56.42475128173828, -34.827613887205494], [-56.43024444580078, -34.827613887205494]]] }
+        op.state = OperationState.PROPOSED
+        let dao = new OperationDao();
 
-    //         });
-    //         fakeTime("2019-12-11T20:20:10.000Z")
-    //         await processOperations();
-    //         setTimeout(async function(){
-    //             let processOps = await dao.all()
-    //             processOps.forEach(op => {
-    //                 console.log(`${op.gufi}) ${op.flight_comments} :: ${op.state} -> ${op.operation_volumes[0].effective_time_begin}`)
-    //             });
-    //         }, 2000)
+        dao.save(op).then(function (op: Operation) {
+            operationToRemove.push(op)
+            processOperations()
+            .then(function () {
+                setTimeout(async function () {
+                    try {
+                        let newOp = await dao.one(op.gufi)
+                        newOp.state.should.equal(OperationState.PENDING)
+                        done()
+                        
+                    } catch (error) {
+                        done(error)
+                    }
+                }, 1000)
+            }).catch(done)
+        }).catch(done)
+    })
 
-    // })
-    // it("Should pass a operation from proposed to closed because there are an uvr", function(done){
-
-    // })
-    // it("...")
 
 
 });
