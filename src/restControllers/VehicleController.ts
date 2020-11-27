@@ -201,7 +201,7 @@ export class VehicleController {
                         //insert vehicle
                         let insertedVehicle = await dao.save(v)
                         try {
-                            sendMail([adminEmail], "Vehículo nuevo", generateNewVehicleMailText(v), generateNewVehicleMailHTML(v))
+                            sendMail(adminEmail, "Vehículo nuevo", generateNewVehicleMailText(v), generateNewVehicleMailHTML(v))
                         } catch (error) {
 
                         }

@@ -13,9 +13,11 @@ export const smtpPort = process.env.SMTP_PORT
 export const frontEndUrl = process.env.FRONT_END_URL ||  "http://localhost/"
 export const backendUrl = process.env.BACKEND_URL ||  "http://localhost:3000"
 
-export const adminEmail = process.env.ADMIN_EMAIL || "info@dronfies.com"
+export const adminEmail = process.env.ADMIN_EMAIL? process.env.ADMIN_EMAIL.split(",")  : ["info@dronfies.com", "ealonzo@dronfies.com"]
 
 export const uploadFolder = process.env.UPLOAD_FOLDER || "./src/uploads"
+
+export const isDinacia = true
 
 
 
