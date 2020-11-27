@@ -5,7 +5,9 @@ import { OperationVolume } from "../entities/OperationVolume";
 import { UASVolumeReservationDao } from "../daos/UASVolumeReservationDao";
 import { RestrictedFlightVolumeDao } from "../daos/RestrictedFlightVolumeDao";
 import { sendOpertationStateChange } from "./asyncBrowserComunication";
-import { adminEmail } from "../config/config";
+import { adminEmail, isDinacia } from "../config/config";
+
+
 // import { OperationIntersections } from "../entities/OperationIntersection";
 import { Role } from "../entities/User";
 
@@ -47,6 +49,9 @@ export async function processOperations() {
             case OperationState.ROGUE:
                 processRouge(operation)
                 break;
+            case OperationState.PENDING:
+                processPending(operation)
+                break;
             default:
                 break;
         }
@@ -63,57 +68,66 @@ export async function processOperations() {
  * @param operation 
  */
 async function processProposed(operation: Operation) {
-    for (let index = 0; index < operation.operation_volumes.length; index++) {
-        const operationVolume = operation.operation_volumes[index];
-   
-        // try {
-        //     populateIntersections(operation, operationVolume)
-        // } catch (error) {
-        //     console.error(`------> ERROR AL GUARDAR INTERSECCIONES:: ${JSON.stringify(error)}`)
-        // }
+    try {
 
-        let intersect = await checkIntersection(operation, operationVolume)
-        if (intersect && operation.flight_comments) {
-            // console.log(`------------------------------>>>`)
-            let result = await operationDao.save(operation)
+
+        for (let index = 0; index < operation.operation_volumes.length; index++) {
+            const operationVolume = operation.operation_volumes[index];
+
+            // try {
+            //     populateIntersections(operation, operationVolume)
+            // } catch (error) {
+            //     console.error(`------> ERROR AL GUARDAR INTERSECCIONES:: ${JSON.stringify(error)}`)
+            // }
+
+
+
+            let intersect = await checkIntersection(operation, operationVolume)
+            if (intersect && operation.flight_comments) {
+                // console.log(`------------------------------>>>`)
+                let result = await operationDao.save(operation)
+            }
+
+            console.log(`-=-=-=-=-\n${operation.name} ${JSON.stringify(operation.owner)}`)
+            if (intersect) {
+                doSendMailForNotAcceptedOperation(operationDao,
+                    { receiverMail: operation.owner ? operation.owner.email : adminEmail, gufi: operation.gufi, bodyMail: "Email generado automaticamente" },
+                    { role: Role.ADMIN, username: "" })
+                return changeState(operation, OperationState.NOT_ACCEPTED)
+            } else if (await intersectsWithRestrictedFlightVolume(operation, operationVolume) || (isDinacia && operation.operation_volumes.reduce((prev, currentVolume) => { return prev && currentVolume.max_altitude >= 120 }, true))) {
+                // let op: Operation = new Operation();
+                // op.owner.email
+                console.log(`********\n${JSON.stringify(operation, null, 2)}\n********`)
+
+                operationDao = new OperationDao()
+                let error = await doSendMailForPendingOperation(
+                    operationDao,
+                    { receiverMail: operation.owner ? operation.owner.email : adminEmail, gufi: operation.gufi, bodyMail: "Email generado automaticamente" },
+                    { role: Role.ADMIN, username: "" })
+                return changeState(operation, OperationState.PENDING)
+            }
         }
 
-        console.log(`-=-=-=-=-\n${operation.name} ${JSON.stringify(operation.owner)}`)
-        if (intersect) {
-            doSendMailForNotAcceptedOperation(operationDao,
-                { receiverMail: operation.owner ? operation.owner.email : adminEmail, gufi: operation.gufi, bodyMail: "Email generado automaticamente" },
-                { role: Role.ADMIN, username: "" })
-            return changeState(operation, OperationState.NOT_ACCEPTED)
-        } else if (await intersectsWithRestrictedFlightVolume(operation, operationVolume)) {
-            // let op: Operation = new Operation();
-            // op.owner.email
-            console.log(`********\n${JSON.stringify(operation, null, 2)}\n********`)
 
-            operationDao = new OperationDao()
-            let error = await doSendMailForPendingOperation(
-                operationDao,
-                { receiverMail: operation.owner ? operation.owner.email : adminEmail, gufi: operation.gufi, bodyMail: "Email generado automaticamente" },
-                { role: Role.ADMIN, username: "" })
-            return changeState(operation, OperationState.PENDING)
+        let changeToActived = false;
+        let date = getNow()
+        for (let index = 0; index < operation.operation_volumes.length; index++) {
+            const operationVolume = operation.operation_volumes[index];
+            let dateBegin = new Date(operationVolume.effective_time_begin)
+            let dateEnd = new Date(operationVolume.effective_time_end)
+            // console.log(`(${date.toISOString()} >= ${dateBegin.toISOString()}) && (${date.toISOString()} < ${dateEnd.toISOString()})`)
+            if ((date.getTime() >= dateBegin.getTime()) && (date.getTime() < dateEnd.getTime())) {
+                changeToActived = true // changeState(operation, OperationState.ACTIVATED)
+            }
         }
-    }
-
-
-    let changeToActived = false;
-    let date = getNow()
-    for (let index = 0; index < operation.operation_volumes.length; index++) {
-        const operationVolume = operation.operation_volumes[index];
-        let dateBegin = new Date(operationVolume.effective_time_begin)
-        let dateEnd = new Date(operationVolume.effective_time_end)
-        // console.log(`(${date.toISOString()} >= ${dateBegin.toISOString()}) && (${date.toISOString()} < ${dateEnd.toISOString()})`)
-        if ((date.getTime() >= dateBegin.getTime()) && (date.getTime() < dateEnd.getTime())) {
-            changeToActived = true // changeState(operation, OperationState.ACTIVATED)
+        if (changeToActived) {
+            changeState(operation, OperationState.ACTIVATED)
+        } else {
+            changeState(operation, OperationState.ACCEPTED)
         }
-    }
-    if (changeToActived) {
-        changeState(operation, OperationState.ACTIVATED)
-    } else {
-        changeState(operation, OperationState.ACCEPTED)
+    } catch (error) {
+        console.log(`Error::${JSON.stringify(error)}`)
+        console.log(`Error::${JSON.stringify(operation)}`)
     }
 }
 
@@ -237,6 +251,21 @@ function processRouge(operation: Operation) {
         }
     }
 }
+
+function processPending(operation: Operation) {
+    let date = getNow()
+
+    for (let index = 0; index < operation.operation_volumes.length; index++) {
+        const operationVolume = operation.operation_volumes[index];
+        let dateBegin = new Date(operationVolume.effective_time_begin)
+        let dateEnd = new Date(operationVolume.effective_time_end)
+        if ((date.getTime() > dateEnd.getTime())) {
+            changeState(operation, OperationState.CLOSED)
+        }
+    }
+}
+
+
 
 async function changeState(operation: Operation, newState: OperationState) {
     // console.log(`Change the state of ${operation.gufi} from ${operation.state} to ${newState}`)
