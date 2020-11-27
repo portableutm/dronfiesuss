@@ -130,7 +130,7 @@ describe('>>> DINACIA Vehicle  entity <<< ', function () {
                     vehicle.operators.length.should.be.equal(2)
                     vehicle.dinacia_vehicle.caa_registration.should.be.a("string")
                     let caa = vehicle.dinacia_vehicle.caa_registration
-                    caa.should.include("CX-2020")
+                    caa.should.include("CX-2021")
                     done();
                 }).catch(done)
         })
