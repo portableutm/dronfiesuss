@@ -35,6 +35,11 @@ export class DinaciaUser {
     @JoinColumn()
     dinacia_company?: DinaciaCompany;
 
+
+    @Column({ nullable: true })
+    permit_expire_date?: string
+    
+
     @Column({ nullable: true })
     document_file_path?: string
     @Column({ nullable: true })
