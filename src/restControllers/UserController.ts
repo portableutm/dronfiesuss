@@ -116,30 +116,50 @@ export class UserController {
      * @param response 
      * @param next 
      */
-    async updateUser(request: Request, response: Response, next: NextFunction) {
+    async updateUser(request, response: Response, next: NextFunction) {
         let { role, username } = getPayloadFromResponse(response)
-        try {
-            if (role == Role.ADMIN || (username == request.params.id)) {
-                let user: User = request.body
-                // trimFields(user)
-                let errors = validateUser(user)
-                if (errors.length == 0) {
+        let dao = this.dao
+
+        let upload = multipleFiles([
+            { name: 'document_file', maxCount: 1 },
+            { name: 'permit_front_file', maxCount: 1 },
+            { name: 'permit_back_file', maxCount: 1 },
+        ]);
+        upload(request, response, async function (err) {
+            // console.log(`BODy>>>>:${JSON.stringify(request.body)}`)
+            try {
+                // console.log(`Entro por aqui...${username} == ${request.params.id}`)
+                if (role == Role.ADMIN || (username == request.params.id)) {
+                    let user: User = request.body
                     user.username = request.params.id
-                    //user.password = hashPassword(user.password)
-                    let insertedDetails = await this.dao.update(user)
-                    return response.json(user);
-                } else {
-                    response.status(400)
-                    return response.json(errors)
+                    // console.log(`Llmando a dinacia fields`)
+                    diancia_fields(request, user)
+
+                    // console.log(`USER>>>>:${JSON.stringify(request.body)}`)
+
+                    let errors = [] //validateUser(user)
+                    if (errors.length == 0) {
+                        //user.password = hashPassword(user.password)
+                        let user_viejo = await dao.one(username)
+                        let toUpdate = Object.assign({}, user_viejo, user)
+                        let insertedDetails = await dao.update(toUpdate)
+                        let user_nuevo = await dao.one(username)
+                        return response.json(user_nuevo);
+                    } else {
+                        response.status(400)
+                        return response.json(errors)
+                    }
                 }
+                else {
+                    return response.sendStatus(401)
+                }
+            } catch (error) {
+                console.error(`El error: ${JSON.stringify(error)}`)
+                response.status(400)
+                return response.json({ "Error": error })
             }
-            else {
-                return response.sendStatus(401)
-            }
-        } catch (error) {
-            response.status(400)
-            return response.json({ "Error": "Insert fail" })
-        }
+        })
+
     }
 
     /**
@@ -181,6 +201,8 @@ export class UserController {
             return response.json({ "Error": "Insert fail" })
         }
     }
+
+
 
     /**
      * Create a new user PILOT with status UNCONFIRMED pass by a POST request 
@@ -394,4 +416,32 @@ function sendMailToConfirm(user: User, status: UserStatus, url) {
     let htmlContent = buildConfirmationHtmlMail(user.username, link)
 
     sendMail([user.email], confirmSubjcet, textContent, htmlContent)
+}
+
+function diancia_fields(request, user) {
+    try {
+        let dinaciaUser = JSON.parse(request.body.dinacia_user_str || "{}")
+        delete user.dinacia_user_str
+        user.dinacia_user = dinaciaUser
+        // console.log(`Dinacia user: ${request.body.dinacia_user_str}`)
+
+
+        if (request.files) {
+            if (request.files.document_file) {
+                console.log(`Assign document_file_path`)
+                user.dinacia_user.document_file_path = request.files.document_file[0].path
+            }
+            if (request.files.permit_front_file) {
+                console.log(`Assign permit_front_file`)
+                user.dinacia_user.permit_front_file_path = request.files.permit_front_file[0].path
+            }
+            if (request.files.permit_back_file) {
+                console.log(`Assign permit_back_file`)
+                user.dinacia_user.permit_back_file_path = request.files.permit_back_file[0].path
+            }
+        }
+    } catch (error) {
+        console.error(error)
+    }
+
 }
