@@ -20,7 +20,10 @@ export class VehicleDao {
     async vehiclesByOperator(username) {
         return this.repository
             .createQueryBuilder("vehicle_reg")
+            .leftJoinAndSelect("vehicle_reg.dinacia_vehicle", "dinacia_vehicle")
             .innerJoinAndSelect("vehicle_reg.operators", "operator")
+            .leftJoinAndSelect("operator.dinacia_user", "dinacia_user")
+            .leftJoinAndSelect("dinacia_user.dinacia_company", "dinacia_company")
             .where("operator.\"username\" = :username")
             .setParameters({
                 username: username
