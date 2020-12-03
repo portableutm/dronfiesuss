@@ -3,6 +3,7 @@ import { OperationDao } from "../daos/OperationDaos";
 import { Role, User } from "../entities/User";
 import { RestrictedFlightVolume } from "../entities/RestrictedFlightVolume";
 import { getPayloadFromResponse } from "../utils/authUtils";
+import { operationMailHtml } from "../utils/mailContentUtil";
 import { UASVolumeReservationDao } from "../daos/UASVolumeReservationDao";
 import { RestrictedFlightVolumeDao } from "../daos/RestrictedFlightVolumeDao";
 import { Operation, OperationState } from "../entities/Operation";
@@ -144,21 +145,28 @@ const makeBodyMail = (bodyMail, operation, rfvMsg, rfvs) => {
 
 
 const makeHtmlBodyMail = (bodyMail, operation, rfvMsg, rfvs) => {
-  return `
+//   return `
+//   <p>${bodyMail}</p>
+//   <table>
+//  <tr colspan="2">
+//   <th>Información sobre la operación: <i>${operation.name}</i></th>
+//  </tr>
+//   <tr><td>Identificador</td><td>${operation.gufi}</td></tr>
+//   <tr><td>Conteacto </td><td>${operation.contact}</td></tr>
+//   <tr><td>Comienzo </td><td>${operation.operation_volumes[0].effective_time_begin}</td></tr>
+//   <tr><td>Fin</td><td>${operation.operation_volumes[0].effective_time_end}</td></tr>
+//   <tr><td>Altitud máxima (m) </td><td>${operation.operation_volumes[0].max_altitude}</td></tr>
+//   <tr><td>Comentarios de la aeronave </td><td>${operation.aircraft_comments}</td></tr>
+//   <tr><td>Número de vuelo </td><td>${operation.flight_number}</td></tr>
+//   <tr><td>Comentarios del vuelo </td><td>${operation.flight_comments}</td></tr>
+// </table>
+// <br /><p>La misión está a la espera de ser aprobada porque vuela en las siguientes zonas reestringidas:<p>
+//   ${rfvs.map(rfv => { return `<a href="${getUrlRfv(rfv.id)}">${rfv.comments}</a> <small>(${getUrlRfv(rfv.id)})</small>` }).join("<br />")}
+// `
+return `
   <p>${bodyMail}</p>
-  <table>
- <tr colspan="2">
-  <th>Información sobre la operación: <i>${operation.name}</i></th>
- </tr>
-  <tr><td>Identificador</td><td>${operation.gufi}</td></tr>
-  <tr><td>Conteacto </td><td>${operation.contact}</td></tr>
-  <tr><td>Comienzo </td><td>${operation.operation_volumes[0].effective_time_begin}</td></tr>
-  <tr><td>Fin</td><td>${operation.operation_volumes[0].effective_time_end}</td></tr>
-  <tr><td>Altitud máxima (m) </td><td>${operation.operation_volumes[0].max_altitude}</td></tr>
-  <tr><td>Comentarios de la aeronave </td><td>${operation.aircraft_comments}</td></tr>
-  <tr><td>Número de vuelo </td><td>${operation.flight_number}</td></tr>
-  <tr><td>Comentarios del vuelo </td><td>${operation.flight_comments}</td></tr>
-</table>
+  ${operationMailHtml(operation)}
+ 
 <br /><p>La misión está a la espera de ser aprobada porque vuela en las siguientes zonas reestringidas:<p>
   ${rfvs.map(rfv => { return `<a href="${getUrlRfv(rfv.id)}">${rfv.comments}</a> <small>(${getUrlRfv(rfv.id)})</small>` }).join("<br />")}
 `
@@ -203,23 +211,14 @@ const makeNotAcceptedHTMLMail = (bodyMail, operation, operations, uvrs) => {
     ${uvrs.map((uvr,idx) => { return `<a href="${getUrlUvr(uvr.message_id)}">Zona ${idx+1}</a> <small>(${getUrlUvr(uvr.message_id)})</small>` }).join("<br />")}
     `
   }
+  
   return `<p>${bodyMail}</p>
-  <table>
- <tr colspan="2">
-  <th>Información sobre la operación: <i>${operation.name}</i></th>
- </tr>
-  <tr><td>Identificador</td><td>${operation.gufi}</td></tr>
-  <tr><td>Conteacto </td><td>${operation.contact}</td></tr>
-  <tr><td>Comienzo </td><td>${operation.operation_volumes[0].effective_time_begin}</td></tr>
-  <tr><td>Fin</td><td>${operation.operation_volumes[0].effective_time_end}</td></tr>
-  <tr><td>Altitud máxima (m) </td><td>${operation.operation_volumes[0].max_altitude}</td></tr>
-  <tr><td>Comentarios de la aeronave </td><td>${operation.aircraft_comments}</td></tr>
-  <tr><td>Número de vuelo </td><td>${operation.flight_number}</td></tr>
-  <tr><td>Comentarios del vuelo </td><td>${operation.flight_comments}</td></tr>
-</table>
+  ${operationMailHtml(operation)}
 <br />
   ${operations.length > 0?operationText(): ""}
   <br />
   ${uvrs.length > 0?  uvrsText(): ""}
   `
 }
+
+

@@ -13,6 +13,8 @@ import { Role } from "../entities/User";
 
 
 import { doSendMailForPendingOperation, doSendMailForNotAcceptedOperation } from "../restControllers/MailController"
+import { operationMailHtml } from "../utils/mailContentUtil";
+import { sendMail } from "./mailService";
 
 let operationDao: OperationDao;
 let uvrDao: UASVolumeReservationDao;
@@ -297,6 +299,8 @@ async function changeState(operation: Operation, newState: OperationState) {
         gufi: operation.gufi,
         state: newState
     }
+    sendMail(adminEmail, "Cambio de estado de operacion " + operation.gufi, operationMailHtml(operation), operationMailHtml(operation))
+    
     sendOpertationStateChange(operationInfo)
     return result
 }
