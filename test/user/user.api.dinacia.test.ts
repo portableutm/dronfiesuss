@@ -17,7 +17,7 @@ import { TEST_TIMEOUT } from "../conf";
 import { DinaciaUser } from "../../src/entities/DinaciaUser";
 import { DinaciaCompany } from "../../src/entities/DinaciaCompany";
 
-describe('>>> DINACIA User rest controller test <<<', function () {
+describe.only('>>> DINACIA User rest controller test <<<', function () {
 
     before(function (done) {
         this.timeout(TEST_TIMEOUT);
@@ -68,6 +68,7 @@ describe('>>> DINACIA User rest controller test <<<', function () {
                     // console.log(JSON.stringify(res.body, null, 2))
                     delete res.body.dinacia_user.id
                     delete res.body.dinacia_user.dinacia_company.id
+                    res.should.have.status(200);
 
                     res.body.should.have.property('username').equal(user.username);
                     res.body.should.have.property('email').equal(user.email);
@@ -97,7 +98,7 @@ describe('>>> DINACIA User rest controller test <<<', function () {
         let dao = new UserDao()
         dao.all().then(function (users) {
             let CountPreInsert = users.length
-            let user : any = {
+            let user: any = {
                 username: "UserToInsertDinacia2",
                 email: `userToInsertDinacia2@dronfies.com`,
                 firstName: `Algun`,
@@ -133,6 +134,7 @@ describe('>>> DINACIA User rest controller test <<<', function () {
 
                 .then(res => {
                     // console.log(`Response:${JSON.stringify(res.body, null, 2)}`)
+                    res.should.have.status(200);
                     res.body.should.have.property('username').equal(user.username);
                     res.body.should.have.property('email').equal(user.email);
                     res.body.should.have.property('firstName').equal(user.firstName);
@@ -153,6 +155,68 @@ describe('>>> DINACIA User rest controller test <<<', function () {
                 });
 
         })
+    });
+
+    it.only("PUT /user/info/:id should not create a new operation when passing invalid vehicle", function (done) {
+        let token = getToken('trula@dronfies.com', 'TrulaRemon', Role.PILOT)
+        let username = "TrulaRemon"
+        let user: any = {
+            // email: `userToUpdateDinaciaNuevo@dronfies.com`,
+            firstName: `Nuevo nombre`,
+            lastName: `Nombre`,
+            // password: `password`,
+        }
+
+        let dinaciaUser = new DinaciaUser()
+        dinaciaUser.cellphone = "099909090"
+        dinaciaUser.address = "Av siempre viva 9999"
+        dinaciaUser.nationality = "UY"
+        dinaciaUser.document_number = "12345678"
+        dinaciaUser.phone = "24004040"
+        dinaciaUser.document_type = "Cedula"
+
+        user.dinacia_user_str = JSON.stringify(dinaciaUser)
+
+
+        chai.request(app.app)
+            .put(`/user/info/${username}`)
+            .set('Accept', 'multipart/form-data')
+            .set('auth', token)
+
+            // .field('username', user.username)
+            // .field('email', user.email)
+            .field('firstName', user.firstName)
+            .field('lastName', user.lastName)
+            // .field('password', user.password)
+            .field('dinacia_user_str', JSON.stringify(dinaciaUser))
+
+            .attach('document_file', fs.readFileSync(__dirname + '/ci.png'), 'ci.png')
+            // .attach('permit_front_file', fs.readFileSync(__dirname + '/licencia.png'), 'licencia.png')
+            // .attach('permit_back_file', fs.readFileSync(__dirname + '/licencia_reverso.png'), 'licencia_reverso.png')
+
+
+            .then(res => {
+                console.log(`Response:${JSON.stringify(res.body, null, 2)}`)
+                res.should.have.status(200);
+                res.body.should.have.property('username').equal(username);
+                // res.body.should.have.property('email').equal(user.email);
+                res.body.should.have.property('firstName').equal(user.firstName);
+                res.body.should.have.property('lastName').equal(user.lastName);
+                delete res.body.dinacia_user.id
+                res.body.should.have.property('dinacia_user').deep.include(dinaciaUser)
+                done()
+
+                // dao.all().then(function (newUsers) {
+                //     assert.equal(newUsers.length, CountPreInsert + 1)
+                //     dao.remove(user.username).then(() => { done() }).catch(done)
+                // }).catch(err => {
+                //     done(err);
+                // });
+
+            })
+            .catch(err => {
+                done(err);
+            });
     });
 
 

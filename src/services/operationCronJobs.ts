@@ -94,7 +94,14 @@ async function processProposed(operation: Operation) {
                     { receiverMail: operation.owner ? operation.owner.email : adminEmail, gufi: operation.gufi, bodyMail: "Email generado automaticamente" },
                     { role: Role.ADMIN, username: "" })
                 return changeState(operation, OperationState.NOT_ACCEPTED)
-            } else if (await intersectsWithRestrictedFlightVolume(operation, operationVolume) || (isDinacia && operation.operation_volumes.reduce((prev, currentVolume) => { return prev && currentVolume.max_altitude >= 120 }, true))) {
+            } else if (await intersectsWithRestrictedFlightVolume(operation, operationVolume) ||
+                (isDinacia && 
+                    (
+                        operation.operation_volumes.reduce((prev, currentVolume) => { return prev && currentVolume.max_altitude >= 120 }, true)
+                        &&
+                        checkDinaciaUserPermitExpireDate(operation)
+                    ) 
+                )) {
                 // let op: Operation = new Operation();
                 // op.owner.email
                 console.log(`********\n${JSON.stringify(operation, null, 2)}\n********`)
@@ -151,6 +158,20 @@ async function intersectsWithRestrictedFlightVolume(operation: Operation, operat
     // return (rfvCount > 0);
     let rfvs = await rfvDao.getRfvIntersections(operationVolume)
     return (rfvs.length > 0);
+}
+
+async function checkDinaciaUserPermitExpireDate(operation: Operation) {
+    // let userDao = new UserDao()
+    // userDao.one(operation.owner.username)
+    let permit_expire_date = operation.owner.dinacia_user.permit_expire_date
+    let isExpiredWhenFly = false
+    if (permit_expire_date != undefined) {
+        for (let index = 0; index < operation.operation_volumes.length; index++) {
+            const element = operation.operation_volumes[index];
+            isExpiredWhenFly = isExpiredWhenFly && (element.effective_time_end > permit_expire_date)
+        }
+    }
+    return isExpiredWhenFly
 }
 
 // async function populateIntersections(operation: Operation, operationVolume: OperationVolume) {
