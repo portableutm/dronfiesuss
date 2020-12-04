@@ -87,7 +87,7 @@ export function operationMailHtml(operation: Operation) {
     let vehiclesStr: string = ""
     if (operation.uas_registrations && (operation.uas_registrations.length > 0)) {
         vehiclesStr = operation.uas_registrations.reduce((prev, current) => {
-            return `<table><th>Información sobre la vehículo:</th>${prev.concat(vehicleMailHtml(current))}</table>`
+            return prev.concat(`<table><th>Información sobre la vehículo:</th>${vehicleMailHtml(current)}</table>`)
         }, "")
     }
     return operationMail + ownerStr + vehiclesStr
