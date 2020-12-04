@@ -271,9 +271,12 @@ export class OperationDao {
             createQueryBuilder("operation")
             .leftJoinAndSelect("operation.creator", "creator")
             .leftJoinAndSelect("operation.owner", "owner")
+            .leftJoinAndSelect("owner.dinacia_user", "dinacia_user")
+            .leftJoinAndSelect("dinacia_user.dinacia_company", "dinacia_company")
             .innerJoinAndSelect("operation.operation_volumes", "operation_volume")
             .leftJoinAndSelect('operation.uas_registrations', 'uas_registration')
             .leftJoinAndSelect('uas_registration.owner', 'vehicleowner')
+            
             .where(" owner.\"username\" =  :username")
             .orderBy('operation.submit_time', "DESC")
             .setParameters({
@@ -296,6 +299,10 @@ export class OperationDao {
             createQueryBuilder("operation")
             .innerJoinAndSelect("operation.operation_volumes", "operation_volume")
             .leftJoinAndSelect("operation.owner", "owner")
+            .leftJoinAndSelect("owner.dinacia_user", "dinacia_user")
+            // .leftJoinAndSelect("dinacia_user.dinacia_company", "dinacia_company")
+            .leftJoinAndSelect('operation.uas_registrations', 'uas_registration')
+            .leftJoinAndSelect('uas_registration.dinacia_vehicle', 'dinacia_vehicle')
             .where("\"state\" in ('ACCEPTED', 'PROPOSED', 'ACTIVATED', 'NONCONFORMING', 'ROGUE', 'NOT_ACCEPTED')")
             .getMany()
     }
