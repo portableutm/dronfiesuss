@@ -141,6 +141,13 @@ let mail = [{
     controller: MailController,
     action: "sendMailForPendingOperation",
     middlewares: [checkJwt],
+},
+{
+    method: "post",
+    route: "/mail/pending",
+    controller: MailController,
+    action: "sendOperationMail",
+    middlewares: [checkJwt],
 }]
 
 let positions = [

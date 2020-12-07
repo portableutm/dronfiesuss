@@ -44,6 +44,23 @@ export class MailController {
       return response.sendStatus(400)
     }
   }
+
+  async sendOperationMail(request: Request, response: Response, next: NextFunction) {
+    let { role, username } = getPayloadFromResponse(response)
+    let { receiverMail, gufi, bodyMail } = request.body
+    try {
+
+      let error = await doSendMailForOperation(this.dao, { receiverMail, gufi, bodyMail }, { role, username })
+      if (error) {
+        return response.sendStatus(401)
+      } else {
+        return response.json({ status: "ok" })
+      }
+    } catch (error) {
+      // console.error(error)
+      return response.sendStatus(400)
+    }
+  }
 }
 
 
@@ -67,6 +84,25 @@ export const doSendMailForPendingOperation = async (dao:OperationDao, { receiver
     let htmlBody = makeHtmlBodyMail(bodyMail, operation, rfvMsg, rfvs)
 
     sendMail(receiverMail, subject, body, htmlBody)
+    return false
+  } else {
+    return true
+  }
+}
+
+export const doSendMailForOperation = async (dao:OperationDao, { receiverMail, gufi, bodyMail }, { role, username }) => {
+  if (role == Role.ADMIN) {
+    let operation = <Operation>await dao.one(gufi);
+
+    let subject = `Información sobre operación`
+
+    let htmlBody = ` <p>${bodyMail}</p>
+    ${operationMailHtml(operation)}`
+
+    // let body = makeBodyMail(bodyMail, operation, rfvMsg, rfvs)
+    // let htmlBody = makeHtmlBodyMail(bodyMail, operation, rfvMsg, rfvs)
+
+    sendMail(receiverMail, subject, htmlBody, htmlBody)
     return false
   } else {
     return true
@@ -145,24 +181,6 @@ const makeBodyMail = (bodyMail, operation, rfvMsg, rfvs) => {
 
 
 const makeHtmlBodyMail = (bodyMail, operation, rfvMsg, rfvs) => {
-//   return `
-//   <p>${bodyMail}</p>
-//   <table>
-//  <tr colspan="2">
-//   <th>Información sobre la operación: <i>${operation.name}</i></th>
-//  </tr>
-//   <tr><td>Identificador</td><td>${operation.gufi}</td></tr>
-//   <tr><td>Conteacto </td><td>${operation.contact}</td></tr>
-//   <tr><td>Comienzo </td><td>${operation.operation_volumes[0].effective_time_begin}</td></tr>
-//   <tr><td>Fin</td><td>${operation.operation_volumes[0].effective_time_end}</td></tr>
-//   <tr><td>Altitud máxima (m) </td><td>${operation.operation_volumes[0].max_altitude}</td></tr>
-//   <tr><td>Comentarios de la aeronave </td><td>${operation.aircraft_comments}</td></tr>
-//   <tr><td>Número de vuelo </td><td>${operation.flight_number}</td></tr>
-//   <tr><td>Comentarios del vuelo </td><td>${operation.flight_comments}</td></tr>
-// </table>
-// <br /><p>La misión está a la espera de ser aprobada porque vuela en las siguientes zonas reestringidas:<p>
-//   ${rfvs.map(rfv => { return `<a href="${getUrlRfv(rfv.id)}">${rfv.comments}</a> <small>(${getUrlRfv(rfv.id)})</small>` }).join("<br />")}
-// `
 return `
   <p>${bodyMail}</p>
   ${operationMailHtml(operation)}
