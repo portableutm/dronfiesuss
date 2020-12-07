@@ -144,7 +144,7 @@ let mail = [{
 },
 {
     method: "post",
-    route: "/mail/pending",
+    route: "/mail/operation",
     controller: MailController,
     action: "sendOperationMail",
     middlewares: [checkJwt],
