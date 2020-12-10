@@ -112,9 +112,46 @@ export function vehicleMailHtml(vehicle: VehicleReg) {
     <tr><td>Modelo</td><td>${vehicle.model}</td></tr>
     <tr><td>Autorizado</td><td>${vehicle.authorized ? "Si" : "No"}</td></tr>
 
-    ${vehicle.dinacia_vehicle?`<tr><td>Matrícula</td><td>${vehicle.dinacia_vehicle.caa_registration}</td></tr>
+    ${vehicle.dinacia_vehicle?`
+    <tr><td>Matrícula</td><td>${vehicle.dinacia_vehicle.caa_registration}</td></tr>
     <tr><td>Autorizado</td><td>${vehicle.dinacia_vehicle.authorized ? "Si" : "No"}</td></tr>
-    <tr><td>Año</td><td>${vehicle.dinacia_vehicle.year}</td></tr>`:""}
+
+    <tr><td>Techo</td><td>${vehicle.dinacia_vehicle.ceiling}</td></tr>
+    <tr><td>Color</td><td>${vehicle.dinacia_vehicle.color}</td></tr>
+    <tr><td>Sistema de comunicación</td><td>${vehicle.dinacia_vehicle.communication_control_system_command_navigation_vigilance}</td></tr>
+    <tr><td>Material</td><td>${vehicle.dinacia_vehicle.construction_material}</td></tr>
+    <tr><td>Velocidad crucero</td><td>${vehicle.dinacia_vehicle.cruise_speed}</td></tr>
+    <tr><td>Peso vacío</td><td>${vehicle.dinacia_vehicle.empty_weight}</td></tr>
+    <tr><td>Combustible de motor</td><td>${vehicle.dinacia_vehicle.engine_fuel}</td></tr>
+    <tr><td>Fabricante de motor</td><td>${vehicle.dinacia_vehicle.engine_manufacturer}</td></tr>
+    <tr><td>Poder de motor</td><td>${vehicle.dinacia_vehicle.engine_power}</td></tr>
+    <tr><td>Cantidad de baterías</td><td>${vehicle.dinacia_vehicle.engine_quantity_batteries}</td></tr>
+    <tr><td>Tipo de motor</td><td>${vehicle.dinacia_vehicle.engine_type}</td></tr>
+    <tr><td>Altura</td><td>${vehicle.dinacia_vehicle.height}</td></tr>
+    <tr><td>Velocidad de aterrizaje</td><td>${vehicle.dinacia_vehicle.landing_speed}</td></tr>
+    <tr><td>Largo</td><td>${vehicle.dinacia_vehicle.longitude}</td></tr>
+    <tr><td>Mantenimiento</td><td>${vehicle.dinacia_vehicle.maintenance_inspections}</td></tr>
+    <tr><td>Velocidad máxima</td><td>${vehicle.dinacia_vehicle.max_speed}</td></tr>
+    <tr><td>Peso máximo</td><td>${vehicle.dinacia_vehicle.max_weight}</td></tr>
+    <tr><td>Packing</td><td>${vehicle.dinacia_vehicle.packing}</td></tr>
+    <tr><td>Materia aspas</td><td>${vehicle.dinacia_vehicle.propeller_material}</td></tr>
+    <tr><td>Modelo aspas</td><td>${vehicle.dinacia_vehicle.propeller_model}</td></tr>
+    <tr><td>Tipo de aspas</td><td>${vehicle.dinacia_vehicle.propeller_type}</td></tr>
+    <tr><td>Radio de accion</td><td>${vehicle.dinacia_vehicle.radio_accion}</td></tr>
+    <tr><td>Comentarios</td><td>${vehicle.dinacia_vehicle.remarks}</td></tr>
+    <tr><td>Tipo de sensor</td><td>${vehicle.dinacia_vehicle.sensor_type_and_mark}</td></tr>
+    <tr><td>Numero serial</td><td>${vehicle.dinacia_vehicle.serial_number}</td></tr>
+    <tr><td>Tipo de aterrizaje</td><td>${vehicle.dinacia_vehicle.takeoff_method}</td></tr>
+    <tr><td>Autonomía</td><td>${vehicle.dinacia_vehicle.time_autonomy}</td></tr>
+    <tr><td>Uso</td><td>${vehicle.dinacia_vehicle.usage}</td></tr>
+
+
+
+
+
+    <tr><td>Año</td><td>${vehicle.dinacia_vehicle.year}</td></tr>`
+
+    :""}
 
     
     `
