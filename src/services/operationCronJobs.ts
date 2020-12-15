@@ -99,7 +99,7 @@ async function processProposed(operation: Operation) {
             } else if (await intersectsWithRestrictedFlightVolume(operation, operationVolume) ||
                 (isDinacia && 
                     (
-                        operation.operation_volumes.reduce((prev, currentVolume) => { return prev && currentVolume.max_altitude >= 120 }, true)
+                        operation.operation_volumes.reduce((prev, currentVolume) => { return prev && currentVolume.max_altitude > 120 }, true)
                         &&
                         checkDinaciaUserPermitExpireDate(operation)
                     ) 
@@ -299,6 +299,7 @@ async function changeState(operation: Operation, newState: OperationState) {
         gufi: operation.gufi,
         state: newState
     }
+    console.log(`Send mail ${JSON.stringify(operation, null, 2)}`)
     sendMail(adminEmail, "Cambio de estado de operacion " + operation.gufi, operationMailHtml(operation), operationMailHtml(operation))
     
     sendOpertationStateChange(operationInfo)
