@@ -72,7 +72,7 @@ export function operationMailHtml(operation: Operation) {
     </tr>
      <tr><td>Identificador</td><td>${operation.gufi}</td></tr>
      <tr><td>Contacto</td><td>${operation.contact}</td></tr>
-     <tr><td>Conteacto </td><td>${operation.contact}</td></tr>
+     <tr><td>Teléfono </td><td>${operation.contact_phone}</td></tr>
      <tr><td>Comienzo </td><td>${operation.operation_volumes[0].effective_time_begin}</td></tr>
      <tr><td>Fin</td><td>${operation.operation_volumes[0].effective_time_end}</td></tr>
      <tr><td>Altitud máxima (m) </td><td>${operation.operation_volumes[0].max_altitude}</td></tr>
@@ -116,7 +116,7 @@ export function vehicleMailHtml(vehicle: VehicleReg) {
     <tr><td>Matrícula</td><td>${vehicle.dinacia_vehicle.caa_registration}</td></tr>
     <tr><td>Autorizado</td><td>${vehicle.dinacia_vehicle.authorized ? "Si" : "No"}</td></tr>
 
-    <tr><td>Techo</td><td>${vehicle.dinacia_vehicle.ceiling}</td></tr>
+    <tr><td>Envergadura</td><td>${vehicle.dinacia_vehicle.ceiling}</td></tr>
     <tr><td>Color</td><td>${vehicle.dinacia_vehicle.color}</td></tr>
     <tr><td>Sistema de comunicación</td><td>${vehicle.dinacia_vehicle.communication_control_system_command_navigation_vigilance}</td></tr>
     <tr><td>Material</td><td>${vehicle.dinacia_vehicle.construction_material}</td></tr>
