@@ -20,6 +20,8 @@ let operationDao: OperationDao;
 let uvrDao: UASVolumeReservationDao;
 let rfvDao: RestrictedFlightVolumeDao;
 
+const MAX_ALTITUDE = 120
+
 export async function processOperations() {
     operationDao = new OperationDao()
     uvrDao = new UASVolumeReservationDao()
@@ -72,17 +74,8 @@ export async function processOperations() {
 async function processProposed(operation: Operation) {
     try {
 
-
         for (let index = 0; index < operation.operation_volumes.length; index++) {
             const operationVolume = operation.operation_volumes[index];
-
-            // try {
-            //     populateIntersections(operation, operationVolume)
-            // } catch (error) {
-            //     console.error(`------> ERROR AL GUARDAR INTERSECCIONES:: ${JSON.stringify(error)}`)
-            // }
-
-
 
             let intersect = await checkIntersection(operation, operationVolume)
             if (intersect && operation.flight_comments) {
@@ -90,31 +83,44 @@ async function processProposed(operation: Operation) {
                 let result = await operationDao.save(operation)
             }
 
-            console.log(`-=-=-=-=-\n${operation.name} ${JSON.stringify(operation.owner)}`)
+            // console.log(`-=-=-=-=-\n${operation.name} ${JSON.stringify(operation.owner)}`)
             if (intersect) {
                 doSendMailForNotAcceptedOperation(operationDao,
                     { receiverMail: operation.owner ? operation.owner.email : adminEmail, gufi: operation.gufi, bodyMail: "Email generado automaticamente" },
                     { role: Role.ADMIN, username: "" })
                 return changeState(operation, OperationState.NOT_ACCEPTED)
-            } else if (await intersectsWithRestrictedFlightVolume(operation, operationVolume) ||
-                (isDinacia && 
-                    (
-                        operation.operation_volumes.reduce((prev, currentVolume) => { return prev && currentVolume.max_altitude > 120 }, true)
-                        &&
-                        checkDinaciaUserPermitExpireDate(operation)
-                    ) 
-                )) {
+            } else {
+                let changeToPending = false
+                let reason = ""
+                if (await intersectsWithRestrictedFlightVolume(operation, operationVolume)){
+                    changeToPending = true
+                    reason = `Intersect with a RFV. ${reason}`
+                }
+                if(isDinacia && operation.operation_volumes.reduce((prev, currentVolume) => { return prev && currentVolume.max_altitude > MAX_ALTITUDE }, true)){
+                    changeToPending = true
+                    reason = `The maximun altitude is over ${MAX_ALTITUDE}. ${reason}`
+                }
+                if(isDinacia && await isExpiredDinaciaUserPermitExpireDateWhenFly(operation)){
+                    changeToPending = true
+                    reason = `The user permit is expired. ${reason}`
+                }
+               
                 // let op: Operation = new Operation();
                 // op.owner.email
-                console.log(`********\n${JSON.stringify(operation, null, 2)}\n********`)
+                // console.log(`********\n${JSON.stringify(operation, null, 2)}\n********`)
 
-                operationDao = new OperationDao()
-                let error = await doSendMailForPendingOperation(
-                    operationDao,
-                    { receiverMail: operation.owner ? operation.owner.email : adminEmail, gufi: operation.gufi, bodyMail: "Email generado automaticamente" },
-                    { role: Role.ADMIN, username: "" })
-                return changeState(operation, OperationState.PENDING)
+                if(changeToPending){
+                    operation.flight_comments = `${reason}\n${operation.flight_comments}`
+                    let result = await operationDao.save(operation)
+                    operationDao = new OperationDao()
+                    let error = await doSendMailForPendingOperation(
+                        operationDao,
+                        { receiverMail: operation.owner ? operation.owner.email : adminEmail, gufi: operation.gufi, bodyMail: "Email generado automaticamente" },
+                        { role: Role.ADMIN, username: "" })
+                    return changeState(operation, OperationState.PENDING)
+                }
             }
+            
         }
 
 
@@ -162,17 +168,26 @@ async function intersectsWithRestrictedFlightVolume(operation: Operation, operat
     return (rfvs.length > 0);
 }
 
-async function checkDinaciaUserPermitExpireDate(operation: Operation) {
+async function isExpiredDinaciaUserPermitExpireDateWhenFly(operation: Operation) {
     // let userDao = new UserDao()
     // userDao.one(operation.owner.username)
-    let permit_expire_date = operation.owner.dinacia_user.permit_expire_date
+
+    // let permit_expire_date = operation.owner.dinacia_user.permit_expire_date
+    let permit_expire_date = new Date(operation.owner.dinacia_user.permit_expire_date)
+
     let isExpiredWhenFly = false
+    // console.log(`checkDinaciaUserPermitExpireDate::${permit_expire_date}`)
+
     if (permit_expire_date != undefined) {
         for (let index = 0; index < operation.operation_volumes.length; index++) {
             const element = operation.operation_volumes[index];
-            isExpiredWhenFly = isExpiredWhenFly && (element.effective_time_end > permit_expire_date)
+            let effective_time_end_date = new Date(element.effective_time_end)
+            // console.log(`isExpiredWhenFly::${effective_time_end_date}>${permit_expire_date}=${effective_time_end_date > permit_expire_date}`)
+
+            isExpiredWhenFly = isExpiredWhenFly || (effective_time_end_date.getTime() > permit_expire_date.getTime())
         }
     }
+    // console.log(`checkDinaciaUserPermitExpireDate::isExpiredWhenFly=${isExpiredWhenFly}`)
     return isExpiredWhenFly
 }
 
