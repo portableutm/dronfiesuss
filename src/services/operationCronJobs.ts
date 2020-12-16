@@ -92,24 +92,24 @@ async function processProposed(operation: Operation) {
             } else {
                 let changeToPending = false
                 let reason = ""
-                if (await intersectsWithRestrictedFlightVolume(operation, operationVolume)){
+                if (await intersectsWithRestrictedFlightVolume(operation, operationVolume)) {
                     changeToPending = true
                     reason = `Intersect with a RFV. ${reason}`
                 }
-                if(isDinacia && operation.operation_volumes.reduce((prev, currentVolume) => { return prev && currentVolume.max_altitude > MAX_ALTITUDE }, true)){
+                if (isDinacia && operation.operation_volumes.reduce((prev, currentVolume) => { return prev && currentVolume.max_altitude > MAX_ALTITUDE }, true)) {
                     changeToPending = true
                     reason = `The maximun altitude is over ${MAX_ALTITUDE}. ${reason}`
                 }
-                if(isDinacia && await isExpiredDinaciaUserPermitExpireDateWhenFly(operation)){
+                if (isDinacia && await isExpiredDinaciaUserPermitExpireDateWhenFly(operation)) {
                     changeToPending = true
                     reason = `The user permit is expired. ${reason}`
                 }
-               
+
                 // let op: Operation = new Operation();
                 // op.owner.email
                 // console.log(`********\n${JSON.stringify(operation, null, 2)}\n********`)
 
-                if(changeToPending){
+                if (changeToPending) {
                     operation.flight_comments = `${reason}\n${operation.flight_comments}`
                     let result = await operationDao.save(operation)
                     operationDao = new OperationDao()
@@ -120,7 +120,7 @@ async function processProposed(operation: Operation) {
                     return changeState(operation, OperationState.PENDING)
                 }
             }
-            
+
         }
 
 
@@ -173,20 +173,22 @@ async function isExpiredDinaciaUserPermitExpireDateWhenFly(operation: Operation)
     // userDao.one(operation.owner.username)
 
     // let permit_expire_date = operation.owner.dinacia_user.permit_expire_date
-    let permit_expire_date = new Date(operation.owner.dinacia_user.permit_expire_date)
-
     let isExpiredWhenFly = false
-    // console.log(`checkDinaciaUserPermitExpireDate::${permit_expire_date}`)
+    if (operation.owner.dinacia_user && operation.owner.dinacia_user.permit_expire_date) {
+        let permit_expire_date = new Date(operation.owner.dinacia_user.permit_expire_date)
 
-    if (permit_expire_date != undefined) {
-        for (let index = 0; index < operation.operation_volumes.length; index++) {
-            const element = operation.operation_volumes[index];
-            let effective_time_end_date = new Date(element.effective_time_end)
-            // console.log(`isExpiredWhenFly::${effective_time_end_date}>${permit_expire_date}=${effective_time_end_date > permit_expire_date}`)
+        if (permit_expire_date != undefined) {
+            for (let index = 0; index < operation.operation_volumes.length; index++) {
+                const element = operation.operation_volumes[index];
+                let effective_time_end_date = new Date(element.effective_time_end)
 
-            isExpiredWhenFly = isExpiredWhenFly || (effective_time_end_date.getTime() > permit_expire_date.getTime())
+                isExpiredWhenFly = isExpiredWhenFly || (effective_time_end_date.getTime() > permit_expire_date.getTime())
+            }
         }
+    } else {
+        isExpiredWhenFly = true
     }
+
     // console.log(`checkDinaciaUserPermitExpireDate::isExpiredWhenFly=${isExpiredWhenFly}`)
     return isExpiredWhenFly
 }
@@ -316,7 +318,7 @@ async function changeState(operation: Operation, newState: OperationState) {
     }
     console.log(`Send mail ${JSON.stringify(operation, null, 2)}`)
     sendMail(adminEmail, "Cambio de estado de operacion " + operation.gufi, operationMailHtml(operation), operationMailHtml(operation))
-    
+
     sendOpertationStateChange(operationInfo)
     return result
 }
