@@ -250,6 +250,7 @@ export class OperationDao {
             .innerJoinAndSelect("operation.operation_volumes", "operation_volume")
             .leftJoinAndSelect('operation.uas_registrations', 'uas_registration')
             .leftJoinAndSelect('uas_registration.owner', 'vehicleowner')
+            .leftJoinAndSelect('uas_registration.operators', 'vehicleoperators')
             .where(" creator.\"username\" =  :username")
             .orderBy('operation.submit_time', "DESC")
             .setParameters({
@@ -276,6 +277,7 @@ export class OperationDao {
             .innerJoinAndSelect("operation.operation_volumes", "operation_volume")
             .leftJoinAndSelect('operation.uas_registrations', 'uas_registration')
             .leftJoinAndSelect('uas_registration.owner', 'vehicleowner')
+            .leftJoinAndSelect('uas_registration.operators', 'vehicleoperators')
             
             .where(" owner.\"username\" =  :username")
             .orderBy('operation.submit_time', "DESC")
@@ -303,7 +305,7 @@ export class OperationDao {
             // .leftJoinAndSelect("dinacia_user.dinacia_company", "dinacia_company")
             .leftJoinAndSelect('operation.uas_registrations', 'uas_registration')
             .leftJoinAndSelect('uas_registration.dinacia_vehicle', 'dinacia_vehicle')
-            .where("\"state\" in ('ACCEPTED', 'PROPOSED', 'ACTIVATED', 'NONCONFORMING', 'ROGUE', 'NOT_ACCEPTED')")
+            .where("\"state\" in ('ACCEPTED', 'PROPOSED', 'ACTIVATED', 'ROGUE', 'PENDING')")
             .getMany()
     }
 
