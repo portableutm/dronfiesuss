@@ -33,31 +33,37 @@ export async function processOperations() {
         const operation: Operation = operations[index];
         // console.log(`Operation: ${operation.gufi}, ${operation.state}`)
 
-        // try {
-        switch (operation.state) {
-            case OperationState.PROPOSED:
-                processProposed(operation)
-                break;
-            case OperationState.NOT_ACCEPTED:
-                processNotAccepted(operation)
-                break;
-            case OperationState.ACCEPTED:
-                processAccepted(operation)
-                break;
-            case OperationState.ACTIVATED:
-                processActivated(operation)
-                break;
-            case OperationState.NONCONFORMING:
-                processNonconforming(operation)
-                break;
-            case OperationState.ROGUE:
-                processRouge(operation)
-                break;
-            case OperationState.PENDING:
-                processPending(operation)
-                break;
-            default:
-                break;
+        try {
+
+
+            // try {
+            switch (operation.state) {
+                case OperationState.PROPOSED:
+                    processProposed(operation)
+                    break;
+                // case OperationState.NOT_ACCEPTED:
+                //     processNotAccepted(operation)
+                //     break;
+                case OperationState.ACCEPTED:
+                    processAccepted(operation)
+                    break;
+                case OperationState.ACTIVATED:
+                    processActivated(operation)
+                    break;
+                // case OperationState.NONCONFORMING:
+                //     processNonconforming(operation)
+                //     break;
+                case OperationState.ROGUE:
+                    processRouge(operation)
+                    break;
+                case OperationState.PENDING:
+                    processPending(operation)
+                    break;
+                default:
+                    break;
+            }
+        } catch (error) {
+            errorOnOperation(operation, "processOperations: "+ JSON.stringify(error))
         }
         // } catch (error) {
         //     console.error(`Error when processing operation: ${operation.gufi}\n${error}`)
@@ -123,15 +129,14 @@ async function processProposed(operation: Operation) {
 
         }
 
-
+        // console.log(`(${date.toISOString()} >= ${dateBegin.toISOString()}) && (${date.toISOString()} < ${dateEnd.toISOString()})`)
         let changeToActived = false;
-        let date = getNow()
+        let currentDate = getNow()
         for (let index = 0; index < operation.operation_volumes.length; index++) {
             const operationVolume = operation.operation_volumes[index];
             let dateBegin = new Date(operationVolume.effective_time_begin)
             let dateEnd = new Date(operationVolume.effective_time_end)
-            // console.log(`(${date.toISOString()} >= ${dateBegin.toISOString()}) && (${date.toISOString()} < ${dateEnd.toISOString()})`)
-            if ((date.getTime() >= dateBegin.getTime()) && (date.getTime() < dateEnd.getTime())) {
+            if ((currentDate.getTime() >= dateBegin.getTime()) && (currentDate.getTime() < dateEnd.getTime())) {
                 changeToActived = true // changeState(operation, OperationState.ACTIVATED)
             }
         }
@@ -141,8 +146,9 @@ async function processProposed(operation: Operation) {
             changeState(operation, OperationState.ACCEPTED)
         }
     } catch (error) {
-        console.log(`Error::${JSON.stringify(error)}`)
-        console.log(`Error::${JSON.stringify(operation)}`)
+        // console.log(`Error::${JSON.stringify(error)}`)
+        // console.log(`Error::${JSON.stringify(operation)}`)
+        errorOnOperation(operation, JSON.stringify(error))
     }
 }
 
@@ -237,18 +243,23 @@ function processNotAccepted(operation: Operation) {
  * @param operation 
  */
 function processAccepted(operation: Operation) {
-    let date = getNow()
-    for (let index = 0; index < operation.operation_volumes.length; index++) {
-        const operationVolume = operation.operation_volumes[index];
-        let dateBegin = new Date(operationVolume.effective_time_begin)
-        let dateEnd = new Date(operationVolume.effective_time_end)
-        // console.log(`(${date.toISOString()} >= ${dateBegin.toISOString()}) && (${date.toISOString()} < ${dateEnd.toISOString()})`)
-        if ((date.getTime() >= dateBegin.getTime()) && (date.getTime() < dateEnd.getTime())) {
-            changeState(operation, OperationState.ACTIVATED)
+    try {
+        let date = getNow()
+        for (let index = 0; index < operation.operation_volumes.length; index++) {
+            const operationVolume = operation.operation_volumes[index];
+            let dateBegin = new Date(operationVolume.effective_time_begin)
+            let dateEnd = new Date(operationVolume.effective_time_end)
+            // console.log(`(${date.toISOString()} >= ${dateBegin.toISOString()}) && (${date.toISOString()} < ${dateEnd.toISOString()})`)
+            if ((date.getTime() >= dateBegin.getTime()) && (date.getTime() < dateEnd.getTime())) {
+                changeState(operation, OperationState.ACTIVATED)
+            }
+            if ((date.getTime() > dateEnd.getTime())) {
+                changeState(operation, OperationState.CLOSED)
+            }
         }
-        if ((date.getTime() > dateEnd.getTime())) {
-            changeState(operation, OperationState.CLOSED)
-        }
+
+    } catch (error) {
+        errorOnOperation(operation, JSON.stringify(error))
     }
 }
 
@@ -257,14 +268,19 @@ function processAccepted(operation: Operation) {
  * @param operation 
  */
 function processActivated(operation: Operation) {
-    let date = getNow()
-    for (let index = 0; index < operation.operation_volumes.length; index++) {
-        const operationVolume = operation.operation_volumes[index];
-        let dateBegin = new Date(operationVolume.effective_time_begin)
-        let dateEnd = new Date(operationVolume.effective_time_end)
-        if ((date.getTime() > dateEnd.getTime())) {
-            changeState(operation, OperationState.CLOSED)
+    try {
+        let date = getNow()
+        for (let index = 0; index < operation.operation_volumes.length; index++) {
+            const operationVolume = operation.operation_volumes[index];
+            let dateBegin = new Date(operationVolume.effective_time_begin)
+            let dateEnd = new Date(operationVolume.effective_time_end)
+            if ((date.getTime() > dateEnd.getTime())) {
+                changeState(operation, OperationState.CLOSED)
+            }
         }
+
+    } catch (error) {
+        errorOnOperation(operation, JSON.stringify(error))
     }
 }
 /**
@@ -280,28 +296,60 @@ function processNonconforming(operation: Operation) {
  * @param operation 
  */
 function processRouge(operation: Operation) {
-    let date = getNow()
+    try {
+        let date = getNow()
 
-    for (let index = 0; index < operation.operation_volumes.length; index++) {
-        const operationVolume = operation.operation_volumes[index];
-        let dateBegin = new Date(operationVolume.effective_time_begin)
-        let dateEnd = new Date(operationVolume.effective_time_end)
-        if ((date.getTime() > dateEnd.getTime())) {
-            changeState(operation, OperationState.CLOSED)
+        for (let index = 0; index < operation.operation_volumes.length; index++) {
+            const operationVolume = operation.operation_volumes[index];
+            let dateBegin = new Date(operationVolume.effective_time_begin)
+            let dateEnd = new Date(operationVolume.effective_time_end)
+            if ((date.getTime() > dateEnd.getTime())) {
+                changeState(operation, OperationState.CLOSED)
+            }
         }
+
+    } catch (error) {
+        errorOnOperation(operation, JSON.stringify(error))
     }
 }
 
 function processPending(operation: Operation) {
-    let date = getNow()
+    try {
+        let date = getNow()
 
-    for (let index = 0; index < operation.operation_volumes.length; index++) {
-        const operationVolume = operation.operation_volumes[index];
-        let dateBegin = new Date(operationVolume.effective_time_begin)
-        let dateEnd = new Date(operationVolume.effective_time_end)
-        if ((date.getTime() > dateEnd.getTime())) {
-            changeState(operation, OperationState.CLOSED)
+        for (let index = 0; index < operation.operation_volumes.length; index++) {
+            const operationVolume = operation.operation_volumes[index];
+            let dateBegin = new Date(operationVolume.effective_time_begin)
+            let dateEnd = new Date(operationVolume.effective_time_end)
+            if ((date.getTime() > dateEnd.getTime())) {
+                changeState(operation, OperationState.CLOSED)
+            }
         }
+    } catch (error) {
+        errorOnOperation(operation, JSON.stringify(error))
+    }
+}
+
+async function errorOnOperation(operation, error) {
+    console.error(`Error on operation: ${operation ? operation.gufi : "Operation sin GUFI"}`)
+    try {
+        operation.state = OperationState.CLOSED
+        operation.flight_comments = error
+        let result = await operationDao.save(operation)
+
+    } catch (error) {
+        console.error(`Error when save on update operation state`)
+    }
+
+    try {
+        let bodyMail = `<p>${error}</p>${operationMailHtml(operation)}`
+
+        sendMail(adminEmail, "Debido a un error se pasó a CLOSE la operación : " + operation.gufi,
+            bodyMail, bodyMail)
+
+    } catch (error) {
+        console.error(`Error when send mail`)
+
     }
 }
 
