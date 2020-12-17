@@ -70,7 +70,8 @@ export function operationMailHtml(operation: Operation) {
     <tr colspan="2">
      <th>Información sobre la operación: <i>${operation.name}</i></th>
     </tr>
-     <tr><td>Identificador</td><td>${operation.gufi}</td></tr>
+    <tr><td>Identificador</td><td>${operation.gufi}</td></tr>
+    <tr><td>Estado</td><td>${operation.state}</td></tr>
      <tr><td>Contacto</td><td>${operation.contact}</td></tr>
      <tr><td>Teléfono </td><td>${operation.contact_phone}</td></tr>
      <tr><td>Comienzo </td><td>${operation.operation_volumes[0].effective_time_begin}</td></tr>
