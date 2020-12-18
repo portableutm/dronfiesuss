@@ -9,6 +9,10 @@ export function buildConfirmationLink(username, token, frontEndEndpoint) {
 
 }
 
+export function buildOperationLink(operation){
+    return `${frontEndUrl}operation/${operation.gufi}`
+}
+
 export function buildConfirmationTextMail(username, link) {
     return `
     Hello ${username}, 
@@ -70,6 +74,7 @@ export function operationMailHtml(operation: Operation) {
     <tr colspan="2">
      <th>Información sobre la operación: <i>${operation.name}</i></th>
     </tr>
+    <tr><td>Link</td><td><a href="${buildOperationLink(operation)}">${buildOperationLink(operation)}</a></td></tr>
     <tr><td>Identificador</td><td>${operation.gufi}</td></tr>
     <tr><td>Estado</td><td>${operation.state}</td></tr>
      <tr><td>Contacto</td><td>${operation.contact}</td></tr>
@@ -80,6 +85,7 @@ export function operationMailHtml(operation: Operation) {
      <tr><td>Comentarios de la aeronave </td><td>${operation.aircraft_comments}</td></tr>
      <tr><td>Número de vuelo </td><td>${operation.flight_number}</td></tr>
      <tr><td>Comentarios del vuelo </td><td>${operation.flight_comments}</td></tr>
+     <tr><td>Polígono</td><td>${JSON.stringify(operation.operation_volumes[0].operation_geography)}</td></tr>
    </table>`
     let ownerStr: string = "";
     if (operation.owner) {

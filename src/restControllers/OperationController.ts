@@ -10,6 +10,9 @@ import { ApprovalDao } from "../daos/ApprovalDao";
 
 import { sendOpertationStateChange, sendNewOperation } from "../services/asyncBrowserComunication";
 import { OperationVolume } from "../entities/OperationVolume";
+import { sendMail } from "../services/mailService";
+import { adminEmail } from "../config/config";
+import { operationMailHtml } from "../utils/mailContentUtil";
 
 
 const MIN_MIN_ALTITUDE = -300
@@ -207,6 +210,18 @@ export class OperationController {
           gufi: gufi,
           state: newState
         })
+
+        let operation = await this.dao.one(gufi);
+        let operationInfo = {
+          gufi: operation.gufi,
+          state: newState
+        }
+        sendMail(adminEmail, "Cambio de estado de operacion " + operation.gufi, operationMailHtml(operation), operationMailHtml(operation))
+        if (operation.owner && operation.owner.email) {
+          sendMail([operation.owner.email], "Cambio de estado de operacion " + operation.gufi, operationMailHtml(operation), operationMailHtml(operation))
+        }
+        sendOpertationStateChange(operationInfo)
+
         // console.log(`** Result of update:: ${JSON.stringify(result)}:: (result.affected)=${result.affected} && (result.affected == 1)=${result.affected == 1}`)
         if ((result.affected) && (result.affected == 1)) {
           let approval = await this.addNewAproval(username, gufi, comments, approved)
@@ -239,6 +254,18 @@ export class OperationController {
           gufi: gufi,
           state: newState
         })
+
+        let operation = await this.dao.one(gufi);
+        let operationInfo = {
+          gufi: operation.gufi,
+          state: newState
+        }
+        sendMail(adminEmail, "Cambio de estado de operacion " + operation.gufi, operationMailHtml(operation), operationMailHtml(operation))
+        sendOpertationStateChange(operationInfo)
+        if (operation.owner && operation.owner.email) {
+          sendMail([operation.owner.email], "Cambio de estado de operacion " + operation.gufi, operationMailHtml(operation), operationMailHtml(operation))
+        }
+
         return response.json(result);
       } else {
         return response.sendStatus(401)

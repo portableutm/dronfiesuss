@@ -358,15 +358,17 @@ async function errorOnOperation(operation, error) {
 async function changeState(operation: Operation, newState: OperationState) {
     // console.log(`Change the state of ${operation.gufi} from ${operation.state} to ${newState}`)
     operation.state = newState
-
+    
     let result = await operationDao.save(operation)
+    // console.log(`Send mail ${JSON.stringify(operation, null, 2)}`)
     let operationInfo = {
         gufi: operation.gufi,
         state: newState
     }
-    console.log(`Send mail ${JSON.stringify(operation, null, 2)}`)
     sendMail(adminEmail, "Cambio de estado de operacion " + operation.gufi, operationMailHtml(operation), operationMailHtml(operation))
-
+    if(operation.owner && operation.owner.email){
+        sendMail([operation.owner.email], "Cambio de estado de operacion " + operation.gufi, operationMailHtml(operation), operationMailHtml(operation))
+    }
     sendOpertationStateChange(operationInfo)
     return result
 }
