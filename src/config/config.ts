@@ -5,6 +5,8 @@ if ((process.env.NODE_ENV=="production")  && (process.env.JWTSECRET=='' || proce
     throw "You must set a valid JWTSECRET on .env file"
 } 
 
+export const generateOnlyAdmin = true
+
 export const smtpUrl = process.env.SMTP_URL
 export const smtpUsername = process.env.SMTP_USERNAME
 export const smtpPassword = process.env.SMTP_PASSWORD
