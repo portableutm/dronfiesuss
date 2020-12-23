@@ -464,9 +464,9 @@ describe('>>> Position entity <<< ', function () {
                 "location": {
                     "type": "Point",
                     "coordinates": [
-                        -56.15781784057617,
-                        -34.88381872591298
-                    ]
+                        -56.15833282470703,
+                        -34.88182967397359
+                      ]
                 },
                 "time_sent": "2019-12-11T20:39:10.000Z",
                 "trackerId": "1".repeat(20),

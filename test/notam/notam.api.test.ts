@@ -152,7 +152,7 @@ describe(' >>> Notams test <<< ', function () {
         it("/GET /notam with polygon and date:2020-04-11T12:00:00Z should any notam (date is before the 1b5f39e6-11e8-4f6b-b32c-3c94bee4a892 notam) ", function (done) {
             let token = getToken('maurine@dronfies.com', 'MaurineFowlie', Role.PILOT)
             let polygon = "%7B%22type%22%3A%22Polygon%22%2C%22coordinates%22%3A%5B%5B%5B-56.143227%2C-34.898885%5D%2C%5B-56.143827%2C-34.902756%5D%2C%5B-56.128893%2C-34.901912%5D%2C%5B-56.128893%2C-34.897688%5D%2C%5B-56.143227%2C-34.898885%5D%5D%5D%7D"
-            let date = "2020-04-11T12:00:00Z"
+            let date = "2020-04-10T12:00:00Z"
             chai.request(app.app)
                 .get('/notam/')
                 .set('Accept', 'application/json')

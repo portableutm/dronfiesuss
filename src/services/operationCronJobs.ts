@@ -5,16 +5,22 @@ import { OperationVolume } from "../entities/OperationVolume";
 import { UASVolumeReservationDao } from "../daos/UASVolumeReservationDao";
 import { RestrictedFlightVolumeDao } from "../daos/RestrictedFlightVolumeDao";
 import { sendOpertationStateChange } from "./asyncBrowserComunication";
-import { adminEmail } from "../config/config";
+import { adminEmail, isDinacia } from "../config/config";
+
+
 // import { OperationIntersections } from "../entities/OperationIntersection";
 import { Role } from "../entities/User";
 
 
 import { doSendMailForPendingOperation, doSendMailForNotAcceptedOperation } from "../restControllers/MailController"
+import { operationMailHtml } from "../utils/mailContentUtil";
+import { sendMail } from "./mailService";
 
 let operationDao: OperationDao;
 let uvrDao: UASVolumeReservationDao;
 let rfvDao: RestrictedFlightVolumeDao;
+
+const MAX_ALTITUDE = 120
 
 export async function processOperations() {
     operationDao = new OperationDao()
@@ -27,28 +33,37 @@ export async function processOperations() {
         const operation: Operation = operations[index];
         // console.log(`Operation: ${operation.gufi}, ${operation.state}`)
 
-        // try {
-        switch (operation.state) {
-            case OperationState.PROPOSED:
-                processProposed(operation)
-                break;
-            case OperationState.NOT_ACCEPTED:
-                processNotAccepted(operation)
-                break;
-            case OperationState.ACCEPTED:
-                processAccepted(operation)
-                break;
-            case OperationState.ACTIVATED:
-                processActivated(operation)
-                break;
-            case OperationState.NONCONFORMING:
-                processNonconforming(operation)
-                break;
-            case OperationState.ROGUE:
-                processRouge(operation)
-                break;
-            default:
-                break;
+        try {
+
+
+            // try {
+            switch (operation.state) {
+                case OperationState.PROPOSED:
+                    processProposed(operation)
+                    break;
+                // case OperationState.NOT_ACCEPTED:
+                //     processNotAccepted(operation)
+                //     break;
+                case OperationState.ACCEPTED:
+                    processAccepted(operation)
+                    break;
+                case OperationState.ACTIVATED:
+                    processActivated(operation)
+                    break;
+                // case OperationState.NONCONFORMING:
+                //     processNonconforming(operation)
+                //     break;
+                case OperationState.ROGUE:
+                    processRouge(operation)
+                    break;
+                case OperationState.PENDING:
+                    processPending(operation)
+                    break;
+                default:
+                    break;
+            }
+        } catch (error) {
+            errorOnOperation(operation, "processOperations: "+ JSON.stringify(error))
         }
         // } catch (error) {
         //     console.error(`Error when processing operation: ${operation.gufi}\n${error}`)
@@ -63,57 +78,77 @@ export async function processOperations() {
  * @param operation 
  */
 async function processProposed(operation: Operation) {
-    for (let index = 0; index < operation.operation_volumes.length; index++) {
-        const operationVolume = operation.operation_volumes[index];
-   
-        // try {
-        //     populateIntersections(operation, operationVolume)
-        // } catch (error) {
-        //     console.error(`------> ERROR AL GUARDAR INTERSECCIONES:: ${JSON.stringify(error)}`)
-        // }
+    try {
 
-        let intersect = await checkIntersection(operation, operationVolume)
-        if (intersect && operation.flight_comments) {
-            // console.log(`------------------------------>>>`)
-            let result = await operationDao.save(operation)
+        for (let index = 0; index < operation.operation_volumes.length; index++) {
+            const operationVolume = operation.operation_volumes[index];
+
+            let intersect = await checkIntersection(operation, operationVolume)
+            if (intersect && operation.flight_comments) {
+                // console.log(`------------------------------>>>`)
+                let result = await operationDao.save(operation)
+            }
+
+            // console.log(`-=-=-=-=-\n${operation.name} ${JSON.stringify(operation.owner)}`)
+            if (intersect) {
+                doSendMailForNotAcceptedOperation(operationDao,
+                    { receiverMail: operation.owner ? operation.owner.email : adminEmail, gufi: operation.gufi, bodyMail: "Email generado automaticamente" },
+                    { role: Role.ADMIN, username: "" })
+                return changeState(operation, OperationState.NOT_ACCEPTED)
+            } else {
+                let changeToPending = false
+                let reason = ""
+                if (await intersectsWithRestrictedFlightVolume(operation, operationVolume)) {
+                    changeToPending = true
+                    reason = `Intersect with a RFV. ${reason}`
+                }
+                if (isDinacia && operation.operation_volumes.reduce((prev, currentVolume) => { return prev && currentVolume.max_altitude > MAX_ALTITUDE }, true)) {
+                    changeToPending = true
+                    reason = `The maximun altitude is over ${MAX_ALTITUDE}. ${reason}`
+                }
+                if (isDinacia && await isExpiredDinaciaUserPermitExpireDateWhenFly(operation)) {
+                    changeToPending = true
+                    reason = `The user permit is expired. ${reason}`
+                }
+
+                // let op: Operation = new Operation();
+                // op.owner.email
+                // console.log(`********\n${JSON.stringify(operation, null, 2)}\n********`)
+
+                if (changeToPending) {
+                    operation.flight_comments = `${reason}\n${operation.flight_comments}`
+                    let result = await operationDao.save(operation)
+                    operationDao = new OperationDao()
+                    let error = await doSendMailForPendingOperation(
+                        operationDao,
+                        { receiverMail: operation.owner ? operation.owner.email : adminEmail, gufi: operation.gufi, bodyMail: "Email generado automaticamente" },
+                        { role: Role.ADMIN, username: "" })
+                    return changeState(operation, OperationState.PENDING)
+                }
+            }
+
         }
 
-        console.log(`-=-=-=-=-\n${operation.name} ${JSON.stringify(operation.owner)}`)
-        if (intersect) {
-            doSendMailForNotAcceptedOperation(operationDao,
-                { receiverMail: operation.owner ? operation.owner.email : adminEmail, gufi: operation.gufi, bodyMail: "Email generado automaticamente" },
-                { role: Role.ADMIN, username: "" })
-            return changeState(operation, OperationState.NOT_ACCEPTED)
-        } else if (await intersectsWithRestrictedFlightVolume(operation, operationVolume)) {
-            // let op: Operation = new Operation();
-            // op.owner.email
-            console.log(`********\n${JSON.stringify(operation, null, 2)}\n********`)
-
-            operationDao = new OperationDao()
-            let error = await doSendMailForPendingOperation(
-                operationDao,
-                { receiverMail: operation.owner ? operation.owner.email : adminEmail, gufi: operation.gufi, bodyMail: "Email generado automaticamente" },
-                { role: Role.ADMIN, username: "" })
-            return changeState(operation, OperationState.PENDING)
-        }
-    }
-
-
-    let changeToActived = false;
-    let date = getNow()
-    for (let index = 0; index < operation.operation_volumes.length; index++) {
-        const operationVolume = operation.operation_volumes[index];
-        let dateBegin = new Date(operationVolume.effective_time_begin)
-        let dateEnd = new Date(operationVolume.effective_time_end)
         // console.log(`(${date.toISOString()} >= ${dateBegin.toISOString()}) && (${date.toISOString()} < ${dateEnd.toISOString()})`)
-        if ((date.getTime() >= dateBegin.getTime()) && (date.getTime() < dateEnd.getTime())) {
-            changeToActived = true // changeState(operation, OperationState.ACTIVATED)
+        let changeToActived = false;
+        let currentDate = getNow()
+        for (let index = 0; index < operation.operation_volumes.length; index++) {
+            const operationVolume = operation.operation_volumes[index];
+            let dateBegin = new Date(operationVolume.effective_time_begin)
+            let dateEnd = new Date(operationVolume.effective_time_end)
+            if ((currentDate.getTime() >= dateBegin.getTime()) && (currentDate.getTime() < dateEnd.getTime())) {
+                changeToActived = true // changeState(operation, OperationState.ACTIVATED)
+            }
         }
-    }
-    if (changeToActived) {
-        changeState(operation, OperationState.ACTIVATED)
-    } else {
-        changeState(operation, OperationState.ACCEPTED)
+        if (changeToActived) {
+            changeState(operation, OperationState.ACTIVATED)
+        } else {
+            changeState(operation, OperationState.ACCEPTED)
+        }
+    } catch (error) {
+        // console.log(`Error::${JSON.stringify(error)}`)
+        // console.log(`Error::${JSON.stringify(operation)}`)
+        errorOnOperation(operation, JSON.stringify(error))
     }
 }
 
@@ -137,6 +172,31 @@ async function intersectsWithRestrictedFlightVolume(operation: Operation, operat
     // return (rfvCount > 0);
     let rfvs = await rfvDao.getRfvIntersections(operationVolume)
     return (rfvs.length > 0);
+}
+
+async function isExpiredDinaciaUserPermitExpireDateWhenFly(operation: Operation) {
+    // let userDao = new UserDao()
+    // userDao.one(operation.owner.username)
+
+    // let permit_expire_date = operation.owner.dinacia_user.permit_expire_date
+    let isExpiredWhenFly = false
+    if (operation.owner.dinacia_user && operation.owner.dinacia_user.permit_expire_date) {
+        let permit_expire_date = new Date(operation.owner.dinacia_user.permit_expire_date)
+
+        if (permit_expire_date != undefined) {
+            for (let index = 0; index < operation.operation_volumes.length; index++) {
+                const element = operation.operation_volumes[index];
+                let effective_time_end_date = new Date(element.effective_time_end)
+
+                isExpiredWhenFly = isExpiredWhenFly || (effective_time_end_date.getTime() > permit_expire_date.getTime())
+            }
+        }
+    } else {
+        isExpiredWhenFly = true
+    }
+
+    // console.log(`checkDinaciaUserPermitExpireDate::isExpiredWhenFly=${isExpiredWhenFly}`)
+    return isExpiredWhenFly
 }
 
 // async function populateIntersections(operation: Operation, operationVolume: OperationVolume) {
@@ -183,18 +243,23 @@ function processNotAccepted(operation: Operation) {
  * @param operation 
  */
 function processAccepted(operation: Operation) {
-    let date = getNow()
-    for (let index = 0; index < operation.operation_volumes.length; index++) {
-        const operationVolume = operation.operation_volumes[index];
-        let dateBegin = new Date(operationVolume.effective_time_begin)
-        let dateEnd = new Date(operationVolume.effective_time_end)
-        // console.log(`(${date.toISOString()} >= ${dateBegin.toISOString()}) && (${date.toISOString()} < ${dateEnd.toISOString()})`)
-        if ((date.getTime() >= dateBegin.getTime()) && (date.getTime() < dateEnd.getTime())) {
-            changeState(operation, OperationState.ACTIVATED)
+    try {
+        let date = getNow()
+        for (let index = 0; index < operation.operation_volumes.length; index++) {
+            const operationVolume = operation.operation_volumes[index];
+            let dateBegin = new Date(operationVolume.effective_time_begin)
+            let dateEnd = new Date(operationVolume.effective_time_end)
+            // console.log(`(${date.toISOString()} >= ${dateBegin.toISOString()}) && (${date.toISOString()} < ${dateEnd.toISOString()})`)
+            if ((date.getTime() >= dateBegin.getTime()) && (date.getTime() < dateEnd.getTime())) {
+                changeState(operation, OperationState.ACTIVATED)
+            }
+            if ((date.getTime() > dateEnd.getTime())) {
+                changeState(operation, OperationState.CLOSED)
+            }
         }
-        if ((date.getTime() > dateEnd.getTime())) {
-            changeState(operation, OperationState.CLOSED)
-        }
+
+    } catch (error) {
+        errorOnOperation(operation, JSON.stringify(error))
     }
 }
 
@@ -203,14 +268,19 @@ function processAccepted(operation: Operation) {
  * @param operation 
  */
 function processActivated(operation: Operation) {
-    let date = getNow()
-    for (let index = 0; index < operation.operation_volumes.length; index++) {
-        const operationVolume = operation.operation_volumes[index];
-        let dateBegin = new Date(operationVolume.effective_time_begin)
-        let dateEnd = new Date(operationVolume.effective_time_end)
-        if ((date.getTime() > dateEnd.getTime())) {
-            changeState(operation, OperationState.CLOSED)
+    try {
+        let date = getNow()
+        for (let index = 0; index < operation.operation_volumes.length; index++) {
+            const operationVolume = operation.operation_volumes[index];
+            let dateBegin = new Date(operationVolume.effective_time_begin)
+            let dateEnd = new Date(operationVolume.effective_time_end)
+            if ((date.getTime() > dateEnd.getTime())) {
+                changeState(operation, OperationState.CLOSED)
+            }
         }
+
+    } catch (error) {
+        errorOnOperation(operation, JSON.stringify(error))
     }
 }
 /**
@@ -226,26 +296,78 @@ function processNonconforming(operation: Operation) {
  * @param operation 
  */
 function processRouge(operation: Operation) {
-    let date = getNow()
+    try {
+        let date = getNow()
 
-    for (let index = 0; index < operation.operation_volumes.length; index++) {
-        const operationVolume = operation.operation_volumes[index];
-        let dateBegin = new Date(operationVolume.effective_time_begin)
-        let dateEnd = new Date(operationVolume.effective_time_end)
-        if ((date.getTime() > dateEnd.getTime())) {
-            changeState(operation, OperationState.CLOSED)
+        for (let index = 0; index < operation.operation_volumes.length; index++) {
+            const operationVolume = operation.operation_volumes[index];
+            let dateBegin = new Date(operationVolume.effective_time_begin)
+            let dateEnd = new Date(operationVolume.effective_time_end)
+            if ((date.getTime() > dateEnd.getTime())) {
+                changeState(operation, OperationState.CLOSED)
+            }
         }
+
+    } catch (error) {
+        errorOnOperation(operation, JSON.stringify(error))
     }
 }
+
+function processPending(operation: Operation) {
+    try {
+        let date = getNow()
+
+        for (let index = 0; index < operation.operation_volumes.length; index++) {
+            const operationVolume = operation.operation_volumes[index];
+            let dateBegin = new Date(operationVolume.effective_time_begin)
+            let dateEnd = new Date(operationVolume.effective_time_end)
+            if ((date.getTime() > dateEnd.getTime())) {
+                changeState(operation, OperationState.CLOSED)
+            }
+        }
+    } catch (error) {
+        errorOnOperation(operation, JSON.stringify(error))
+    }
+}
+
+async function errorOnOperation(operation, error) {
+    console.error(`Error on operation: ${operation ? operation.gufi : "Operation sin GUFI"}`)
+    try {
+        operation.state = OperationState.CLOSED
+        operation.flight_comments = error
+        let result = await operationDao.save(operation)
+
+    } catch (error) {
+        console.error(`Error when save on update operation state`)
+    }
+
+    try {
+        let bodyMail = `<p>${error}</p>${operationMailHtml(operation)}`
+
+        sendMail(adminEmail, "Debido a un error se pasó a CLOSE la operación : " + operation.gufi,
+            bodyMail, bodyMail)
+
+    } catch (error) {
+        console.error(`Error when send mail`)
+
+    }
+}
+
+
 
 async function changeState(operation: Operation, newState: OperationState) {
     // console.log(`Change the state of ${operation.gufi} from ${operation.state} to ${newState}`)
     operation.state = newState
-
+    
     let result = await operationDao.save(operation)
+    // console.log(`Send mail ${JSON.stringify(operation, null, 2)}`)
     let operationInfo = {
         gufi: operation.gufi,
         state: newState
+    }
+    sendMail(adminEmail, "Cambio de estado de operacion " + operation.gufi, operationMailHtml(operation), operationMailHtml(operation))
+    if(operation.owner && operation.owner.email){
+        sendMail([operation.owner.email], "Cambio de estado de operacion " + operation.gufi, operationMailHtml(operation), operationMailHtml(operation))
     }
     sendOpertationStateChange(operationInfo)
     return result

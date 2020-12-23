@@ -7,33 +7,32 @@ import {
 } from "typeorm";
 
 
-@Entity({})
-export class DinaciaCompany
-{
+@Entity()
+export class DinaciaCompany {
 
     @PrimaryGeneratedColumn("uuid")
     'id'?: string;
 
-  
-    @Column()
-    razon_social : string;
 
-    @Column()
-    nombre_comercial : string;
-    
-    @Column()
-    domicilio : string;
+    @Column({ nullable: true })
+    razon_social?: string;
 
-    @Column()
-    telefono : string;
+    @Column({ nullable: true })
+    nombre_comercial?: string;
 
-    @Column()
-    RUT : string;
+    @Column({ nullable: true })
+    domicilio?: string;
+
+    @Column({ nullable: true })
+    telefono?: string;
+
+    @Column({ nullable: true })
+    RUT?: string;
 
     // @Column()
     // representante : string;
 
 
-    
+
 
 }

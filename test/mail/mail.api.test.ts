@@ -12,6 +12,8 @@ import { TEST_TIMEOUT } from "../conf";
 import { getToken } from "../../src/services/tokenService";
 import { Role } from "../../src/entities/User";
 import { deepCopy } from "../../src/utils/entitiesUtils";
+import { sleepPromise } from "../../src/utils/miscUtils";
+
 import { OperationState } from "../../src/entities/Operation";
 import { Operations } from "../../src/data/operations_data";
 import { OperationDao } from "../../src/daos/OperationDaos";
@@ -124,7 +126,7 @@ describe('>>> Mail api test <<<', function () {
                     res.should.have.status(200);
                     // const mission = res.body
 
-                    sleep(1000).then(() => {
+                    sleepPromise(1000).then(() => {
                         chai.request('http://localhost:1080')
                             // /api/emails?from=joe@example.com&to=bob@example.com&since=2017-09-18T12:00:00Z&until=2017-09-19T00:00:00Z
                             .get(`/api/emails?to=${receiverMail}`)
@@ -137,11 +139,13 @@ describe('>>> Mail api test <<<', function () {
                                 mail.subject.should.include('Informaci');
                                 mail.html.should.include('Airport MVD');
                                 mail.html.should.include('rfv/056ccb91-c58c-439b-93a0-592e19cba0b8');
-                                opDao.removeOperation(op).then(() => { done() }).catch((error) => { 
+                                opDao.removeOperation(op).then(() => {
+                                     done() 
+                                }).catch((error) => { 
                                     // console.error(error); 
                                     done(error) 
                                 })
-                                // done()
+                                // don/e()
                             })
                             .catch(done)
                     })
@@ -151,6 +155,6 @@ describe('>>> Mail api test <<<', function () {
     })
 });
 
-function sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-}
+// function sleep(ms) {
+//     return new Promise(resolve => setTimeout(resolve, ms));
+// }

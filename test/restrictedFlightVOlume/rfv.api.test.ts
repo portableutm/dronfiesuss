@@ -116,12 +116,13 @@ describe('>>> Restricted Flight VOlume volume reservation entity <<< ', function
         op.uas_registrations = []
         op.flight_comments = "For automate Testing RFV "
         op.state = OperationState.PROPOSED
-        op.operation_volumes[0] = Object.assign(op.operation_volumes[0], deepCopy(opVol)) //.operation_geography = op1Poly // = "For automate Testing operation "
+        op.operation_volumes[0] = Object.assign({}, op.operation_volumes[0], deepCopy(opVol)) //.operation_geography = op1Poly // = "For automate Testing operation "
 
 
         const opDao = new OperationDao();
         opDao.save(op).then(function(op:any){
             let gufi1 = op.gufi
+            op.should.have.property('state').equal(OperationState.PROPOSED);
 
             let rfv = {
                 geography: {"type":"Polygon","coordinates":[[[-56.216354,-34.853538],[-56.219101,-34.874947],[-56.172066,-34.86706],[-56.216354,-34.853538]]]},
@@ -137,8 +138,8 @@ describe('>>> Restricted Flight VOlume volume reservation entity <<< ', function
                     res.should.have.status(200);
                     res.body.should.be.a('object')
                     res.body.should.have.property("id")
-                    opDao.one(gufi1).then(function (op) {
-                        op.should.have.property('state').equal(OperationState.PENDING);
+                    opDao.one(gufi1).then(function (op2) {
+                        op2.should.have.property('state').equal(OperationState.PENDING);
                             done();
                     }).catch(done)
                 })

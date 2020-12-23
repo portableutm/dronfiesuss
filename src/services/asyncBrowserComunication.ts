@@ -26,6 +26,11 @@ export function sendPositionToMonitor(position, controller_location){
     return send('new-position', {...position, controller_location})
 }
 
+export function sendParaglidingPositionToMonitor(position){
+    // app.io.emit('new-position', position)
+    return send('new-paragliding-position', {...position})
+}
+
 export function sendOperationFlyStatus(inOperation ){
     // app.io.emit('position-status', inOperation)
     return send('position-status', inOperation)

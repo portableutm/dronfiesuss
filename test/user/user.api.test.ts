@@ -12,14 +12,15 @@ import { User, Role } from "../../src/entities/User";
 import { getToken } from "../../src/services/tokenService";
 import { Status, UserStatus } from "../../src/entities/UserStatus";
 
-import { TEST_TIMEOUT } from "../conf"; 
+import { TEST_TIMEOUT } from "../conf";
 
 describe('>>> User rest controller test <<<', function () {
 
     before(function (done) {
         this.timeout(TEST_TIMEOUT);
         initAsync()
-            .then((function(application){
+            .then((function (application) {
+                // console.log(`Usert test api befor end.`)
                 done()
             }))
             .catch(done)
@@ -122,8 +123,8 @@ describe('>>> User rest controller test <<<', function () {
             let status = new UserStatus()
             status.status = Status.CONFIRMED
             status.token = ""
-            
-            let user : User = {
+
+            let user: User = {
                 username: "testBug",
                 email: `testBug@dronfies.com`,
                 firstName: `Algun`,
@@ -471,7 +472,7 @@ describe('>>> User rest controller test <<<', function () {
             dao.all().then(function (users) {
                 let CountPreInsert = users.length
                 let user: User = {
-                    username: "unconfirmedTestUser",
+                    username: "unconfirmedTestUserRegister",
                     email: `info@dronfies.com`,
                     firstName: `unconfirmedTestUser`,
                     lastName: `unconfirmedTestUser`,
@@ -480,10 +481,18 @@ describe('>>> User rest controller test <<<', function () {
                 }
 
                 chai.request(app.app)
+                    // .post('/user/register')
                     .post('/user/register')
-                    .set('Accept', 'application/json')
-                    .send(user)
+                    .set('Accept', 'multipart/form-data')
+
+                    .field('username', user.username)
+                    .field('email', user.email)
+                    .field('firstName', user.firstName)
+                    .field('lastName', user.lastName)
+                    .field('password', user.password)
+
                     .then(res => {
+                        console.log(JSON.stringify(res.body))
                         res.should.have.status(200);
                         res.body.should.have.property('username').equal(user.username);
                         res.body.should.have.property('email').equal(user.email);
@@ -511,25 +520,18 @@ describe('>>> User rest controller test <<<', function () {
 
         it("POST /user/confirm confirm unconfirmedTestUser", function (done) {
             let dao = new UserDao()
-            let user: User = {
-                username: "unconfirmedTestUser",
-                email: `unconfirmedTestUser@dronfies.com`,
-                firstName: `unconfirmedTestUser`,
-                lastName: `unconfirmedTestUser`,
-                password: `unconfirmedTestUser`,
-                role: Role.PILOT
-            }
+            let username = "unconfirmedTestUserRegister"
 
-            dao.one(user.username)
+            dao.one(username)
                 .then(function (newUser) {
-                    // console.log(`Get the user to change status ${newUser.username}`)
+                    console.log(`Get the user to change status ${JSON.stringify(newUser)}`)
                     getUserStatus(newUser)
                         .then(status => {
-                            // console.log(`Get the status ${JSON.stringify(status)}`)
+                            console.log(`Get the status ${JSON.stringify(status)}`)
                             status.should.have.property("status").equal(Status.UNCONFIRMED)
 
                             let confirmJson = {
-                                username: "unconfirmedTestUser",
+                                username: username,
                                 token: status.token
                             }
 
@@ -538,9 +540,10 @@ describe('>>> User rest controller test <<<', function () {
                                 .set('Accept', 'application/json')
                                 .send(confirmJson)
                                 .then(res => {
+                                    // console.log(res.body)
                                     res.should.have.status(200);
                                     res.body.should.have.property('message').equal("Confirmed user");
-                                    dao.one(user.username)
+                                    dao.one(username)
                                         .then(function (newUser) {
                                             getUserStatus(newUser)
                                                 .then(status => {
@@ -552,7 +555,7 @@ describe('>>> User rest controller test <<<', function () {
                                 }).catch(done)
                         }).catch(done)
                 }).catch(done)
-            });
+        });
 
     })
 

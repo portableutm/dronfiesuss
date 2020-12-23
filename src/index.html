@@ -149,9 +149,9 @@
         console.log(`Position Status ${inPosition}`)
         // newPosition(position)
         capaPoly.eachLayer(function (layer) {
-          if(inPosition){
+          if (inPosition) {
             layer.setStyle({ fillColor: 'green' })
-          }else{
+          } else {
             layer.setStyle({ fillColor: 'red' })
           }
         });
@@ -159,7 +159,20 @@
 
 
       let poly = { "type": "Polygon", "coordinates": [[[-56.16361141204833, -34.90682134107926], [-56.163225173950195, -34.911255687582056], [-56.15453481674194, -34.91389506584019], [-56.15406274795532, -34.909020947652444], [-56.16361141204833, -34.90682134107926]]] }
-      capaPoly = L.geoJSON(poly).addTo(mymap);
+      let strJson = atob(window.location.search.substr(6))
+      let jsonRfv = JSON.parse(strJson)
+
+      jsonRfv.forEach(element => {
+        console.log(element)
+        L.geoJSON(element.geography).bindPopup(function (layer) {
+          console.log(layer)
+          return `<div><b>${element.comments}</b></br><p>Entre ${element.min_altitude} y ${element.max_altitude} metros de altura</div>`
+        }).addTo(mymap);
+      });
+      // console.log(jsonRfv);
+
+
+
     });
   </script>
 </body>

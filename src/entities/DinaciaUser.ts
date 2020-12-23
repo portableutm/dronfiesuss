@@ -15,25 +15,37 @@ export class DinaciaUser {
     'id'?: string;
 
     // Nombre:
-    @Column()
-    address: string;
-    @Column()
-    document_type: string;
-    @Column()
-    document_number: string;
-    @Column()
-    phone: string;
-    @Column()
-    cellphone: string;
-    @Column()
-    nationality: string;
+    @Column({ nullable: true })
+    address?: string;
+    @Column({ nullable: true })
+    document_type?: string;
+    @Column({ nullable: true })
+    document_number?: string;
+    @Column({ nullable: true })
+    phone?: string;
+    @Column({ nullable: true })
+    cellphone?: string;
+    @Column({ nullable: true })
+    nationality?: string;
 
 
     @OneToOne("DinaciaCompany", {
-        eager: true, cascade: true
+        eager: true, cascade: true, nullable: true
     })
     @JoinColumn()
     dinacia_company?: DinaciaCompany;
+
+
+    @Column({ nullable: true })
+    permit_expire_date?: string
+    
+
+    @Column({ nullable: true })
+    document_file_path?: string
+    @Column({ nullable: true })
+    permit_front_file_path?: string
+    @Column({ nullable: true })
+    permit_back_file_path?: string
 
 
 }

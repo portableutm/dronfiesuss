@@ -5,14 +5,21 @@ if ((process.env.NODE_ENV=="production")  && (process.env.JWTSECRET=='' || proce
     throw "You must set a valid JWTSECRET on .env file"
 } 
 
+export const generateOnlyAdmin = true
+
 export const smtpUrl = process.env.SMTP_URL
 export const smtpUsername = process.env.SMTP_USERNAME
 export const smtpPassword = process.env.SMTP_PASSWORD
 export const smtpPort = process.env.SMTP_PORT
 
-export const frontEndUrl = process.env.FRONT_END_URL ||  "http://localhost:3000/"
+export const frontEndUrl = process.env.FRONT_END_URL ||  "http://localhost/"
+export const backendUrl = process.env.BACKEND_URL ||  "http://localhost:3000"
 
-export const adminEmail = "info@dronfies.com"
+export const adminEmail = process.env.ADMIN_EMAIL? process.env.ADMIN_EMAIL.split(",")  : ["info@dronfies.com", "ealonzo@dronfies.com"]
+
+export const uploadFolder = process.env.UPLOAD_FOLDER || "./src/uploads"
+
+export const isDinacia = true
 
 
 

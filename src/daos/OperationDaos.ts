@@ -13,10 +13,11 @@ export class OperationDao {
     // WHERE st_contains("operationVolumeOperation_geography" ,st_geomfromtext('POINT(-56.15444898605347 -34.90696211766489)'))
 
     async getOperationByPoint(point: Point) {
+        
         return this.repository
             .createQueryBuilder("operation")
-            .innerJoinAndSelect("operation.creator", "creator")
-            .innerJoinAndSelect("operation.owner", "owner")
+            .leftJoinAndSelect("operation.creator", "creator")
+            .leftJoinAndSelect("operation.owner", "owner")
             .innerJoinAndSelect("operation.operation_volumes", "operation_volume")
             
             .where("st_contains(operation_volume.\"operation_geography\" ,ST_GeomFromGeoJSON(:origin))")
@@ -24,27 +25,22 @@ export class OperationDao {
                 origin: JSON.stringify(point)
             })
             .getMany()
+            
     }
 
-    // select *
-    // from operation
-    // where 
-    // tsrange("operationVolumeEffective_time_begin", "operationVolumeEffective_time_end") && tsrange('2019-12-11 13:59:10'::TIMESTAMP, '2019-12-11 19:59:10'::TIMESTAMP) 
-    // AND ((int4range("operationVolumeMin_altitude", "operationVolumeMax_altitude") && int4range(30, 100)))
 
     async getOperationByVolume(volume: OperationVolume) {
         return this.repository
             .createQueryBuilder("operation")
-            .innerJoinAndSelect("operation.creator", "creator")
-            .innerJoinAndSelect("operation.owner", "owner")
+            .leftJoinAndSelect("operation.creator", "creator")
+            .leftJoinAndSelect("operation.owner", "owner")
             .innerJoinAndSelect("operation.operation_volumes", "operation_volume")
-            
-            .where("(tsrange(operation_volume.\"effective_time_begin\", operation_volume.\"effective_time_end\") && tsrange(:date_begin, :date_end) ) "
-                + " AND (numrange(operation_volume.\"min_altitude\", operation_volume.\"max_altitude\") && numrange(:min_altitude, :max_altitude)) "
-                + " AND (ST_Intersects(operation_volume.\"operation_geography\" ,ST_GeomFromGeoJSON(:geom)))")
+            .where("tsrange(operation_volume.\"effective_time_begin\", operation_volume.\"effective_time_end\") && tsrange(:date_begin, :date_end) ")
+            .andWhere("(numrange(operation_volume.\"min_altitude\", operation_volume.\"max_altitude\") && numrange(:min_altitude, :max_altitude)) ")
+            .andWhere("(ST_Intersects(operation_volume.\"operation_geography\" ,ST_GeomFromGeoJSON(:geom)))")
             .setParameters({
-                date_begin: volume.effective_time_begin,
-                date_end: volume.effective_time_end,
+                date_begin: new Date(volume.effective_time_begin),
+                date_end: new Date(volume.effective_time_end),
                 min_altitude: volume.min_altitude,
                 max_altitude: volume.max_altitude,
                 geom: JSON.stringify(volume.operation_geography)
@@ -55,8 +51,8 @@ export class OperationDao {
     async getOperationByPolygonAndAltitude(volume: OperationVolume) {
         return this.repository
             .createQueryBuilder("operation")
-            .innerJoinAndSelect("operation.creator", "creator")
-            .innerJoinAndSelect("operation.owner", "owner")
+            .leftJoinAndSelect("operation.creator", "creator")
+            .leftJoinAndSelect("operation.owner", "owner")
             .innerJoinAndSelect("operation.operation_volumes", "operation_volume")
             
             .where("(numrange(operation_volume.\"min_altitude\", operation_volume.\"max_altitude\") && numrange(:min_altitude, :max_altitude)) "
@@ -83,8 +79,8 @@ export class OperationDao {
 
         return this.repository
             .createQueryBuilder("operation")
-            .innerJoinAndSelect("operation.creator", "creator")
-            .innerJoinAndSelect("operation.owner", "owner")
+            .leftJoinAndSelect("operation.creator", "creator")
+            .leftJoinAndSelect("operation.owner", "owner")
             .innerJoinAndSelect("operation.operation_volumes", "operation_volume")
             
             .where(
@@ -142,8 +138,8 @@ export class OperationDao {
     async countOperationVolumeByVolumeCountExcludingOneOperation(gufi: string, volume: OperationVolume) {
         return this.repository
             .createQueryBuilder("operation")
-            .innerJoinAndSelect("operation.creator", "creator")
-            .innerJoinAndSelect("operation.owner", "owner")
+            .leftJoinAndSelect("operation.creator", "creator")
+            .leftJoinAndSelect("operation.owner", "owner")
             .innerJoinAndSelect("operation.operation_volumes", "operation_volume")
             .where("operation_volume.\"operationGufi\" != :gufi")
             .andWhere("\"state\" in ('ACCEPTED', 'ACTIVATED', 'ROGUE', 'PENDING')")
@@ -164,8 +160,8 @@ export class OperationDao {
     async getOperationVolumeByVolumeCountExcludingOneOperation(gufi: string, volume: OperationVolume) {
         return this.repository
             .createQueryBuilder("operation")
-            .innerJoinAndSelect("operation.creator", "creator")
-            .innerJoinAndSelect("operation.owner", "owner")
+            .leftJoinAndSelect("operation.creator", "creator")
+            .leftJoinAndSelect("operation.owner", "owner")
             .innerJoinAndSelect("operation.operation_volumes", "operation_volume")
             .where("operation_volume.\"operationGufi\" != :gufi")
             .andWhere("\"state\" in ('ACCEPTED', 'ACTIVATED', 'ROGUE', 'PENDING')")
@@ -249,11 +245,12 @@ export class OperationDao {
 
         let query = this.repository.
             createQueryBuilder("operation")
-            .innerJoinAndSelect("operation.creator", "creator")
-            .innerJoinAndSelect("operation.owner", "owner")
+            .leftJoinAndSelect("operation.creator", "creator")
+            .leftJoinAndSelect("operation.owner", "owner")
             .innerJoinAndSelect("operation.operation_volumes", "operation_volume")
             .leftJoinAndSelect('operation.uas_registrations', 'uas_registration')
             .leftJoinAndSelect('uas_registration.owner', 'vehicleowner')
+            .leftJoinAndSelect('uas_registration.operators', 'vehicleoperators')
             .where(" creator.\"username\" =  :username")
             .orderBy('operation.submit_time', "DESC")
             .setParameters({
@@ -273,11 +270,15 @@ export class OperationDao {
 
         let query = this.repository.
             createQueryBuilder("operation")
-            .innerJoinAndSelect("operation.creator", "creator")
-            .innerJoinAndSelect("operation.owner", "owner")
+            .leftJoinAndSelect("operation.creator", "creator")
+            .leftJoinAndSelect("operation.owner", "owner")
+            .leftJoinAndSelect("owner.dinacia_user", "dinacia_user")
+            .leftJoinAndSelect("dinacia_user.dinacia_company", "dinacia_company")
             .innerJoinAndSelect("operation.operation_volumes", "operation_volume")
             .leftJoinAndSelect('operation.uas_registrations', 'uas_registration')
             .leftJoinAndSelect('uas_registration.owner', 'vehicleowner')
+            .leftJoinAndSelect('uas_registration.operators', 'vehicleoperators')
+            
             .where(" owner.\"username\" =  :username")
             .orderBy('operation.submit_time', "DESC")
             .setParameters({
@@ -300,7 +301,11 @@ export class OperationDao {
             createQueryBuilder("operation")
             .innerJoinAndSelect("operation.operation_volumes", "operation_volume")
             .leftJoinAndSelect("operation.owner", "owner")
-            .where("\"state\" in ('ACCEPTED', 'PROPOSED', 'ACTIVATED', 'NONCONFORMING', 'ROGUE', 'NOT_ACCEPTED')")
+            .leftJoinAndSelect("owner.dinacia_user", "dinacia_user")
+            // .leftJoinAndSelect("dinacia_user.dinacia_company", "dinacia_company")
+            .leftJoinAndSelect('operation.uas_registrations', 'uas_registration')
+            .leftJoinAndSelect('uas_registration.dinacia_vehicle', 'dinacia_vehicle')
+            .where("\"state\" in ('ACCEPTED', 'PROPOSED', 'ACTIVATED', 'ROGUE', 'PENDING')")
             .getMany()
     }
 
@@ -322,10 +327,11 @@ export class OperationDao {
             .andWhere(":time ::timestamp <@ tsrange(operation_volume.\"effective_time_begin\", operation_volume.\"effective_time_end\")")
             .andWhere("\"state\" = 'ACTIVATED'")
             .andWhere("vehicle_reg.\"uvin\" = :uvin")
+            .andWhere("vehicle_reg.\"authorized\" = 'AUTHORIZED'")
             .setParameters({
                 origin: JSON.stringify(point),
                 altitude: altitude,
-                time: time,
+                time: new Date(time),
                 uvin: uvin
 
             })
@@ -340,24 +346,29 @@ export class OperationDao {
      * @param uvin 
      */
     async getOperationByPositionAndDroneTrackerId(point, altitude, time, trackerId) {
-        return this.repository
+        console.log(`time:${time}, typeof:${typeof time}, date:${new Date(time)}, dateT:${typeof new Date(time)}, `)
+       
+        let query = this.repository
             .createQueryBuilder("operation")
             .innerJoinAndSelect("operation.operation_volumes", "operation_volume")
             .innerJoinAndSelect("operation.uas_registrations", "vehicle_reg")
 
-            .where("st_contains(operation_volume.\"operation_geography\" ,ST_GeomFromGeoJSON(:origin))")
+            .where("st_contains(operation_volume.\"operation_geography\" ,ST_GeomFromGeoJSON(:point))")
             .andWhere(":altitude ::numeric <@ numrange(operation_volume.\"min_altitude\", operation_volume.\"max_altitude\")")
             .andWhere(":time ::timestamp <@ tsrange(operation_volume.\"effective_time_begin\", operation_volume.\"effective_time_end\")")
             .andWhere("\"state\" = 'ACTIVATED'")
             .andWhere("vehicle_reg.\"trackerId\" = :trackerId")
+            .andWhere("vehicle_reg.\"authorized\" = 'AUTHORIZED'")
             .setParameters({
-                origin: JSON.stringify(point),
+                point: JSON.stringify(point),
                 altitude: altitude,
-                time: time,
+                time: new Date(time),
                 trackerId: trackerId
-
+                
             })
-            .getMany()
+        
+            console.log(`SQL:${query.getSql()}`)
+        return query    .getMany()
     }
 
 }   
