@@ -1,6 +1,6 @@
 import "reflect-metadata";
 require('dotenv').config()
-import { jwtSecret } from "./config/config";
+import { jwtSecret, cert, key, keyPhrase } from "./config/config";
 import * as express from 'express';
 import * as path from 'path';
 // const path = require('path');
@@ -8,9 +8,11 @@ import { Request, Response } from "express";
 import { Connection } from 'typeorm';
 var cors = require('cors')
 var morgan = require('morgan')
-// import * as morgan from "morgan";
 
 import { Server } from "http";
+import { Server as HttpsServer, createServer } from "https";
+var https = require('https');
+import * as fs from "fs";
 import * as Io from "socket.io";
 
 
@@ -29,6 +31,8 @@ class App {
     public connectionName: string;
     public io: SocketIO.Server;
     private server: Server;
+    // private https: any;
+    private https: HttpsServer;
 
     public initedDB: boolean = false;
     public initedRest: boolean = false;
@@ -38,7 +42,7 @@ class App {
     constructor(controllers: any[] /*, port: number, connName: string*/, callback?: (param?: any) => void) {
         process.env.TZ = "Etc/GMT"
         this.app = express();
-        
+
 
         if ((process.env.PORT == undefined) || (process.env.DATABASE_CONNECTION_NAME == undefined)) {
             throw `You must define PORT and DATABASE_CONNECTION_NAME on .env file`
@@ -71,6 +75,7 @@ class App {
         await initData(connection, () => {
             this.initedDB = true;
             try {
+                console.log(`process.env.NODE_ENV:${process.env.NODE_ENV}`)
                 if (process.env.NODE_ENV != "test") {
                     this.cronService = new CronService()
                 }
@@ -87,6 +92,8 @@ class App {
         this.app.use(cors({
             exposedHeaders: ['token'],
         }))
+
+
 
         console.log(`Path to save upload files::${path.join(__dirname, 'uploads')}`)
         this.app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
@@ -142,33 +149,37 @@ class App {
     public stop(callback) {
         // console.log("Close io:")
         // this.io.close(function () {
-            console.log("Close server:")
+        console.log("Close server:")
 
-            // this.server.close(function (error) {
-            //     console.log("server closed" + error)
-            //     callback()
-            // })
+        // this.server.close(function (error) {
+        //     console.log("server closed" + error)
+        //     callback()
+        // })
 
-            this.io.close();
-            this.server.close();
-            delete this.io
-            delete this.server
-            // delete this.app
-            callback()
+        this.io.close();
+        this.server.close();
+        delete this.io
+        delete this.server
+        // delete this.app
+        callback()
 
         // })
     }
 
     // Boots the application
     public listen(callback?: (param?: any) => void) {
+        const port = this.port;
+
         this.server = new Server(this.app)
-        // var io = require('socket.io')(server);
-        this.io = Io(this.server)
-        let io = this.io;
 
-        console.log("  ----------------- >>> init socket io")
-
-        io.use(authMiddleware)
+        // this.app.use((req, res, next) => {
+        //     console.log(`Entrando por http : ${req.get('host')}`)
+        //     // The 'x-forwarded-proto' check is for Heroku
+        //     if (!req.secure && req.get('x-forwarded-proto') !== 'https') {
+        //         return res.redirect('https://' + req.get('host') + req.url);
+        //     }
+        //     next();
+        // })
 
         this.app.get('/', function (req, res) {
             res.sendFile(__dirname + '/index.html');
@@ -178,20 +189,41 @@ class App {
             res.sendFile(__dirname + '/operations.html');
         });
 
+        this.https = createServer({
+            key: fs.readFileSync(key),
+            cert: fs.readFileSync(cert),
+            // requestCert: false,
+            // rejectUnauthorized: false
+        }, this.app)
+
+
+        this.io = Io(this.https)
+        let io = this.io;
+        io.use(authMiddleware)
+
+
+ 
         // this.app.get('/form', function (req, res) {
         //     res.sendFile(__dirname + '/pruebaForm/forms.html');
         // });
 
-        const port = this.port;
 
-        this.server.listen(port, () => {
-            console.log(`Server running on port ${this.port}`);
+        this.server.listen(4000, () => {
+            console.log(`Server running on port ${JSON.stringify(this.server.address())}`);
             if (callback !== undefined) {
                 this.initedRest = true;
                 callback();
             }
         });
 
+        this.https.listen(port, () => {
+            console.log(`Server running on port ${JSON.stringify(this.https.address())}`);
+            if (callback !== undefined) {
+                console.log("Se inicio")
+                this.initedRest = true;
+                callback();
+            }
+        });
 
         this.io.on('connection', function (socket) {
             let token = socket.handshake.query.token;
@@ -200,14 +232,14 @@ class App {
             // console.log(`On conection ${JSON.stringify(s.jwtPayload)}`)
             // console.log(`On conection   `)
 
-            socket.on('chat message', function (data) {
-                // let tokenT = socket.handshake.query.token;
-                // console.log(`chat message ${tokenT}`)
-                console.log(`Chat message **> ${JSON.stringify(data)}`);
-                // socket.emit('', data)
-                //socket.emit('chat message', data)
-                socket.broadcast.emit('chat message', data);
-            });
+            // socket.on('chat message', function (data) {
+            //     // let tokenT = socket.handshake.query.token;
+            //     // console.log(`chat message ${tokenT}`)
+            //     console.log(`Chat message **> ${JSON.stringify(data)}`);
+            //     // socket.emit('', data)
+            //     //socket.emit('chat message', data)
+            //     socket.broadcast.emit('chat message', data);
+            // });
         });
 
 
