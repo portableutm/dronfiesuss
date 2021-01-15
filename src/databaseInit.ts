@@ -43,13 +43,16 @@ let randomFromList = (list: any[]): any => {
 
 export async function initData(connection: Connection, callback?: () => any) {
     if (generateOnlyAdmin) {
-        // for (let index = 0; index < Users.length; index++) {
+        let users = await connection.manager.find(User);
+        if (users.length == 0) {
             const user = Users[0];
             try {
                 await connection.manager.save(connection.manager.create("User", user))
             } catch (error) {
                 console.error(error)
             }
+        }
+
         // }
     } else {
 
