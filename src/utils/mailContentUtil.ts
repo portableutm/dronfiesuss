@@ -2,6 +2,9 @@ import { VehicleReg, VehicleAuthorizeStatus, vehicleType } from "../entities/Veh
 import { frontEndUrl } from "../config/config";
 import { User } from "../entities/User";
 import { Operation } from "../entities/Operation";
+import { getLocalTime } from "./dateUtil";
+var moment = require('moment-timezone');
+
 
 
 export function buildConfirmationLink(username, token, frontEndEndpoint) {
@@ -69,6 +72,8 @@ export function generateAuthorizeVehicleMailText(vehicle: VehicleReg) {
 
 
 
+
+
 export function operationMailHtml(operation: Operation) {
     let operationMail = `<table>
     <tr colspan="2">
@@ -79,8 +84,8 @@ export function operationMailHtml(operation: Operation) {
     <tr><td>Estado</td><td>${operation.state}</td></tr>
      <tr><td>Contacto</td><td>${operation.contact}</td></tr>
      <tr><td>Teléfono </td><td>${operation.contact_phone}</td></tr>
-     <tr><td>Comienzo </td><td>${operation.operation_volumes[0].effective_time_begin}</td></tr>
-     <tr><td>Fin</td><td>${operation.operation_volumes[0].effective_time_end}</td></tr>
+     <tr><td>Comienzo </td><td>${getLocalTime(operation.operation_volumes[0].effective_time_begin) }</td></tr>
+     <tr><td>Fin</td><td>${getLocalTime(operation.operation_volumes[0].effective_time_end)}</td></tr>
      <tr><td>Altitud máxima (m) </td><td>${operation.operation_volumes[0].max_altitude}</td></tr>
      <tr><td>Comentarios de la aeronave </td><td>${operation.aircraft_comments}</td></tr>
      <tr><td>Número de vuelo </td><td>${operation.flight_number}</td></tr>
@@ -99,6 +104,7 @@ export function operationMailHtml(operation: Operation) {
     }
     return operationMail + ownerStr + vehiclesStr
 }
+// <tr><td>Fecha de expiración de licencia</td><td>${user.dinacia_user.permit_expire_date}</td></tr>`:""}
 export function userMailHtml(user: User) {
     return `
     <tr><td>Nombre de usuario</td><td>${user.username}</td></tr>
@@ -108,7 +114,8 @@ export function userMailHtml(user: User) {
     <tr><td>Estado</td><td>${user.status.status}</td></tr>
     ${user.dinacia_user?`<tr><td>Celular</td><td>${user.dinacia_user.cellphone}</td></tr>
     <tr><td>Teléfono</td><td>${user.dinacia_user.phone}</td></tr>
-    <tr><td>Fecha de expiración de licencia</td><td>${user.dinacia_user.permit_expire_date}</td></tr>`:""}
+    
+    <tr><td>Fecha de expiración de licencia</td><td>${getLocalTime(user.dinacia_user.permit_expire_date)}</td></tr>`:""}
     
     `
 }
