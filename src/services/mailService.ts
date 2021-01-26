@@ -1,6 +1,6 @@
 // "use strict";
 const nodemailer = require("nodemailer");
-import { smtpPassword, smtpUrl, smtpUsername, smtpPort } from "../config/config";
+import { smtpPassword, smtpUrl, smtpUsername, smtpPort, smtpSecure, smtpSelfsigned } from "../config/config";
 
 let username = smtpUsername
 let pass = smtpPassword
@@ -8,14 +8,14 @@ let pass = smtpPassword
 let transportConfig = {
     host: smtpUrl,
     port: smtpPort,
-    secure: false,
+    secure: smtpSecure,
     auth: {
         user: username,
         pass: pass
     },
     tls : {
         // do not fail on invalid certs
-        rejectUnauthorized: true
+        rejectUnauthorized: !smtpSelfsigned
     }
 }
 if (process.env.NODE_ENV == "dev" || process.env.NODE_ENV == "test") {
