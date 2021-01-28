@@ -154,9 +154,14 @@ export class VehicleController {
 
         let dao = this.dao
         try {
-            let upload = singleFile("serial_number_file")
+            // let upload = singleFile("serial_number_file")
+            let upload = multipleFiles([
+                { name: 'serial_number_file', maxCount: 1 },
+                { name: 'remote_sensor_file', maxCount: 1 },
+            ]);
+
             upload(request, response, async function (err) {
-                console.log(`File:${request.file}`)
+                // console.log(`File:${request.file}`)
                 // console.log(request)
                 try {
                     let { role, username } = getPayloadFromResponse(response)
@@ -171,9 +176,10 @@ export class VehicleController {
                     }
                     delete request.body.dinacia_vehicle_str
 
-                    if(request.file){
-                        dinaciaVehicle.serial_number_file_path = getUrl(request.file.filename)
-                    }
+                    // if(request.file){
+                    //     dinaciaVehicle.serial_number_file_path = getUrl(request.file.filename)
+                    // }
+                    diancia_fields(request, dinaciaVehicle)
 
                     let v = JSON.parse(JSON.stringify(request.body)) //: VehicleReg = await this.dao.save(request.body);
                     v.dinacia_vehicle = dinaciaVehicle
@@ -293,4 +299,30 @@ async function generateCaaRegistration(dao: VehicleDao, year) {
     let count = await dao.countDinaciaVehiclesByYear(year)
     let caa_register = `CX-${year}-${count + 1}`
     return caa_register
+}
+
+function diancia_fields(request, dinaciaVehicle) {
+    try {
+        // let dinaciaVehicleBody = JSON.parse(request.body.dinacia_user_str || "{}")
+        // delete user.dinacia_user_str
+        // user.dinacia_user = dinaciaUser
+        // console.log(`Dinacia user: ${request.body.dinacia_user_str}`)
+
+        if (request.files) {
+            if (request.files.serial_number_file) {
+                // console.log(`Assign document_file_path`)
+                // user.dinacia_user.document_file_path = request.files.document_file[0].path
+                dinaciaVehicle.serial_number_file_path = getUrl(request.files.serial_number_file[0].filename)
+            }
+            if (request.files.remote_sensor_file) {
+                // console.log(`Assign permit_front_file`)
+                // user.dinacia_user.permit_front_file_path = request.files.permit_front_file[0].path
+                dinaciaVehicle.remote_sensor_file_path = getUrl(request.files.remote_sensor_file[0].filename)
+            }
+            
+        }
+    } catch (error) {
+        console.error(error)
+    }
+
 }

@@ -90,6 +90,15 @@ export class DinaciaVehicle {
     @Column({ nullable: true })
     propeller_material?: string;
 
+
+    @Column({ nullable: true })
+    remote_sensor_file_path?: string;
+
+    @Column({ nullable: true })
+    remote_sensor_id?: string;
+
+    
+
     // @Column()
     // uso: string;
     // @Column()
