@@ -301,7 +301,13 @@ export class UserController {
                 } catch (error) {
                     console.error("Register error" + JSON.stringify(error))
                     response.status(400)
-                    return response.json({ "Error": error })
+                    if (error.detail.startsWith('Key (username)')) {
+                        return response.json([`Username ${request.body.username} already exists.`])
+                    }
+                    if (error.detail.startsWith('Key (email)')) {
+                        return response.json([`Email ${request.body.email} already exists.`])
+                    }
+                    return response.json([`Register error`])
                 }
 
 
