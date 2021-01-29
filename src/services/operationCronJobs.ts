@@ -106,13 +106,10 @@ async function processProposed(operation: Operation) {
                     changeToPending = true
                     reason = `The maximun altitude is over ${MAX_ALTITUDE}. ${reason}`
                 }
-                if (isDinacia && await isExpiredDinaciaUserPermitExpireDateWhenFly(operation)) {
-                    changeToPending = true
-                    reason = `The user permit is expired. ${reason}`
-                }
+                // --------------------------------------------------gt
 
                 // let op: Operation = new Operation();
-                // op.owner.email
+                //  op.owner.email
                 // console.log(`********\n${JSON.stringify(operation, null, 2)}\n********`)
 
                 if (changeToPending) {
