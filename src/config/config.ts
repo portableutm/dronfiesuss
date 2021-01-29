@@ -15,11 +15,11 @@ export const smtpUrl = process.env.SMTP_URL
 export const smtpUsername = process.env.SMTP_USERNAME
 export const smtpPassword = process.env.SMTP_PASSWORD
 export const smtpPort = process.env.SMTP_PORT
-export const smtpSecure = process.env.SMTP_SECURE || false
-export const smtpSelfsigned = process.env.SMTP_SELF_SIGNED || true
+export const smtpSecure = JSON.parse(process.env.SMTP_SECURE) || false
+export const smtpSelfsigned = JSON.parse(process.env.SMTP_SELF_SIGNED) || true
 
 export const frontEndUrl = process.env.FRONT_END_URL ||  "http://localhost/"
-export const backendUrl = process.env.BACKEND_URL ||  "http://localhost:3000"
+export const backendUrl = process.env.BACKEND_URL ||  "http://localhost:4000/"
 
 export const adminEmail = process.env.ADMIN_EMAIL? process.env.ADMIN_EMAIL.split(",")  : ["info@dronfies.com", "ealonzo@dronfies.com"]
 
