@@ -120,6 +120,8 @@ export class UserController {
         let { role, username } = getPayloadFromResponse(response)
         let dao = this.dao
 
+        let logued_username = username
+
         let upload = multipleFiles([
             { name: 'document_file', maxCount: 1 },
             { name: 'permit_front_file', maxCount: 1 },
@@ -128,22 +130,24 @@ export class UserController {
         upload(request, response, async function (err) {
             // console.log(`BODy>>>>:${JSON.stringify(request.body)}`)
             try {
-                // console.log(`Entro por aqui...${username} == ${request.params.id}`)
-                if (role == Role.ADMIN || (username == request.params.id)) {
+                // console.log(`Entro por aqui...${logued_username} == ${request.params.id}`)
+                if (role == Role.ADMIN || (request.params.id == logued_username)) {
                     let user: User = request.body
                     user.username = request.params.id
                     // console.log(`Llmando a dinacia fields`)
                     diancia_fields(request, user)
 
-                    // console.log(`USER>>>>:${JSON.stringify(request.body)}`)
-
                     let errors = [] //validateUser(user)
+
                     if (errors.length == 0) {
                         //user.password = hashPassword(user.password)
-                        let user_viejo = await dao.one(username)
+                        let user_viejo = await dao.one(user.username)
                         let toUpdate = Object.assign({}, user_viejo, user)
+                        // console.log(`Viejo:${JSON.stringify(user_viejo, null, 2)}`)
+                        // console.log(`user:${JSON.stringify(user, null, 2)}`)
+                        // console.log(`toUpdate:${JSON.stringify(toUpdate, null, 2)}`)
                         let insertedDetails = await dao.update(toUpdate)
-                        let user_nuevo = await dao.one(username)
+                        let user_nuevo = await dao.one(user.username)
                         return response.json(user_nuevo);
                     } else {
                         response.status(400)
