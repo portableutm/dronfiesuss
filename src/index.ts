@@ -14,7 +14,7 @@ if(process.env.NODE_ENV != "test"){
 //         app = new App(controllers, 3000, "test");
 //         app.listen();
 //         app.printStatus();
-//     }    
+//     }
 // }
 
 export async function initAsync(){
@@ -28,5 +28,5 @@ export async function initAsync(){
         }else{
             resolve(app);
         }
-      });
+    });
 }
