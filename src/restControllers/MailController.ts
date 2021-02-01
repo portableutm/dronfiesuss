@@ -91,7 +91,8 @@ export const doSendMailForPendingOperation = async (dao:OperationDao, { receiver
 }
 
 export const doSendMailForOperation = async (dao:OperationDao, { receiverMail, gufi, bodyMail }, { role, username }) => {
-  if (role == Role.ADMIN) {
+  // TODO: Implement in PER INSTANCE configuration - pilots sending emails for no reason is BAD.
+  //if (role == Role.ADMIN) {
     let operation = <Operation>await dao.one(gufi);
 
     let subject = `Información sobre operación`
@@ -104,9 +105,9 @@ export const doSendMailForOperation = async (dao:OperationDao, { receiverMail, g
 
     sendMail(receiverMail, subject, htmlBody, htmlBody)
     return false
-  } else {
+  /*} else {
     return true
-  }
+  }*/
 }
 
 
