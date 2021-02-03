@@ -31,7 +31,7 @@ export function buildConfirmationHtmlMail(username, link) {
     <p>Hello ${username},</p>
     <p>Thank you for registering in PortableUTM!</p>
     <p>To finish the user registration process, please click in the following link.</p>
-    <p><a href="">${link}</a></p>
+    <p><a href="${link}">${link}</a></p>
     `
 }
 
