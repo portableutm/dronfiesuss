@@ -15,7 +15,7 @@ let transportConfig = {
     },
     tls : {
         // do not fail on invalid certs
-        rejectUnauthorized: !smtpSelfsigned
+        rejectUnauthorized: false
     }
 }
 if (process.env.NODE_ENV == "dev" || process.env.NODE_ENV == "test") {
