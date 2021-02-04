@@ -362,9 +362,9 @@ async function changeState(operation: Operation, newState: OperationState) {
         gufi: operation.gufi,
         state: newState
     }
-    sendMail(adminEmail, "Cambio de estado de operacion " + operation.gufi, operationMailHtml(operation), operationMailHtml(operation))
+    sendMail(adminEmail, "Cambio de estado de operacion " + operation.name, operationMailHtml(operation), operationMailHtml(operation))
     if(operation.owner && operation.owner.email){
-        sendMail([operation.owner.email], "Cambio de estado de operacion " + operation.gufi, operationMailHtml(operation), operationMailHtml(operation))
+        sendMail([operation.owner.email], "Cambio de estado de operacion " + operation.name, operationMailHtml(operation), operationMailHtml(operation))
     }
     sendOpertationStateChange(operationInfo)
     return result
