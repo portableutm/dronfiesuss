@@ -5,3 +5,10 @@ build/
 tmp/
 temp/
 *.jpg
+
+.env
+ormconfig.json
+
+coverage/*
+geoserver/*
+src/uploads/*
