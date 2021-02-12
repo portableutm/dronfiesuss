@@ -7,7 +7,7 @@ import { getPayloadFromResponse } from "../utils/authUtils";
 import { genericTextLenghtValidation } from "../utils/validationUtils";
 import { generateNewVehicleMailHTML, generateNewVehicleMailText, generateAuthorizeVehicleMailHTML, generateAuthorizeVehicleMailText } from "../utils/mailContentUtil";
 import { sendMail } from "../services/mailService";
-import { multipleFiles, singleFile, getUrl} from "../services/uploadFileService";
+import { multipleFiles, singleFile, getUrl } from "../services/uploadFileService";
 
 
 import { adminEmail } from "../config/config";
@@ -166,12 +166,13 @@ export class VehicleController {
                 try {
                     let { role, username } = getPayloadFromResponse(response)
 
+
                     let dinaciaVehicle
-                    if(request.body.dinacia_vehicle_str){
-                        dinaciaVehicle = JSON.parse(request.body.dinacia_vehicle_str )
+                    if (request.body.dinacia_vehicle_str) {
+                        dinaciaVehicle = JSON.parse(request.body.dinacia_vehicle_str)
                     }
                     let operators
-                    if(request.body.operators_str){
+                    if (request.body.operators_str) {
                         operators = JSON.parse(request.body.operators_str)
                     }
                     delete request.body.dinacia_vehicle_str
@@ -184,10 +185,26 @@ export class VehicleController {
                     let v = JSON.parse(JSON.stringify(request.body)) //: VehicleReg = await this.dao.save(request.body);
                     v.dinacia_vehicle = dinaciaVehicle
                     v.operators = operators
-                    
+
+                    let isUpdate = v.uvin != undefined
+
                     delete v.date
-                    
+
                     v.registeredBy = { username: username } //AGREGAR
+
+                    if (isUpdate) {
+                        //is update
+                        console.log(`User: ${username}, role:${role}, vehicle:${v.uvin}`)
+                        let old_vehicle = await dao.one(v.uvin);
+                        console.log(`User: ${username}, role:${role}, vehicle:${v.uvin}, vehicle_owner:${old_vehicle.owner.username}`)
+
+                        if ((role == Role.ADMIN) || (old_vehicle.owner.username == username)) {
+                            v = Object.assign({}, old_vehicle, v)
+                        } else {
+                            response.status(401)
+                            return response.json(`Invalid permissions to update the vehicle: ${v.uvin}`)
+                        }
+                    }
 
                     if (v.owner_id) {
                         v.owner = { username: v.owner_id }
@@ -197,7 +214,7 @@ export class VehicleController {
                     if (errors.length == 0) {
 
                         if ((v.dinacia_vehicle != undefined) && !v.dinacia_vehicle.caa_registration) {
-                            if(v.dinacia_vehicle.year == undefined){
+                            if (v.dinacia_vehicle.year == undefined) {
                                 // console.log(`Fecha::${v.dinacia_vehicle.year} -> ${new Date().getFullYear()}`)
                                 v.dinacia_vehicle.year = new Date().getFullYear()
                             }
@@ -207,7 +224,7 @@ export class VehicleController {
                         //insert vehicle
                         let insertedVehicle = await dao.save(v)
                         try {
-                            sendMail(adminEmail, "Vehículo nuevo", generateNewVehicleMailText(v), generateNewVehicleMailHTML(v))
+                            sendMail(adminEmail, isUpdate ? "Vehículo actualizado" : "Vehículo nuevo", generateNewVehicleMailText(v), generateNewVehicleMailHTML(v))
                         } catch (error) {
 
                         }
@@ -319,7 +336,7 @@ function diancia_fields(request, dinaciaVehicle) {
                 // user.dinacia_user.permit_front_file_path = request.files.permit_front_file[0].path
                 dinaciaVehicle.remote_sensor_file_path = getUrl(request.files.remote_sensor_file[0].filename)
             }
-            
+
         }
     } catch (error) {
         console.error(error)
