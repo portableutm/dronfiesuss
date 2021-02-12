@@ -129,6 +129,7 @@ export function vehicleMailHtml(vehicle: VehicleReg) {
     ${vehicle.dinacia_vehicle?`
     <tr><td>Matrícula</td><td>${vehicle.dinacia_vehicle.caa_registration}</td></tr>
     <tr><td>Autorizado</td><td>${vehicle.dinacia_vehicle.authorized ? "Si" : "No"}</td></tr>
+    <tr><td>Id de sensor</td><td>${vehicle.dinacia_vehicle.remote_sensor_id}</td></tr>
 
     <tr><td>Envergadura</td><td>${vehicle.dinacia_vehicle.ceiling}</td></tr>
     <tr><td>Color</td><td>${vehicle.dinacia_vehicle.color}</td></tr>
