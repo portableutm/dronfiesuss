@@ -17,7 +17,7 @@ import { TEST_TIMEOUT } from "../conf";
 import { DinaciaUser } from "../../src/entities/DinaciaUser";
 import { DinaciaCompany } from "../../src/entities/DinaciaCompany";
 
-describe.only('>>> DINACIA User rest controller test <<<', function () {
+describe('>>> DINACIA User rest controller test <<<', function () {
 
     before(function (done) {
         this.timeout(TEST_TIMEOUT);
