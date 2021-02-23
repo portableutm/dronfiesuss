@@ -9,7 +9,7 @@ import { buildConfirmationLink, buildConfirmationHtmlMail, buildConfirmationText
 import { UserStatus, Status } from "../entities/UserStatus";
 import { UserStatusDao } from "../daos/UserStatusDao";
 import { frontEndUrl } from "../config/config";
-import { multipleFiles } from "../services/uploadFileService";
+import { getUrl, multipleFiles } from "../services/uploadFileService";
 
 
 export class UserController {
@@ -439,15 +439,21 @@ function diancia_fields(request, user) {
         if (request.files) {
             if (request.files.document_file) {
                 console.log(`Assign document_file_path`)
-                user.dinacia_user.document_file_path = request.files.document_file[0].path
+                // user.dinacia_user.document_file_path = request.files.document_file[0].path
+                user.dinacia_user.document_file_path = getUrl(request.files.document_file[0].filename)
+                // dinaciaVehicle.remote_sensor_file_path = getUrl(request.files.remote_sensor_file[0].filename)
+
             }
             if (request.files.permit_front_file) {
                 console.log(`Assign permit_front_file`)
-                user.dinacia_user.permit_front_file_path = request.files.permit_front_file[0].path
+                // user.dinacia_user.permit_front_file_path = request.files.permit_front_file[0].path
+                user.dinacia_user.permit_front_file_path = getUrl(request.files.permit_front_file[0].filename)
+
             }
             if (request.files.permit_back_file) {
                 console.log(`Assign permit_back_file`)
-                user.dinacia_user.permit_back_file_path = request.files.permit_back_file[0].path
+                // user.dinacia_user.permit_back_file_path = request.files.permit_back_file[0].path
+                user.dinacia_user.permit_back_file_path = getUrl(request.files.permit_back_file[0].filename)
             }
         }
     } catch (error) {
