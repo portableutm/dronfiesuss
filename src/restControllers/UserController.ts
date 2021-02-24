@@ -256,27 +256,7 @@ export class UserController {
 
                     const origin = request.headers.origin
 
-                    // console.log(`Dinacia user req: ${request.body.dinacia_user_str}`)
-                    let dinaciaUser = JSON.parse(request.body.dinacia_user_str || "{}")
-                    // console.log(`Dinacia user: ${request.body.dinacia_user_str}`)
-
-                    delete request.body.dinacia_user_str
-
-                    user.dinacia_user = dinaciaUser
-                    if (request.files) {
-                        if (request.files.document_file) {
-                            console.log(`Assign document_file_path`)
-                            user.dinacia_user.document_file_path = request.files.document_file[0].path
-                        }
-                        if (request.files.permit_front_file) {
-                            console.log(`Assign permit_front_file`)
-                            user.dinacia_user.permit_front_file_path = request.files.permit_front_file[0].path
-                        }
-                        if (request.files.permit_back_file) {
-                            console.log(`Assign permit_back_file`)
-                            user.dinacia_user.permit_back_file_path = request.files.permit_back_file[0].path
-                        }
-                    }
+                    diancia_fields(request, user)
 
                     let status = new UserStatus()
                     status.status = Status.UNCONFIRMED
@@ -456,6 +436,7 @@ function diancia_fields(request, user) {
                 user.dinacia_user.permit_back_file_path = getUrl(request.files.permit_back_file[0].filename)
             }
         }
+        console.log(JSON.stringify(user.dinacia_user, null, 2))
     } catch (error) {
         console.error(error)
     }

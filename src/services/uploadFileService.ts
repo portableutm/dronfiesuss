@@ -5,7 +5,9 @@ import { backendUrl, uploadFolder } from "../config/config";
 
 const uploadPath = uploadFolder
 
-export const getUrl = (filename:string) => `${backendUrl}uploads/${filename}`
+// export const getUrl = (filename:string) => `${backendUrl}uploads/${filename}`
+//save relative url path
+export const getUrl = (filename:string) => `/uploads/${filename}`
 
 
 // File: {"fieldname":"file","originalname":"prueba.txt","encoding":"7bit","mimetype":"text/plain"}
