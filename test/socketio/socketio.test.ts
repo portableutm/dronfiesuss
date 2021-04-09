@@ -20,40 +20,42 @@ import { Operations } from "../../src/data/operations_data";
 import { OperationState, Operation } from "../../src/entities/Operation";
 import { TEST_TIMEOUT } from "../conf";
 
-describe('>>> Socket io <<< ', function () {
+describe.skip('>>> Socket io <<< ', function () {
 
-    let API = "http://localhost:3000/"
+    let API = "https://localhost:3000/"
     // let app :App
-    let socket : SocketIOClient.Socket
+    let socket: SocketIOClient.Socket
     this.timeout(TEST_TIMEOUT);
 
     before(function (done) {
+        this.timeout(8000);
+
         initAsync()
-            .then(function(application:App){
+            .then(function (application: App) {
                 // app = application
-                app.listen(()=>{
-                    // console.log("><>< FINISH initAsync ><><")
+                app.listen(() => {
+                    console.log("><>< FINISH $$ initAsync ><><")
                     done()
                 });
             })
-            .catch(function(error){
+            .catch(function (error) {
                 done(error)
             })
-        
+
     })
 
-    after(function(done){
+    after(function (done) {
         this.timeout(TEST_TIMEOUT);
 
         console.log("** After ** ")
         try {
             socket.close()
-            app.stop(function(){
+            app.stop(function () {
                 // console.log("callback app close")
                 done()
             })
         }
-        catch(error){
+        catch (error) {
             console.log("error")
             done(error)
         }
@@ -64,20 +66,26 @@ describe('>>> Socket io <<< ', function () {
      */
     it("New position async ", function (done) {
 
-         socket = io(API, {
+        socket = io(API, {
             query: {
                 // token: token,
                 bypass: "a"
             },
-            
+
             // transports: ['websocket']
         });
+
         // socket.emit("chat message", {data:"data"})
         /* Initialize sockets */
         socket.on('new-position', function (info) {
             // console.log(`TesT: new position ${JSON.stringify(info)}`)
             done()
         });
+
+        console.log(`Socket io: ${socket.hasListeners('new-position')}`)
+
+        socket.emit("blaaa")
+
 
         // socket.on('chat message', function (info) {
         //     console.log(`TesT: new message ${JSON.stringify(info)}`)
@@ -105,6 +113,7 @@ describe('>>> Socket io <<< ', function () {
             .then(function (res) {
                 res.should.have.status(200);
                 res.body.should.have.property('id');
+                console.log(res.body)
             })
             .catch(done);
     });

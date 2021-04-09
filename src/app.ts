@@ -27,6 +27,7 @@ import { CronService } from "./services/cronServices";
 class App {
     public app: express.Application;
     public port: number;
+    public httpPort: number;
     public connection: Connection; // TypeORM connection to the database
     public connectionName: string;
     public io: SocketIO.Server;
@@ -49,6 +50,7 @@ class App {
         }
 
         this.port = Number.parseInt(process.env.PORT) //|| port;
+        this.httpPort = Number.parseInt(process.env.HTTP_PORT) //|| port;
         this.connectionName = process.env.DATABASE_CONNECTION_NAME //|| connName;
 
         console.log(`Constructor-> port:${this.port} connName:${this.connectionName}`)
@@ -201,6 +203,10 @@ class App {
         let io = this.io;
         io.use(authMiddleware)
 
+        // let http_io = Io(this.server)
+        // // let io = this.io;
+        // http_io.use(authMiddleware)
+
 
  
         // this.app.get('/form', function (req, res) {
@@ -208,9 +214,9 @@ class App {
         // });
 
 
-        this.server.listen(4000, () => {
+        this.server.listen(this.httpPort, () => {
             console.log(`Server running on port ${JSON.stringify(this.server.address())}`);
-            if (callback !== undefined) {
+            if (!this.initedRest && ( callback !== undefined)) {
                 this.initedRest = true;
                 callback();
             }
@@ -218,7 +224,7 @@ class App {
 
         this.https.listen(port, () => {
             console.log(`Server running on port ${JSON.stringify(this.https.address())}`);
-            if (callback !== undefined) {
+            if (!this.initedRest && (callback !== undefined)) {
                 console.log("Se inicio")
                 this.initedRest = true;
                 callback();
@@ -227,7 +233,7 @@ class App {
 
         this.io.on('connection', function (socket) {
             let token = socket.handshake.query.token;
-            // console.log(`On conection ${token}`)
+            console.log(`On conection ${token}`)
             let s = <any>socket
             // console.log(`On conection ${JSON.stringify(s.jwtPayload)}`)
             // console.log(`On conection   `)
