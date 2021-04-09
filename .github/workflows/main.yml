@@ -40,6 +40,7 @@ jobs:
         path: .env
         contents: |
           PORT=3000
+          HTTP_PORT=3010
           DATABASE_CONNECTION_NAME=dev
           JWTSECRET=asdfasdasdfasdff  
           JWT_EXPIRATION_TIME=1h
@@ -47,7 +48,11 @@ jobs:
           SMTP_PORT=1025
           SMTP_USERNAME=prueba@prueba.com
           SMTP_PASSWORD=prueba
+          SMTP_SECURE=false
+          SMTP_SELF_SIGNED=true
           TEST_TIMEOUT=5000
+          FRONT_END_URL=https://localhost/
+          BACKEND_URL=https://localhost:3000/
         write-mode:   overwrite
       
     - uses: DamianReeves/write-file-action@v1.0
