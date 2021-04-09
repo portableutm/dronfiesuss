@@ -251,10 +251,16 @@ describe('>>> Cron test <<<', function () {
                                 res.should.have.status(200);
                                 res.body.should.be.a('array');
                                 let mail = res.body[0]
+                                res.body.forEach(mail => {
+                                    console.log(`#### -> ${typeof mail.html}`)
+                                    if(mail.subject.includes(`Información sobre operación de dron que entro en estado no aceptado`) && (mail.html.includes(op.gufi))){
+                                        mail.subject.should.include('Información sobre operación de dron que entro en estado no ace');
+                                        mail.html.should.include('Zona 1');
+                                        mail.html.should.include(`uvr/${uvr.message_id}`);
+                                    }
+                                });
                                 // console.log(`Mail: ${JSON.stringify(mail, null, 2)} `)
-                                mail.subject.should.include('Informaci');
-                                mail.html.should.include('Zona 1');
-                                mail.html.should.include(`uvr/${uvr.message_id}`);
+                                
                                 uvrDao.remove(uvr.message_id).then(() => {
                                     done()
                                 }).catch(done)
@@ -262,7 +268,7 @@ describe('>>> Cron test <<<', function () {
                             })
                             .catch(done)
                         // done()
-                    }, 2000)
+                    }, 250)
                 }).catch(done)
             }).catch(done)
 
