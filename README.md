@@ -41,14 +41,6 @@ The `SMTP_URL`,` SMTP_USERNAME` and `SMTP_PASSWORD` are used to configure the se
 * Open the file “dronfiesuss/ormconfig.json” and set the credentials of your local database.
 * Run both projects, using the command “npm start” on the root folder of both projects.
 
-### TL;DR
-
-``` shell
-npm install #only first time
-docker-compose up
-docker-compose run postgres bash /scripts/test_database.bash #only first time
-npm run dev
-```
 
 ### Database configuration
 The database used is Postgres with the Postgis extension. This requires having an instance running either locally or externally and configuring it correctly in the `ormconfig.json` file. On the other hand, it is possible to configure the database with Docker. To leave the docker instance running you need to run `docker-compose up`. Also if you want to have an extra exclusive database for tests run the script `docker-compose run postgres bash / scripts / test_database.bash`
