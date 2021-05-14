@@ -6,6 +6,8 @@ import { UASVolumeReservationDao } from "../daos/UASVolumeReservationDao";
 import { RestrictedFlightVolumeDao } from "../daos/RestrictedFlightVolumeDao";
 import { sendOpertationStateChange } from "./asyncBrowserComunication";
 import { adminEmail, isDinacia } from "../config/config";
+import { logInfo, logError } from "../services/logger";
+
 
 
 // import { OperationIntersections } from "../entities/OperationIntersection";
@@ -63,7 +65,7 @@ export async function processOperations() {
                     break;
             }
         } catch (error) {
-            errorOnOperation(operation, "processOperations: "+ JSON.stringify(error))
+            errorOnOperation(operation, "processOperations: " + JSON.stringify(error))
         }
         // } catch (error) {
         //     console.error(`Error when processing operation: ${operation.gufi}\n${error}`)
@@ -327,8 +329,9 @@ function processPending(operation: Operation) {
     }
 }
 
-async function errorOnOperation(operation, error) {
-    console.error(`Error on operation: ${operation ? operation.gufi : "Operation sin GUFI"}`)
+async function errorOnOperation(operation, error: string) {
+    // console.error(`Error on operation: ${operation ? operation.gufi : "Operation sin GUFI"}`)
+    logError(`Error on operation: ${operation ? operation.gufi : "Operation sin GUFI"}\n${error}`)
     try {
         operation.state = OperationState.CLOSED
         operation.flight_comments = error
@@ -354,16 +357,18 @@ async function errorOnOperation(operation, error) {
 
 async function changeState(operation: Operation, newState: OperationState) {
     // console.log(`Change the state of ${operation.gufi} from ${operation.state} to ${newState}`)
+    let oldState = operation.state
     operation.state = newState
-    
+
     let result = await operationDao.save(operation)
     // console.log(`Send mail ${JSON.stringify(operation, null, 2)}`)
+    logInfo(`Operation ${operation.gufi} change state from ${oldState} to ${newState}`)
     let operationInfo = {
         gufi: operation.gufi,
         state: newState
     }
     sendMail(adminEmail, "Cambio de estado de operacion " + operation.name, operationMailHtml(operation), operationMailHtml(operation))
-    if(operation.owner && operation.owner.email){
+    if (operation.owner && operation.owner.email) {
         sendMail([operation.owner.email], "Cambio de estado de operacion " + operation.name, operationMailHtml(operation), operationMailHtml(operation))
     }
     sendOpertationStateChange(operationInfo)

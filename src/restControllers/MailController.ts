@@ -9,6 +9,7 @@ import { RestrictedFlightVolumeDao } from "../daos/RestrictedFlightVolumeDao";
 import { Operation, OperationState } from "../entities/Operation";
 import { sendMail } from "../services/mailService";
 import { frontEndUrl } from "../config/config";
+import { logError, logInfo } from "../services/logger";
 
 
 import { sendOpertationStateChange, sendNewOperation } from "../services/asyncBrowserComunication";
@@ -67,7 +68,7 @@ export class MailController {
 
 //FIXME the methods below must go to other files like mailUtils.js
 
-export const doSendMailForPendingOperation = async (dao:OperationDao, { receiverMail, gufi, bodyMail }, { role, username }) => {
+export const doSendMailForPendingOperation = async (dao: OperationDao, { receiverMail, gufi, bodyMail }, { role, username }) => {
   if (role == Role.ADMIN) {
     let operation = <Operation>await dao.one(gufi);
 
@@ -78,6 +79,7 @@ export const doSendMailForPendingOperation = async (dao:OperationDao, { receiver
       rfvs = rfvs.concat(await rfvDao.getRfvIntersections(operationVolume))
     }
     let rfvMsg = JSON.stringify(rfvs)  //rfvs.map(rfv=>JSON.stringify(rfv)).join("\n")
+    logInfo(`Operation ${operation.gufi} intersect with rfs: ${JSON.stringify(rfvs.map(rfv => rfv.id))}`)
 
     let subject = `Información sobre operación de dron que entro en estado pendiente`
     let body = makeBodyMail(bodyMail, operation, rfvMsg, rfvs)
@@ -90,21 +92,21 @@ export const doSendMailForPendingOperation = async (dao:OperationDao, { receiver
   }
 }
 
-export const doSendMailForOperation = async (dao:OperationDao, { receiverMail, gufi, bodyMail }, { role, username }) => {
+export const doSendMailForOperation = async (dao: OperationDao, { receiverMail, gufi, bodyMail }, { role, username }) => {
   // TODO: Implement in PER INSTANCE configuration - pilots sending emails for no reason is BAD.
   //if (role == Role.ADMIN) {
-    let operation = <Operation>await dao.one(gufi);
+  let operation = <Operation>await dao.one(gufi);
 
-    let subject = `Información sobre operación`
+  let subject = `Información sobre operación`
 
-    let htmlBody = ` <p>${bodyMail}</p>
+  let htmlBody = ` <p>${bodyMail}</p>
     ${operationMailHtml(operation)}`
 
-    // let body = makeBodyMail(bodyMail, operation, rfvMsg, rfvs)
-    // let htmlBody = makeHtmlBodyMail(bodyMail, operation, rfvMsg, rfvs)
+  // let body = makeBodyMail(bodyMail, operation, rfvMsg, rfvs)
+  // let htmlBody = makeHtmlBodyMail(bodyMail, operation, rfvMsg, rfvs)
 
-    sendMail(receiverMail, subject, htmlBody, htmlBody)
-    return false
+  sendMail(receiverMail, subject, htmlBody, htmlBody)
+  return false
   /*} else {
     return true
   }*/
@@ -115,7 +117,7 @@ export const doSendMailForNotAcceptedOperation = async (dao, { receiverMail, guf
   if (role == Role.ADMIN) {
     let operation = <Operation>await dao.one(gufi);
     const uvrDao = new UASVolumeReservationDao()
-    
+
     let uvrs = []
     let operations = []
     for (let index = 0; index < operation.operation_volumes.length; index++) {
@@ -124,9 +126,8 @@ export const doSendMailForNotAcceptedOperation = async (dao, { receiverMail, guf
       uvrs = uvrs.concat(await uvrDao.getUvrIntersections(operationVolume))
     }
 
-    // console.log(`+++++\n${JSON.stringify(uvrs, null, 2)}`)
+    logInfo(`Operation ${operation.gufi} intersect with operations: ${JSON.stringify(operations.map(op => op.gufi))} and with UVRs: ${JSON.stringify(uvrs.map(uvr => uvr.message_id))} `)
 
-  
     let subject = `Información sobre operación de dron que entro en estado no aceptado`
     let body = makeNotAcceptedTextMail(bodyMail, operation, operations, uvrs)
     let htmlBody = makeNotAcceptedHTMLMail(bodyMail, operation, operations, uvrs)
@@ -182,7 +183,7 @@ const makeBodyMail = (bodyMail, operation, rfvMsg, rfvs) => {
 
 
 const makeHtmlBodyMail = (bodyMail, operation, rfvMsg, rfvs) => {
-return `
+  return `
   <p>${bodyMail}</p>
   ${operationMailHtml(operation)}
  
@@ -215,28 +216,28 @@ const makeNotAcceptedTextMail = (bodyMail, operation, operations, uvrs) => {
   Número de vuelo ${operation.flight_number}
   Comentarios del vuelo ${operation.flight_comments}
   
-  ${operations.length > 0?operationText(): ""}
-  ${uvrs.length > 0?  uvrsText(): ""}`
+  ${operations.length > 0 ? operationText() : ""}
+  ${uvrs.length > 0 ? uvrsText() : ""}`
 }
 
 const makeNotAcceptedHTMLMail = (bodyMail, operation, operations, uvrs) => {
   let operationText = () => {
     return `<p>La misión no ha sido aceptada porque vuela en zonas donde ya existen las siguientes operaciones aprobadas:<p>
-    ${operations.map(op => { return `<span>${op.name}</span>`}).join("<br />")}`
+    ${operations.map(op => { return `<span>${op.name}</span>` }).join("<br />")}`
   }
 
   let uvrsText = () => {
     return `<p>La misión no ha sido aceptada porque vuela en zonas donde exiten las siguientes zonas reservadas:<p>
-    ${uvrs.map((uvr,idx) => { return `<a href="${getUrlUvr(uvr.message_id)}">Zona ${idx+1}</a> <small>(${getUrlUvr(uvr.message_id)})</small>` }).join("<br />")}
+    ${uvrs.map((uvr, idx) => { return `<a href="${getUrlUvr(uvr.message_id)}">Zona ${idx + 1}</a> <small>(${getUrlUvr(uvr.message_id)})</small>` }).join("<br />")}
     `
   }
-  
+
   return `<p>${bodyMail}</p>
   ${operationMailHtml(operation)}
 <br />
-  ${operations.length > 0?operationText(): ""}
+  ${operations.length > 0 ? operationText() : ""}
   <br />
-  ${uvrs.length > 0?  uvrsText(): ""}
+  ${uvrs.length > 0 ? uvrsText() : ""}
   `
 }
 
