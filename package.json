@@ -3,6 +3,7 @@
    "version": "0.1.0",
    "description": "Awesome project developed with TypeORM.",
    "devDependencies": {
+      "@proscom/typeorm-uml": "^1.2.0",
       "@types/mocha": "^5.2.7",
       "@types/node": "^8.0.29",
       "@types/socket.io-client": "^1.4.33",
@@ -52,7 +53,8 @@
       "ts-node": "3.3.0",
       "ts-node-dev": "^1.0.0-pre.44",
       "typeorm": "^0.2.31",
-      "typescript": "^3.3.3333"
+      "typescript": "^3.3.3333",
+      "winston": "^3.3.3"
    },
    "scripts": {
       "start": "ts-node src/index.ts",
@@ -69,7 +71,8 @@
       "typeorm": "ts-node  ./node_modules/typeorm/cli.js",
       "typeorm:migration:create": "npm run typeorm -- migration:create -n prueba",
       "typeorm:migration:generate": "npm run typeorm -- migration:generate -n prueba",
-      "dev-mail": "fake-smtp-server -- -a prueba@prueba.com:prueba  --debug"
+      "dev-mail": "fake-smtp-server -- -a prueba@prueba.com:prueba  --debug",
+      "db:diagram": "ts-node ./node_modules/.bin/typeorm-uml ormconfig.json"
    },
    "xo": {
       "prettier": true,
