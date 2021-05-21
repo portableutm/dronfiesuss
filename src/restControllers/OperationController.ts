@@ -239,6 +239,36 @@ export class OperationController {
     }
   }
 
+  async closeOperation(request: Request, response: Response, next: NextFunction) {
+    let gufi = request.params.id
+    let newState = OperationState.CLOSED
+
+    try {
+      let { role, username } = getPayloadFromResponse(response)
+      let operation = await this.dao.one(gufi);
+
+      //can close only owned operations
+      if (operation.owner && operation.owner.username == username) {
+        let result = await this.dao.updateState(gufi, newState);
+        changeState({
+          gufi: gufi,
+          state: newState
+        })
+
+        sendMail(adminEmail, "Cambio de estado de operacion " + operation.name, operationMailHtml(operation), operationMailHtml(operation))
+        if (operation.owner && operation.owner.email) {
+          sendMail([operation.owner.email], "Cambio de estado de operacion " + operation.name, operationMailHtml(operation), operationMailHtml(operation))
+        }
+
+        return response.json(result);
+      } else {
+        return response.sendStatus(401)
+      }
+    } catch (error) {
+      return response.sendStatus(404)
+    }
+  }
+
   async updateState(request: Request, response: Response, next: NextFunction) {
     let gufi = request.params.id
     let newState = request.body.state
@@ -248,7 +278,6 @@ export class OperationController {
       let { role, username } = getPayloadFromResponse(response)
 
       if (role == Role.ADMIN) {
-        // let result = await this.dao.updateStateWhereState(gufi, OperationState.PENDING, OperationState.ACCEPTED);
         let result = await this.dao.updateState(gufi, newState);
         changeState({
           gufi: gufi,
@@ -256,12 +285,9 @@ export class OperationController {
         })
 
         let operation = await this.dao.one(gufi);
-        let operationInfo = {
-          gufi: operation.gufi,
-          state: newState
-        }
+       
         sendMail(adminEmail, "Cambio de estado de operacion " + operation.name, operationMailHtml(operation), operationMailHtml(operation))
-        sendOpertationStateChange(operationInfo)
+
         if (operation.owner && operation.owner.email) {
           sendMail([operation.owner.email], "Cambio de estado de operacion " + operation.name, operationMailHtml(operation), operationMailHtml(operation))
         }

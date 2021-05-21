@@ -93,6 +93,13 @@ let operations = [
         action: "updateState",
         middlewares: [checkJwt]
     },
+    {
+        method: "post",
+        route: `/operation/:id/close`,
+        controller: OperationController,
+        action: "closeOperation",
+        middlewares: [checkJwt]
+    },
     ...doRoutes("operation", OperationController)]
 
 let user = [
