@@ -32,7 +32,6 @@ class App {
     public connectionName: string;
     public io: SocketIO.Server;
     private server: Server;
-    // private https: any;
     private https: HttpsServer;
 
     public initedDB: boolean = false;
@@ -50,7 +49,6 @@ class App {
         }
 
         this.port = Number.parseInt(process.env.PORT) //|| port;
-        this.httpPort = Number.parseInt(process.env.HTTP_PORT) //|| port;
         this.connectionName = process.env.DATABASE_CONNECTION_NAME //|| connName;
 
         console.log(`Constructor-> port:${this.port} connName:${this.connectionName}`)
@@ -202,25 +200,7 @@ class App {
         this.io = Io(this.https)
         let io = this.io;
         io.use(authMiddleware)
-
-        // let http_io = Io(this.server)
-        // // let io = this.io;
-        // http_io.use(authMiddleware)
-
-
- 
-        // this.app.get('/form', function (req, res) {
-        //     res.sendFile(__dirname + '/pruebaForm/forms.html');
-        // });
-
-
-        this.server.listen(this.httpPort, () => {
-            console.log(`Server running on port ${JSON.stringify(this.server.address())}`);
-            if (!this.initedRest && ( callback !== undefined)) {
-                this.initedRest = true;
-                callback();
-            }
-        });
+        
 
         this.https.listen(port, () => {
             console.log(`Server running on port ${JSON.stringify(this.https.address())}`);
